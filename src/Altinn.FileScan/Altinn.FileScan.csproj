@@ -28,7 +28,6 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
-
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <CodeAnalysisRuleSet>..\..\Altinn3.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
