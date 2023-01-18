@@ -37,7 +37,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
     services.AddHealthChecks().AddCheck<HealthCheck>("filescan_health_check");
-
 }
 
 void Configure(IConfiguration config)
@@ -55,9 +54,6 @@ void Configure(IConfiguration config)
     app.UseAuthentication();
     app.UseAuthorization();
 
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapControllers();
-        endpoints.MapHealthChecks("/health");
-    });
+    app.MapControllers();
+    app.MapHealthChecks("/health");
 }
