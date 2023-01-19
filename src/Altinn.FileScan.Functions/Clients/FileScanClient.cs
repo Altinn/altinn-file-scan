@@ -46,7 +46,7 @@ namespace Altinn.FileScan.Functions.Clients
         {
             StringContent httpContent = new(dataElement, Encoding.UTF8, "application/json");
 
-            string endpointUrl = "xxxxxxx";
+            string endpointUrl = "dataelement";
 
             var accessToken = await GenerateAccessToken();
 
