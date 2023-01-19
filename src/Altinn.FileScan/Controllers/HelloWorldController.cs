@@ -5,7 +5,7 @@ namespace FileScan.Controllers
     /// <summary>
     /// Collection of endpoint related to hello worlds
     /// </summary>
-    [Route("file-scan/api/v1/hello")]
+    [Route("filescan/api/v1/hello")]
     [ApiController]
     public class HelloWorldController : ControllerBase
     {
