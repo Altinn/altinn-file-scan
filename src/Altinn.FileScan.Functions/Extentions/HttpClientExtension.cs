@@ -18,18 +18,14 @@ namespace Altinn.FileScan.Functions.Extensions
         /// <param name="content">The http content</param>
         /// <param name="platformAccessToken">The platformAccess tokens</param>
         /// <returns>A HttpResponseMessage</returns>
-        public static Task<HttpResponseMessage> PostAsync(this HttpClient httpClient, string requestUri, HttpContent content, string platformAccessToken = null)
+        public static Task<HttpResponseMessage> PostAsync(this HttpClient httpClient, string requestUri, HttpContent content, string platformAccessToken)
         {
             HttpRequestMessage request = new(HttpMethod.Post, new Uri(requestUri, UriKind.Relative))
             {
                 Content = content
             };
 
-            if (!string.IsNullOrEmpty(platformAccessToken))
-            {
-                request.Headers.Add("PlatformAccessToken", platformAccessToken);
-            }
-
+            request.Headers.Add("PlatformAccessToken", platformAccessToken);
             return httpClient.SendAsync(request, CancellationToken.None);
         }
     }

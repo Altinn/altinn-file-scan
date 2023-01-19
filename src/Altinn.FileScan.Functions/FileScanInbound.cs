@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Altinn.FileScan.Functions.Clients.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -27,10 +28,10 @@ namespace Altinn.FileScan.Functions
         /// Retrieves dataElements from file-scna-inbound queue and send to FileScans rest-api
         /// </summary>
         [Function("FileScanInbound")]
-        public void Run([QueueTrigger("file-scan-inbound", Connection = "QueueStorage")] string dataElement)
+        public async Task Run([QueueTrigger("file-scan-inbound", Connection = "QueueStorage")] string dataElement)
         {
-            // Post to the filescan-component using FileScanClient
             _logger.LogInformation($"C# Queue trigger function processed: {dataElement}");
+            await _fileScanClient.PostDataElement(dataElement);
         }
     }
 }

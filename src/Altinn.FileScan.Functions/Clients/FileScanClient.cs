@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.FileScan.Functions.Clients.Interfaces;
@@ -42,7 +43,7 @@ namespace Altinn.FileScan.Functions.Clients
         }
 
         /// <inheritdoc/>
-        public async Task PostFileScan(string dataElement)
+        public async Task PostDataElement(string dataElement)
         {
             StringContent httpContent = new(dataElement, Encoding.UTF8, "application/json");
 
@@ -53,7 +54,9 @@ namespace Altinn.FileScan.Functions.Clients
             HttpResponseMessage response = await _client.PostAsync(endpointUrl, httpContent, accessToken);
             if (!response.IsSuccessStatusCode)
             {
-                var msg = $"// Post to FileScan failed with status code {response.StatusCode}";
+                var n = JsonNode.Parse(dataElement);
+                string dataElementId = n["id"].ToString();
+                var msg = $"// Post to FileScan for id {dataElementId}failed with status code {response.StatusCode}";
                 _logger.LogError(msg);
                 throw new HttpRequestException(msg);
             }
