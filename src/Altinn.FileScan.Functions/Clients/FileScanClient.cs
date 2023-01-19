@@ -65,7 +65,6 @@ namespace Altinn.FileScan.Functions.Clients
         /// <summary>
         /// Generate a fresh access token using the client certificate
         /// </summary>
-        /// <returns></returns>
         protected async Task<string> GenerateAccessToken()
         {
             string certBase64 =
