@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Altinn.Platform.Storage.Interface.Models;
 
 namespace Altinn.FileScan.Functions.Clients.Interfaces
 {

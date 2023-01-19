@@ -17,13 +17,6 @@ namespace Altinn.FileScan.Functions
     public class Program
     {
         /// <summary>
-        /// Empty constructor
-        /// </summary>
-        protected Program()
-        {
-        }
-
-        /// <summary>
         /// Setup project configuration
         /// </summary>
         public static void Main()
