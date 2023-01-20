@@ -2,8 +2,11 @@ using System.Reflection;
 
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
+using Altinn.Common.AccessToken.Services;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Health;
+
+using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
@@ -12,6 +15,8 @@ using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -141,11 +146,35 @@ void ConfigureLogging(ILoggingBuilder logging)
 
 void ConfigureServices(IServiceCollection services, IConfiguration config)
 {
+    services.AddControllers();
+    services.AddMemoryCache();
     services.AddHealthChecks().AddCheck<HealthCheck>("filescan_health_check");
 
-    services.AddControllers();
+    services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
+    services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+    services.AddSingleton<ISigningKeysResolver, SigningKeysResolver>();
 
-    services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
+    services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
+          .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
+          {
+              GeneralSettings generalSettings = config.GetSection("GeneralSettings").Get<GeneralSettings>();
+              options.JwtCookieName = generalSettings.JwtCookieName;
+              options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
+              options.TokenValidationParameters = new TokenValidationParameters
+              {
+                  ValidateIssuerSigningKey = true,
+                  ValidateIssuer = false,
+                  ValidateAudience = false,
+                  RequireExpirationTime = true,
+                  ValidateLifetime = true,
+                  ClockSkew = TimeSpan.Zero
+              };
+
+              if (builder.Environment.IsDevelopment())
+              {
+                  options.RequireHttpsMetadata = false;
+              }
+          });
 
     services.AddAuthorization(options =>
     {
@@ -166,6 +195,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {applicationInsightsConnectionString}", applicationInsightsConnectionString);
     }
 
+    services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
 
 void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
