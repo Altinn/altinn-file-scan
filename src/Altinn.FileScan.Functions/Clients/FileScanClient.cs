@@ -57,7 +57,7 @@ namespace Altinn.FileScan.Functions.Clients
                 var n = JsonNode.Parse(dataElement);
                 string dataElementId = n["id"].ToString();
                 var msg = $"// Post to FileScan for id {dataElementId}failed with status code {response.StatusCode}";
-                _logger.LogError(msg);
+                _logger.LogError("{msg}", msg);
                 throw new HttpRequestException(msg);
             }
         }

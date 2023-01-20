@@ -9,7 +9,7 @@
     },
     "logLevel": {
       "default": "Information",
-      "Function": "Debug",
+      "Function": "Information",
       "Altinn.FileScan.Functions.FileScanInbound": "Information"
     }
   },

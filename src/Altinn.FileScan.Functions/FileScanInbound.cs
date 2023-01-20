@@ -30,7 +30,7 @@ namespace Altinn.FileScan.Functions
         [Function("FileScanInbound")]
         public async Task Run([QueueTrigger("file-scan-inbound", Connection = "QueueStorage")] string dataElement)
         {
-            _logger.LogInformation($"C# Queue trigger function processed: {dataElement}");
+            _logger.LogInformation("C# Queue trigger function processed: {dataElement}", dataElement);
             await _fileScanClient.PostDataElement(dataElement);
         }
     }
