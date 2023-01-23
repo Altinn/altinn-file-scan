@@ -13,6 +13,7 @@ using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
 
+using AltinnCore.Authentication.Constants;
 using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
@@ -162,8 +163,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddHealthChecks().AddCheck<HealthCheck>("filescan_health_check");
 
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
-    services.Configure<KeyVaultSettings>(config.GetSection("kvSettings"));
 
+    services.Configure<Altinn.Common.AccessToken.Configuration.AccessTokenSettings>(config.GetSection("kvSettings"));
     services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
