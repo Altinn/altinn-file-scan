@@ -13,7 +13,6 @@ using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
 
-using AltinnCore.Authentication.Constants;
 using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
@@ -88,7 +87,7 @@ async Task SetConfigurationProviders(ConfigurationManager config)
 
 async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager config)
 {
-    Altinn.Common.AccessToken.Configuration.KeyVaultSettings keyVaultSettings = new();
+    KeyVaultSettings keyVaultSettings = new();
     config.GetSection("kvSetting").Bind(keyVaultSettings);
     if (!string.IsNullOrEmpty(keyVaultSettings.ClientId) &&
         !string.IsNullOrEmpty(keyVaultSettings.TenantId) &&
@@ -96,7 +95,6 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
         !string.IsNullOrEmpty(keyVaultSettings.SecretUri))
     {
         logger.LogInformation("Program // Configure key vault client // App");
-        logger.LogInformation($"Prorgram // Key Vault info // vault uri {keyVaultSettings.SecretUri}");
         Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", keyVaultSettings.ClientId);
         Environment.SetEnvironmentVariable("AZURE_CLIENT_SECRET", keyVaultSettings.ClientSecret);
         Environment.SetEnvironmentVariable("AZURE_TENANT_ID", keyVaultSettings.TenantId);
@@ -163,8 +161,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddHealthChecks().AddCheck<HealthCheck>("filescan_health_check");
 
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
-
-    services.Configure<Altinn.Common.AccessToken.Configuration.AccessTokenSettings>(config.GetSection("kvSettings"));
+    services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
+    services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
