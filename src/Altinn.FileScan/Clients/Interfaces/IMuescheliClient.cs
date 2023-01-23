@@ -11,6 +11,6 @@ namespace Altinn.FileScan.Clients.Interfaces
         /// Sends a file stream to the clam AV component for scanning
         /// </summary>
         /// <returns>The malware scan result</returns>
-        public Task<ScanResult> ScanStream(Stream stream);
+        public Task<ScanResult> ScanStream(Stream stream, string filename);
     }
 }

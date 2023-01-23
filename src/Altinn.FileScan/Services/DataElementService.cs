@@ -31,14 +31,10 @@ namespace Altinn.FileScan.Services
         /// <inheritdoc/>
         public async Task<bool> Scan(DataElement dataElement)
         {
-            // identify app owner & retrieve access token
-            // retrieve blob
-            _logger.LogInformation(" // DataElementService // Scan // Retrieving blob from repository");
             string org = dataElement.BlobStoragePath.Split("/")[0];
             var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
 
-            // send for scan            
-            ScanResult scanResult = await _muescheliClient.ScanStream(stream);
+            ScanResult scanResult = await _muescheliClient.ScanStream(stream, dataElement.Filename);
 
             FileScanResult fileScanResult = FileScanResult.Pending;
 
@@ -53,7 +49,7 @@ namespace Altinn.FileScan.Services
                 case ScanResult.ERROR:
                 case ScanResult.PARSE_ERROR:
                 case ScanResult.UNDEFINED:
-                    return HandleMuesliErrorResult(scanResult);
+                    return HandleMuesliErrorResult(dataElement, scanResult);
             }
 
             await _storageClient.PatchDataElementFileScanResult(dataElement.Id, fileScanResult);
@@ -61,10 +57,9 @@ namespace Altinn.FileScan.Services
             return true;
         }
 
-        private bool HandleMuesliErrorResult(ScanResult result)
+        private bool HandleMuesliErrorResult(DataElement dataElement, ScanResult result)
         {
-            // throw exception? 
-            return false;
+            throw new Exception("Error when scanning document");
         }
     }
 }

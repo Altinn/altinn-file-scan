@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
+using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
 
 using Microsoft.Extensions.Options;
@@ -32,27 +34,29 @@ namespace Altinn.FileScan.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ScanResult> ScanStream(Stream stream)
+        public async Task<ScanResult> ScanStream(Stream stream, string filename)
         {
             string endpoint = $"scan";
 
             using var content = new MultipartFormDataContent
             {
-                { new StreamContent(stream), "file", "Test.txt" }
+                { new StreamContent(stream), "file", filename }
             };
 
             HttpResponseMessage response = await _client.PostAsync(endpoint, content);
 
-            _logger.LogInformation($"//Muescheli client // Scan stream // Response: {JsonSerializer.Serialize(response)}");
             _logger.LogInformation($"//Muescheli client // Scan stream // Response: {await response.Content.ReadAsStringAsync()}");
 
-            /*  if (!response.IsSuccessStatusCode)
-              {
-                  throw new Exception();
-              }*/
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new MuescheliHttpException();
+            }
 
-            // TODO: handle response object
-            return ScanResult.OK;
+            var jsonContent = await response.Content.ReadAsStringAsync();
+
+            MuescheliResponse r = JsonSerializer.Deserialize<MuescheliResponse>(jsonContent);
+
+            return r.Result;
         }
     }
 }
