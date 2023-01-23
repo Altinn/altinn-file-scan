@@ -137,6 +137,7 @@ void ConfigureLogging(ILoggingBuilder logging)
         // Optional: Apply filters to control what logs are sent to Application Insights.
         // The following configures LogLevel Information or above to be sent to
         // Application Insights for all categories.
+        // TODO: Adjust back to warning
         logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
 
         // Adding the filter below to ensure logs of all severity from Program.cs
@@ -148,8 +149,10 @@ void ConfigureLogging(ILoggingBuilder logging)
         // If not application insight is available log to console
         logging.AddFilter("Microsoft", LogLevel.Warning);
         logging.AddFilter("System", LogLevel.Warning);
-        logging.AddConsole();
     }
+
+    // Log to console regardless of app insights
+    logging.AddConsole();
 }
 
 void ConfigureServices(IServiceCollection services, IConfiguration config)

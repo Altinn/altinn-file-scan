@@ -4,6 +4,8 @@ using Altinn.FileScan.Models;
 
 using Microsoft.Extensions.Options;
 
+using System.Text.Json;
+
 namespace Altinn.FileScan.Clients
 {
     /// <summary>
@@ -37,12 +39,13 @@ namespace Altinn.FileScan.Clients
 
             HttpResponseMessage response = await _client.PostAsync(endpoint, httpContent);
 
+            _logger.LogInformation($"//Muescheli client // Scan stream // Response: {JsonSerializer.Serialize(response)}");
             _logger.LogInformation($"//Muescheli client // Scan stream // Response: {await response.Content.ReadAsStringAsync()}");
 
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception();
-            }
+            /*  if (!response.IsSuccessStatusCode)
+              {
+                  throw new Exception();
+              }*/
 
             // TODO: handle response object
             return ScanResult.OK;
