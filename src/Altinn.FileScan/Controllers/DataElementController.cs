@@ -14,7 +14,7 @@ namespace Altinn.FileScan.Controllers
     public class DataElementController : ControllerBase
     {
         private readonly IDataElement _dataElement;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataElementController"/> class.
         /// </summary>
@@ -27,7 +27,7 @@ namespace Altinn.FileScan.Controllers
         /// <summary>
         /// Post a data element for malware scan
         /// </summary>
-        /// [Authorize(Policy = "PlatformAccess")]
+        [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
