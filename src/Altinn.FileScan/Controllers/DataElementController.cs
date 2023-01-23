@@ -4,8 +4,6 @@ using Altinn.Platform.Storage.Interface.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using System.Diagnostics;
-
 namespace Altinn.FileScan.Controllers
 {
     /// <summary>

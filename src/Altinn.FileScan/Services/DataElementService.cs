@@ -35,7 +35,7 @@ namespace Altinn.FileScan.Services
             try
             {
                 string org = dataElement.BlobStoragePath.Split("/")[0];
-                var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
+                (var stream, var contentHash) = await _repository.GetBlob(org, dataElement.BlobStoragePath);
 
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, dataElement.Filename);
 
@@ -53,9 +53,16 @@ namespace Altinn.FileScan.Services
                     case ScanResult.PARSE_ERROR:
                     case ScanResult.UNDEFINED:
                         _logger.LogError("Scan of {dataElementId} completed with unexpected result {scanResult}.", dataElement.Id, scanResult);
-                        return HandleMuesliErrorResult(dataElement, scanResult);
+                        throw MuescheliScanResultException.Create(dataElement.Id, scanResult);
                 }
 
+                FileScanStatus status = new()
+                {
+                    ContentHash = contentHash,
+                    FileScanResult = fileScanResult
+                };
+
+                // send status or result? 
                 await _storageClient.PatchDataElementFileScanResult(dataElement.Id, fileScanResult);
 
                 return true;
@@ -65,11 +72,6 @@ namespace Altinn.FileScan.Services
                 _logger.LogError(e, "Scan of {dataElementId} failed with a http exception.", dataElement.Id);
                 throw;
             }
-        }
-
-        private bool HandleMuesliErrorResult(DataElement dataElement, ScanResult result)
-        {
-            throw MuescheliScanResultException.Create(dataElement.Id, result);
         }
     }
 }
