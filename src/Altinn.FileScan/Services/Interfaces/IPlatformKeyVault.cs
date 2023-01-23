@@ -10,7 +10,6 @@
         /// </summary>
         /// <param name="certId">The id of the secret.</param>
         /// <returns>The certificate value.</returns>
-        Task<string> GetCertificateAsync( string certId);
-
+        Task<string> GetCertificateAsync(string certId);
     }
 }

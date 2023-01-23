@@ -16,14 +16,16 @@ namespace Altinn.FileScan.Repository
     {
         private readonly AppOwnerAzureStorageConfig _storageConfig;
         private readonly ISasTokenProvider _sasTokenProvider;
+        private readonly ILogger<IAppOwnerBlob> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppOwnerBlobRepository"/> class.
         /// </summary>
-        public AppOwnerBlobRepository(ISasTokenProvider sasTokenProvider, IOptions<AppOwnerAzureStorageConfig> storageConfig)
+        public AppOwnerBlobRepository(ISasTokenProvider sasTokenProvider, IOptions<AppOwnerAzureStorageConfig> storageConfig, ILogger<IAppOwnerBlob> logger)
         {
-            _sasTokenProvider = sasTokenProvider; 
+            _sasTokenProvider = sasTokenProvider;
             _storageConfig = storageConfig.Value;
+            _logger = logger;
         }
 
         /// <inheritdoc/>
@@ -31,6 +33,7 @@ namespace Altinn.FileScan.Repository
         {
             BlobClient blockBlob = await CreateBlobClient(org, blobPath);
 
+            _logger.LogInformation("// AppOwnerBlobRepository // GetBlob // Blob client created ok");
             Azure.Response<BlobDownloadInfo> response = await blockBlob.DownloadAsync();
 
             return response.Value.Content;

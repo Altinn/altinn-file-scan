@@ -42,6 +42,5 @@ namespace Altinn.FileScan.Services
                 X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable));
             return accessToken;
         }
-
     }
 }

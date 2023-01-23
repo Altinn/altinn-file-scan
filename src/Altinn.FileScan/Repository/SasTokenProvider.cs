@@ -27,14 +27,7 @@ namespace Altinn.FileScan.Repository
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SasTokenProvider"/> class with the given <see cref="KeyVaultSettings"/>.
-        /// </summary>
-        /// <param name="keyVaultWrapper">
-        /// An instance of <see cref="KeyVaultClientWrapper"/> with a principal with access to the application owner key vault(s).</param>
-        /// <param name="storageConfiguration">
-        /// The <see cref="AzureStorageConfiguration"/> with information about the key vault and storage account formats.
-        /// The formats is used to generate the actual URI and storage account names based on organisation id.
-        /// </param>
-        /// <param name="logger">A logger that can be used to write to a log.</param>
+        /// </summary>       
         public SasTokenProvider(
             IAppOwnerKeyVault keyVault,
             IOptions<AppOwnerAzureStorageConfig> storageConfiguration,

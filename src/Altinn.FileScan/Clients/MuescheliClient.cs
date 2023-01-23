@@ -45,7 +45,6 @@ namespace Altinn.FileScan.Clients
             }
 
             // TODO: handle response object
-
             return ScanResult.OK;
         }
     }

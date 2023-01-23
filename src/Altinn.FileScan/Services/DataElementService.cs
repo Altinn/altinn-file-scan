@@ -15,15 +15,17 @@ namespace Altinn.FileScan.Services
         private readonly IAppOwnerBlob _repository;
         private readonly IStorageClient _storageClient;
         private readonly IMuescheliClient _muescheliClient;
+        private readonly ILogger<IDataElement> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataElementService"/> class.
         /// </summary>
-        public DataElementService(IAppOwnerBlob repository, IStorageClient storageClient, IMuescheliClient muescheliClient)
+        public DataElementService(IAppOwnerBlob repository, IStorageClient storageClient, IMuescheliClient muescheliClient, ILogger<IDataElement> logger)
         {
             _repository = repository;
             _storageClient = storageClient;
             _muescheliClient = muescheliClient;
+            _logger = logger;
         }
 
         /// <inheritdoc/>
@@ -31,6 +33,7 @@ namespace Altinn.FileScan.Services
         {
             // identify app owner & retrieve access token
             // retrieve blob
+            _logger.LogInformation(" // DataElementService // Scan // Retrieving blob from repository");
             string org = dataElement.BlobStoragePath.Split("/")[0];
             var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
 
