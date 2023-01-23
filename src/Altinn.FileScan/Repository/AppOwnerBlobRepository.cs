@@ -41,30 +41,30 @@ namespace Altinn.FileScan.Repository
 
         private async Task<BlobClient> CreateBlobClient(string org, string blobPath)
         {
-            if (!_storageConfig.AccountName.StartsWith("devstoreaccount1"))
+            if (_storageConfig.AccountName == "devstoreaccount1")
             {
-                string sasToken = await _sasTokenProvider.GetSasToken(org);
+                StorageSharedKeyCredential storageCredentials = new StorageSharedKeyCredential(_storageConfig.AccountName, _storageConfig.AccountKey);
+                Uri storageUrl = new Uri(_storageConfig.BlobEndPoint);
+                BlobServiceClient commonBlobClient = new BlobServiceClient(storageUrl, storageCredentials);
+                BlobContainerClient blobContainerClient = commonBlobClient.GetBlobContainerClient(_storageConfig.StorageContainer);
 
-                string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
-                string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
-
-                UriBuilder fullUri = new UriBuilder
-                {
-                    Scheme = "https",
-                    Host = $"{accountName}.blob.core.windows.net",
-                    Path = $"{containerName}/{blobPath}",
-                    Query = sasToken
-                };
-
-                return new BlobClient(fullUri.Uri);
+                return blobContainerClient.GetBlobClient(blobPath);
             }
 
-            StorageSharedKeyCredential storageCredentials = new StorageSharedKeyCredential(_storageConfig.AccountName, _storageConfig.AccountKey);
-            Uri storageUrl = new Uri(_storageConfig.BlobEndPoint);
-            BlobServiceClient commonBlobClient = new BlobServiceClient(storageUrl, storageCredentials);
-            BlobContainerClient blobContainerClient = commonBlobClient.GetBlobContainerClient(_storageConfig.StorageContainer);
+            string sasToken = await _sasTokenProvider.GetSasToken(org);
 
-            return blobContainerClient.GetBlobClient(blobPath);
+            string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
+            string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
+
+            UriBuilder fullUri = new UriBuilder
+            {
+                Scheme = "https",
+                Host = $"{accountName}.blob.core.windows.net",
+                Path = $"{containerName}/{blobPath}",
+                Query = sasToken
+            };
+
+            return new BlobClient(fullUri.Uri);
         }
     }
 }
