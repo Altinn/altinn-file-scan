@@ -26,7 +26,7 @@ namespace Altinn.FileScan.Clients
            IOptions<PlatformSettings> settings)
         {
             _client = httpClient;
-            _client.BaseAddress = new Uri(settings.Value.ApiClamAvEndpoint);
+            _client.BaseAddress = new Uri(settings.Value.ApiMuescheliEndpoint);
 
             _serializerOptions = new JsonSerializerOptions
             {
