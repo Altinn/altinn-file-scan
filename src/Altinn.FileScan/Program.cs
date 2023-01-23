@@ -3,6 +3,7 @@ using System.Reflection;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
+using Altinn.Common.AccessTokenClient.Services;
 using Altinn.FileScan.Clients;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
@@ -167,6 +168,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<ISigningKeysResolver, SigningKeysResolver>();
 
     services.AddSingleton<IAccessToken, AccessTokenService>();
+    services.AddSingleton<IAccessTokenGenerator, AccessTokenGenerator>();
+
     services.AddSingleton<IDataElement, DataElementService>();
 
     services.AddSingleton<IAppOwnerKeyVault, AppOwnerKeyVaultService>();
