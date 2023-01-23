@@ -13,8 +13,8 @@ namespace Altinn.FileScan.Configuration
         public string ApiStorageEndpoint { get; set; }
 
         /// <summary>
-        /// Sets or sets the url for the Clam AV api Endpoint
+        /// Sets or sets the url for the Muescheli API endpoint
         /// </summary>
-        public string ApiClamAvEndpoint { get;  set; }
+        public string ApiMuescheliEndpoint { get;  set; }
     }
 }

@@ -3,12 +3,12 @@
 namespace Altinn.FileScan.Clients.Interfaces
 {
     /// <summary>
-    /// Describes the implementation of a Clam AV client
+    /// Interface containing all client actions for the Altinn Muescheli Client
     /// </summary>
     public interface IMuescheliClient
     {
         /// <summary>
-        /// Sends a file stream to the clam AV component for scanning
+        /// Send a request to scan the file provided in the stream
         /// </summary>
         /// <returns>The malware scan result</returns>
         public Task<ScanResult> ScanStream(Stream stream, string filename);
