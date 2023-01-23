@@ -19,7 +19,6 @@ namespace Altinn.FileScan.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="DataElementController"/> class.
         /// </summary>
-        /// <param name="dataElement">The data element service</param>
         public DataElementController(IDataElement dataElement, ILogger<DataElementController> logger)
         {
             _dataElement = dataElement;
@@ -36,7 +35,13 @@ namespace Altinn.FileScan.Controllers
         public async Task<ActionResult> Scan(DataElement dataElement)
         {
             _logger.LogInformation(" // DataElementController // Scan // Calling service to scan dataElement");
-            await _dataElement.Scan(dataElement);
+            bool successful = await _dataElement.Scan(dataElement);
+
+            if (!successful)
+            { 
+                return StatusCode(500);
+            }
+
             return Ok();
         }
     }
