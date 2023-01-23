@@ -29,7 +29,7 @@ namespace Altinn.FileScan.Controllers
         /// <summary>
         /// Post a data element for malware scan
         /// </summary>
-        /// [Authorize(Policy = "PlatformAccess")]
+        [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]

@@ -1,10 +1,10 @@
-﻿using Altinn.FileScan.Clients.Interfaces;
+﻿using System.Text.Json;
+
+using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Models;
 
 using Microsoft.Extensions.Options;
-
-using System.Text.Json;
 
 namespace Altinn.FileScan.Clients
 {
