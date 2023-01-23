@@ -35,9 +35,13 @@ namespace Altinn.FileScan.Clients
         public async Task<ScanResult> ScanStream(Stream stream)
         {
             string endpoint = $"scan";
-            StreamContent httpContent = new StreamContent(stream);
 
-            HttpResponseMessage response = await _client.PostAsync(endpoint, httpContent);
+            MultipartContent c = new MultipartContent
+            {
+                new StreamContent(stream)
+            };
+
+            HttpResponseMessage response = await _client.PostAsync(endpoint, c);
 
             _logger.LogInformation($"//Muescheli client // Scan stream // Response: {JsonSerializer.Serialize(response)}");
             _logger.LogInformation($"//Muescheli client // Scan stream // Response: {await response.Content.ReadAsStringAsync()}");
