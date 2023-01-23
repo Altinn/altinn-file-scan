@@ -40,18 +40,18 @@ namespace Altinn.FileScan.Clients
         /// <inheritdoc/>
         public async Task<bool> PatchDataElementFileScanResult(string dataElementId, FileScanResult fileScanResult)
         {
-            string endpoint = $"dataelement/{dataElementId}/filescan";
-            StringContent httpContent = new(JsonSerializer.Serialize(fileScanResult), Encoding.UTF8, "application/json");
+            /* string endpoint = $"dataelement/{dataElementId}/filescan";
+             StringContent httpContent = new(JsonSerializer.Serialize(fileScanResult), Encoding.UTF8, "application/json");
 
-            var accessToken = await _accessToken.Generate();
+             var accessToken = await _accessToken.Generate();
 
-            HttpResponseMessage response = await _client.PostAsync(endpoint, httpContent, accessToken);
+             HttpResponseMessage response = await _client.PostAsync(endpoint, httpContent, accessToken);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                return false;
-            }
-
+             if (!response.IsSuccessStatusCode)
+             {
+                 return false;
+             }
+            */
             return true;
         }
     }

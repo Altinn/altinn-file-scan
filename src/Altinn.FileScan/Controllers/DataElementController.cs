@@ -34,7 +34,6 @@ namespace Altinn.FileScan.Controllers
         [HttpPost]
         public async Task<ActionResult> Scan(DataElement dataElement)
         {
-            _logger.LogInformation(" // DataElementController // Scan // Calling service to scan dataElement");
             bool successful = await _dataElement.Scan(dataElement);
 
             if (!successful)

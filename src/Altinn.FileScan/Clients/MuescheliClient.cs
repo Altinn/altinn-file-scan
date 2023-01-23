@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
@@ -16,21 +16,23 @@ namespace Altinn.FileScan.Clients
     public class MuescheliClient : IMuescheliClient
     {
         private readonly HttpClient _client;
-        private readonly ILogger<IMuescheliClient> _logger;
+        private readonly JsonSerializerOptions _serializerOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MuescheliClient"/> class.
         /// </summary>
         public MuescheliClient(
            HttpClient httpClient,
-           IOptions<PlatformSettings> settings,
-           ILogger<IMuescheliClient> logger)
+           IOptions<PlatformSettings> settings)
         {
             _client = httpClient;
+            _client.BaseAddress = new Uri(settings.Value.ApiClamAvEndpoint);
 
-            var platformSettings = settings.Value;
-            _client.BaseAddress = new Uri(platformSettings.ApiClamAvEndpoint);
-            _logger = logger;
+            _serializerOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
+            };
         }
 
         /// <inheritdoc/>
@@ -45,16 +47,15 @@ namespace Altinn.FileScan.Clients
 
             HttpResponseMessage response = await _client.PostAsync(endpoint, content);
 
-            _logger.LogInformation($"//Muescheli client // Scan stream // Response: {await response.Content.ReadAsStringAsync()}");
-
             if (!response.IsSuccessStatusCode)
             {
-                throw new MuescheliHttpException();
+                 throw await MuescheliHttpException.CreateAsync(response.StatusCode, response);
             }
 
             var jsonContent = await response.Content.ReadAsStringAsync();
 
-            MuescheliResponse r = JsonSerializer.Deserialize<MuescheliResponse>(jsonContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
+            MuescheliResponse r = JsonSerializer.Deserialize<List<MuescheliResponse>>(jsonContent, _serializerOptions)
+                .FirstOrDefault();
 
             return r.Result;
         }

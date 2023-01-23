@@ -12,7 +12,7 @@
 
         /// <summary>
         /// Gets or sets the result of the malware scan as a scan result enum
-        /// </summary>
+        /// </summary>       
         public ScanResult Result { get; set; }
     }
 }

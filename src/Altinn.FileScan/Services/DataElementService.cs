@@ -1,4 +1,5 @@
 ﻿using Altinn.FileScan.Clients.Interfaces;
+using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
 using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services.Interfaces;
@@ -31,35 +32,44 @@ namespace Altinn.FileScan.Services
         /// <inheritdoc/>
         public async Task<bool> Scan(DataElement dataElement)
         {
-            string org = dataElement.BlobStoragePath.Split("/")[0];
-            var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
-
-            ScanResult scanResult = await _muescheliClient.ScanStream(stream, dataElement.Filename);
-
-            FileScanResult fileScanResult = FileScanResult.Pending;
-
-            switch (scanResult)
+            try
             {
-                case ScanResult.OK:
-                    fileScanResult = FileScanResult.Clean;
-                    break;
-                case ScanResult.FOUND:
-                    fileScanResult = FileScanResult.Infected;
-                    break;
-                case ScanResult.ERROR:
-                case ScanResult.PARSE_ERROR:
-                case ScanResult.UNDEFINED:
-                    return HandleMuesliErrorResult(dataElement, scanResult);
+                string org = dataElement.BlobStoragePath.Split("/")[0];
+                var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
+
+                ScanResult scanResult = await _muescheliClient.ScanStream(stream, dataElement.Filename);
+
+                FileScanResult fileScanResult = FileScanResult.Pending;
+
+                switch (scanResult)
+                {
+                    case ScanResult.OK:
+                        fileScanResult = FileScanResult.Clean;
+                        break;
+                    case ScanResult.FOUND:
+                        fileScanResult = FileScanResult.Infected;
+                        break;
+                    case ScanResult.ERROR:
+                    case ScanResult.PARSE_ERROR:
+                    case ScanResult.UNDEFINED:
+                        _logger.LogError("Scan of {dataElementId} completed with unexpected result {scanResult}.", dataElement.Id, scanResult);
+                        return HandleMuesliErrorResult(dataElement, scanResult);
+                }
+
+                await _storageClient.PatchDataElementFileScanResult(dataElement.Id, fileScanResult);
+
+                return true;
             }
-
-            await _storageClient.PatchDataElementFileScanResult(dataElement.Id, fileScanResult);
-
-            return true;
+            catch (MuescheliHttpException e)
+            {
+                _logger.LogError(e, "Scan of {dataElementId} failed with a http exception.", dataElement.Id);
+                throw;
+            }
         }
 
         private bool HandleMuesliErrorResult(DataElement dataElement, ScanResult result)
         {
-            throw new Exception("Error when scanning document");
+            throw MuescheliScanResultException.Create(dataElement.Id, result);
         }
     }
 }
