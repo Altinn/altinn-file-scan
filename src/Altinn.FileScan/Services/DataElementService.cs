@@ -35,7 +35,7 @@ namespace Altinn.FileScan.Services
             try
             {
                 string org = dataElement.BlobStoragePath.Split("/")[0];
-                (var stream, var contentHash) = await _repository.GetBlob(org, dataElement.BlobStoragePath);
+                var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
 
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, dataElement.Filename);
 
@@ -58,12 +58,12 @@ namespace Altinn.FileScan.Services
 
                 FileScanStatus status = new()
                 {
-                    ContentHash = contentHash,
+                    ContentHash = string.Empty,
                     FileScanResult = fileScanResult
                 };
 
                 // send status or result? 
-                await _storageClient.PatchDataElementFileScanResult(dataElement.Id, fileScanResult);
+                await _storageClient.PatchDataElementFileScanResult(dataElement.Id, status);
 
                 return true;
             }

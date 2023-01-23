@@ -36,7 +36,7 @@ namespace Altinn.FileScan.Controllers
         {
             bool successful = await _dataElement.Scan(dataElement);
 
-            _logger.LogWarning($"// DataElementController // Scanned file  {dataElement.Filename} and it was successful: {successful}");
+            _logger.LogWarning("// DataElementController // Scanned file  {Filename} and it was successful: {successful}", dataElement.Filename, successful);
 
             if (!successful)
             { 

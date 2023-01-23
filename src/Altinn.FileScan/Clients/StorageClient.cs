@@ -5,7 +5,7 @@ using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Extensions;
 using Altinn.FileScan.Services.Interfaces;
-using Altinn.Platform.Storage.Interface.Enums;
+using Altinn.Platform.Storage.Interface.Models;
 
 using Microsoft.Extensions.Options;
 
@@ -18,7 +18,6 @@ namespace Altinn.FileScan.Clients
     {
         private readonly HttpClient _client;
         private readonly IAccessToken _accessToken;
-        private readonly ILogger<IStorageClient> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StorageClient"/> class.
@@ -26,32 +25,29 @@ namespace Altinn.FileScan.Clients
         public StorageClient(
            HttpClient httpClient,
            IAccessToken accessToken,
-           IOptions<PlatformSettings> settings,
-           ILogger<IStorageClient> logger)
+           IOptions<PlatformSettings> settings)
         {
-            _client = httpClient;
             _accessToken = accessToken;
 
-            var platformSettings = settings.Value;
-            _client.BaseAddress = new Uri(platformSettings.ApiStorageEndpoint);
-            _logger = logger;
+            _client = httpClient;
+            _client.BaseAddress = new Uri(settings.Value.ApiStorageEndpoint);
         }
 
         /// <inheritdoc/>
-        public async Task<bool> PatchDataElementFileScanResult(string dataElementId, FileScanResult fileScanResult)
+        public async Task<bool> PatchDataElementFileScanResult(string dataElementId, FileScanStatus fileScanStatus)
         {
-            /* string endpoint = $"dataelement/{dataElementId}/filescan";
-             StringContent httpContent = new(JsonSerializer.Serialize(fileScanResult), Encoding.UTF8, "application/json");
+            string endpoint = $"dataelement/{dataElementId}/filescanstatus";
+            StringContent httpContent = new(JsonSerializer.Serialize(fileScanStatus), Encoding.UTF8, "application/json");
 
-             var accessToken = await _accessToken.Generate();
+            var accessToken = await _accessToken.Generate();
 
-             HttpResponseMessage response = await _client.PostAsync(endpoint, httpContent, accessToken);
+            HttpResponseMessage response = await _client.PostAsync(endpoint, httpContent, accessToken);
 
-             if (!response.IsSuccessStatusCode)
-             {
-                 return false;
-             }
-            */
+            if (!response.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
             return true;
         }
     }

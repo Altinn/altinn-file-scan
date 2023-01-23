@@ -11,6 +11,6 @@
         /// <param name="org">The short name of the organisation</param>
         /// <param name="blobPath">Full path to the blob within a storage account</param>
         /// <returns></returns>
-        public Task<(Stream Stream, string ContentHash)> GetBlob(string org, string blobPath);
+        public Task<Stream> GetBlob(string org, string blobPath);
     }
 }

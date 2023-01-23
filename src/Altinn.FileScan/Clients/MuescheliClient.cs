@@ -55,7 +55,7 @@ namespace Altinn.FileScan.Clients
             var jsonContent = await response.Content.ReadAsStringAsync();
 
             MuescheliResponse r = JsonSerializer.Deserialize<List<MuescheliResponse>>(jsonContent, _serializerOptions)
-                .FirstOrDefault();
+                .First();
 
             return r.Result;
         }

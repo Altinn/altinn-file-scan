@@ -11,6 +11,6 @@ namespace Altinn.FileScan.Services.Interfaces
         /// Initiates the process to scan the provided data element for malware
         /// </summary>
         /// <returns>Returns if the scan was completes successfully or not, regardles of scan result</returns>
-        public Task<bool> Scan(DataElement dataELement);
+        public Task<bool> Scan(DataElement dataElement);
     }
 }

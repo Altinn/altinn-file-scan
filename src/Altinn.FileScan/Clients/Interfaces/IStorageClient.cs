@@ -12,6 +12,6 @@ namespace Altinn.FileScan.Clients.Interfaces
         /// Sends a request to Altinn Storage requesting to update the file scan result of a data element
         /// </summary>
         /// <returns></returns>
-        Task<bool> PatchDataElementFileScanResult(string dataElementId, FileScanResult fileScanResult);
+        Task<bool> PatchDataElementFileScanResult(string dataElementId, FileScanStatus fileScanStatus);
     }
 }

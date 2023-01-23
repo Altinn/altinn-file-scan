@@ -27,13 +27,12 @@ namespace Altinn.FileScan.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<(Stream Stream, string ContentHash)> GetBlob(string org, string blobPath)
+        public async Task<Stream> GetBlob(string org, string blobPath)
         {
             BlobClient blockBlob = await CreateBlobClient(org, blobPath);
-            var hash = blockBlob.GetProperties().Value.ContentHash;
             Azure.Response<BlobDownloadInfo> response = await blockBlob.DownloadAsync();
 
-            return (response.Value.Content, System.Text.Encoding.UTF8.GetString(hash));
+            return response.Value.Content;
         }
 
         private async Task<BlobClient> CreateBlobClient(string org, string blobPath)
