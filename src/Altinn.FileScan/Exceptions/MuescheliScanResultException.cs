@@ -3,7 +3,7 @@
 namespace Altinn.FileScan.Exceptions
 {
     /// <summary>
-    /// An exception class related to non expected http response from the Muecheli Service
+    /// An exception class related to non expected http response from the Muescheli Service
     /// </summary>
     public class MuescheliScanResultException : Exception
     {

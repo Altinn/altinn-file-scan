@@ -1,5 +1,4 @@
-﻿using Altinn.Platform.Storage.Interface.Enums;
-using Altinn.Platform.Storage.Interface.Models;
+﻿using Altinn.Platform.Storage.Interface.Models;
 
 namespace Altinn.FileScan.Clients.Interfaces
 {
@@ -9,9 +8,9 @@ namespace Altinn.FileScan.Clients.Interfaces
     public interface IStorageClient
     {
         /// <summary>
-        /// Sends a request to Altinn Storage requesting to update the file scan result of a data element
+        /// Sends a request to Altinn Storage requesting to update the file scan status of a data element
         /// </summary>
         /// <returns></returns>
-        Task<bool> PatchDataElementFileScanResult(string dataElementId, FileScanStatus fileScanStatus);
+        Task<bool> PatchFileScanStatus(string dataElementId, FileScanStatus fileScanStatus);
     }
 }

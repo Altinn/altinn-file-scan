@@ -1,5 +1,3 @@
-using System.Runtime.Serialization;
-
 namespace Altinn.FileScan.Configuration
 {
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿namespace Altinn.FileScan.Services.Interfaces
 {
     /// <summary>
-    /// Describes any implementation of a KeyVault service towards the Altinn Platform key vault
+    /// Interface containing all actions for an Altinn Platform Azure Key Vault
     /// </summary>
     public interface IPlatformKeyVault
     {

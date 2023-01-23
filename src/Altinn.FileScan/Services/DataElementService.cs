@@ -63,7 +63,7 @@ namespace Altinn.FileScan.Services
                 };
 
                 // send status or result? 
-                await _storageClient.PatchDataElementFileScanResult(dataElement.Id, status);
+                await _storageClient.PatchFileScanStatus(dataElement.Id, status);
 
                 return true;
             }

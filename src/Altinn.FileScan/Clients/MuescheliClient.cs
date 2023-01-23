@@ -52,9 +52,9 @@ namespace Altinn.FileScan.Clients
                  throw await MuescheliHttpException.CreateAsync(response.StatusCode, response);
             }
 
-            var jsonContent = await response.Content.ReadAsStringAsync();
+            var responseString = await response.Content.ReadAsStringAsync();
 
-            MuescheliResponse r = JsonSerializer.Deserialize<List<MuescheliResponse>>(jsonContent, _serializerOptions)
+            MuescheliResponse r = JsonSerializer.Deserialize<List<MuescheliResponse>>(responseString, _serializerOptions)
                 .First();
 
             return r.Result;

@@ -17,7 +17,7 @@ namespace Altinn.FileScan.Clients
     public class StorageClient : IStorageClient
     {
         private readonly HttpClient _client;
-        private readonly IAccessToken _accessToken;
+        private readonly IAccessToken _accessTokenService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StorageClient"/> class.
@@ -27,21 +27,21 @@ namespace Altinn.FileScan.Clients
            IAccessToken accessToken,
            IOptions<PlatformSettings> settings)
         {
-            _accessToken = accessToken;
+            _accessTokenService = accessToken;
 
             _client = httpClient;
             _client.BaseAddress = new Uri(settings.Value.ApiStorageEndpoint);
         }
 
         /// <inheritdoc/>
-        public async Task<bool> PatchDataElementFileScanResult(string dataElementId, FileScanStatus fileScanStatus)
+        public async Task<bool> PatchFileScanStatus(string dataElementId, FileScanStatus fileScanStatus)
         {
             string endpoint = $"dataelement/{dataElementId}/filescanstatus";
             StringContent httpContent = new(JsonSerializer.Serialize(fileScanStatus), Encoding.UTF8, "application/json");
 
-            var accessToken = await _accessToken.Generate();
+            var accessToken = await _accessTokenService.Generate();
 
-            HttpResponseMessage response = await _client.PostAsync(endpoint, httpContent, accessToken);
+            HttpResponseMessage response = await _client.PutAsync(endpoint, httpContent, accessToken);
 
             if (!response.IsSuccessStatusCode)
             {

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Altinn.FileScan.Tests.TestingModels
 {
-    public class MuecheliResponseTests
+    public class MuescheliResponseTests
     {
         [Fact]
         public void Deserialize()

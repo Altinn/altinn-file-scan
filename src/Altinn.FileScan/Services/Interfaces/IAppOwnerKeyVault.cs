@@ -1,7 +1,7 @@
 ﻿namespace Altinn.FileScan.Services.Interfaces
 {
     /// <summary>
-    /// Describes any implementation of a KeyVault service towards an app owner key vault
+    /// Interface containing all actions for an Altinn app owner Azure Key Vault
     /// </summary>
     public interface IAppOwnerKeyVault
     {
