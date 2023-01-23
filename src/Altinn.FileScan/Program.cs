@@ -3,8 +3,14 @@ using System.Reflection;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
+using Altinn.FileScan.Clients;
+using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Health;
+using Altinn.FileScan.Repository;
+using Altinn.FileScan.Repository.Interfaces;
+using Altinn.FileScan.Services;
+using Altinn.FileScan.Services.Interfaces;
 
 using AltinnCore.Authentication.JwtCookie;
 
@@ -80,7 +86,7 @@ async Task SetConfigurationProviders(ConfigurationManager config)
 
 async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager config)
 {
-    KeyVaultSettings keyVaultSettings = new();
+    Altinn.Common.AccessToken.Configuration.KeyVaultSettings keyVaultSettings = new();
     config.GetSection("kvSetting").Bind(keyVaultSettings);
     if (!string.IsNullOrEmpty(keyVaultSettings.ClientId) &&
         !string.IsNullOrEmpty(keyVaultSettings.TenantId) &&
@@ -150,9 +156,24 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddMemoryCache();
     services.AddHealthChecks().AddCheck<HealthCheck>("filescan_health_check");
 
+    services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
+    services.Configure<KeyVaultSettings>(config.GetSection("kvSettings"));
+    services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
+
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
     services.AddSingleton<ISigningKeysResolver, SigningKeysResolver>();
+
+    services.AddSingleton<IAccessToken, AccessTokenService>();
+    services.AddSingleton<IDataElement, DataElementService>();
+
+    services.AddSingleton<IAppOwnerKeyVault, AppOwnerKeyVaultService>();
+    services.AddSingleton<IPlatformKeyVault, PlatformKeyVaultService>();
+    services.AddSingleton<ISasTokenProvider, SasTokenProvider>();
+    services.AddSingleton<IAppOwnerBlob, AppOwnerBlobRepository>();
+
+    services.AddHttpClient<IStorageClient, StorageClient>();
+    services.AddHttpClient<IMuescheliClient, MuescheliClient>();
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
           .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
