@@ -4,6 +4,8 @@ using Altinn.Platform.Storage.Interface.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using System.Diagnostics;
+
 namespace Altinn.FileScan.Controllers
 {
     /// <summary>
@@ -35,6 +37,8 @@ namespace Altinn.FileScan.Controllers
         public async Task<ActionResult> Scan(DataElement dataElement)
         {
             bool successful = await _dataElement.Scan(dataElement);
+
+            _logger.LogWarning($"// DataElementController // Scanned file  {dataElement.Filename} and it was successful: {successful}");
 
             if (!successful)
             { 

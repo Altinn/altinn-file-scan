@@ -18,7 +18,7 @@ namespace Altinn.FileScan.Services
         private readonly string _vaultUri;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AppOwnerKeyVaultService"/> class.
+        /// Initializes a new instance of the <see cref="PlatformKeyVaultService"/> class.
         /// </summary>
         public PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings)
         {
