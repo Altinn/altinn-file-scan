@@ -45,7 +45,7 @@ ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-Configure(builder.Configuration);
+Configure();
 
 app.Run();
 
@@ -240,7 +240,7 @@ void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
     }
 }
 
-void Configure(IConfiguration config)
+void Configure()
 {
     logger.LogInformation("Program // Configure {appName}", app.Environment.ApplicationName);
 
