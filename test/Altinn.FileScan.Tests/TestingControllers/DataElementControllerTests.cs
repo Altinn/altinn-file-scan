@@ -69,8 +69,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
             string requestUri = $"{BasePath}/dataelement";
             var dataElementMock = new Mock<IDataElement>();
             dataElementMock
-                .Setup(de => de.Scan(It.IsAny<DataElement>()))
-                .ReturnsAsync(true);
+                .Setup(de => de.Scan(It.IsAny<DataElement>()));
 
             HttpClient client = GetTestClient(dataElementMock.Object);
 

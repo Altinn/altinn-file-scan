@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Altinn.FileScan.Tests.TestingServices
 {
-    internal class DataElementServiceTests
+    public class DataElementServiceTests
     {
     }
 }
