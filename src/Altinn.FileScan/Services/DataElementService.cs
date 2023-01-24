@@ -35,12 +35,7 @@ namespace Altinn.FileScan.Services
             try
             {
                 string org = dataElement.BlobStoragePath.Split("/")[0];
-                (bool success, var stream) = await _repository.GetBlob(org, dataElement.BlobStoragePath, dataElement.ContentHash);
-
-                if (!success)
-                {
-                    return;
-                }
+                var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
 
                 var filename = string.IsNullOrEmpty(dataElement.Filename) ? $"{dataElement.Id}.txt" : dataElement.Filename;
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);
