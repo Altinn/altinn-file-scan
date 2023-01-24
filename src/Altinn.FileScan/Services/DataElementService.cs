@@ -30,7 +30,7 @@ namespace Altinn.FileScan.Services
         }
 
         /// <inheritdoc/>
-        public async Task<bool> Scan(DataElement dataElement)
+        public async Task Scan(DataElement dataElement)
         {
             try
             {
@@ -65,8 +65,6 @@ namespace Altinn.FileScan.Services
 
                 // send status or result? 
                 await _storageClient.PatchFileScanStatus(dataElement.Id, status);
-
-                return true;
             }
             catch (MuescheliHttpException e)
             {

@@ -28,16 +28,10 @@ namespace Altinn.FileScan.Controllers
         /// </summary>
         [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
         public async Task<ActionResult> Scan(DataElement dataElement)
         {
-            bool successful = await _dataElement.Scan(dataElement);
-
-            if (!successful)
-            { 
-                return StatusCode(500);
-            }
+            await _dataElement.Scan(dataElement);
 
             return Ok();
         }
