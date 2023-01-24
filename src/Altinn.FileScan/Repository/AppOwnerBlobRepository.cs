@@ -27,12 +27,24 @@ namespace Altinn.FileScan.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<Stream> GetBlob(string org, string blobPath)
+        public async Task<Stream> GetBlob(string org, string blobPath, string contentHash)
         {
             BlobClient blockBlob = await CreateBlobClient(org, blobPath);
-            Azure.Response<BlobDownloadInfo> response = await blockBlob.DownloadAsync();
+            await CompareContentHash(blockBlob, contentHash);
 
+            Azure.Response<BlobDownloadInfo> response = await blockBlob.DownloadAsync();
             return response.Value.Content;
+        }
+
+        private async Task CompareContentHash(BlobClient blockBlob, string contentHash)
+        {
+            var props = await blockBlob.GetPropertiesAsync();
+            var blobHash = Convert.ToBase64String(props.Value.ContentHash);
+
+            /* if (blobHash != contentHash)
+             {
+                 // trow an exception? 
+             }*/
         }
 
         private async Task<BlobClient> CreateBlobClient(string org, string blobPath)
