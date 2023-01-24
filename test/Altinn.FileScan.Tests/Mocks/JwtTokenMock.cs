@@ -18,8 +18,8 @@ namespace Altinn.FileScan.Tests.Mocks
         /// <returns>A new token.</returns>
         public static string GenerateToken(ClaimsPrincipal principal, TimeSpan tokenExipry, string issuer = "UnitTest")
         {
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            JwtSecurityTokenHandler tokenHandler = new();
+            SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Subject = new ClaimsIdentity(principal.Identity),
                 Expires = DateTime.UtcNow.AddSeconds(tokenExipry.TotalSeconds),
@@ -41,11 +41,11 @@ namespace Altinn.FileScan.Tests.Mocks
             {
                 certPath = $"{issuer}-org.pfx";
 
-                X509Certificate2 certIssuer = new X509Certificate2(certPath);
+                X509Certificate2 certIssuer = new(certPath);
                 return new X509SigningCredentials(certIssuer, SecurityAlgorithms.RsaSha256);
             }
 
-            X509Certificate2 cert = new X509Certificate2(certPath, "qwer1234");
+            X509Certificate2 cert = new(certPath, "qwer1234");
             return new X509SigningCredentials(cert, SecurityAlgorithms.RsaSha256);
         }
     }

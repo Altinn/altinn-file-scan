@@ -17,13 +17,13 @@ namespace Altinn.FileScan.Repository
     public class SasTokenProvider : ISasTokenProvider
     {
         private readonly ConcurrentDictionary<string, (DateTime Created, string Token)> _sasTokens =
-            new ConcurrentDictionary<string, (DateTime Created, string Token)>();
+            new();
 
         private readonly AppOwnerAzureStorageConfig _storageConfig;
         private readonly IAppOwnerKeyVault _keyVault;
         private readonly ILogger<SasTokenProvider> _logger;
 
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SasTokenProvider"/> class with the given <see cref="KeyVaultSettings"/>.

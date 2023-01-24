@@ -20,10 +20,7 @@ namespace Altinn.FileScan.Tests.Mocks.Authentication
                 options.JwtCookieName = JwtCookieDefaults.CookiePrefix + name;
             }
 
-            if (options.CookieManager == null)
-            {
-                options.CookieManager = new ChunkingCookieManager();
-            }
+            options.CookieManager ??= new ChunkingCookieManager();
 
             if (!string.IsNullOrEmpty(options.MetadataAddress))
             {

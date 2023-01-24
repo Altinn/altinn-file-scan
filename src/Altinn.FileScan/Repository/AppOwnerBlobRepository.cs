@@ -39,9 +39,9 @@ namespace Altinn.FileScan.Repository
         {
             if (_storageConfig.AccountName == "devstoreaccount1")
             {
-                StorageSharedKeyCredential storageCredentials = new StorageSharedKeyCredential(_storageConfig.AccountName, _storageConfig.AccountKey);
-                Uri storageUrl = new Uri(_storageConfig.BlobEndPoint);
-                BlobServiceClient commonBlobClient = new BlobServiceClient(storageUrl, storageCredentials);
+                StorageSharedKeyCredential storageCredentials = new(_storageConfig.AccountName, _storageConfig.AccountKey);
+                Uri storageUrl = new(_storageConfig.BlobEndPoint);
+                BlobServiceClient commonBlobClient = new(storageUrl, storageCredentials);
                 BlobContainerClient blobContainerClient = commonBlobClient.GetBlobContainerClient(_storageConfig.StorageContainer);
 
                 return blobContainerClient.GetBlobClient(blobPath);
@@ -51,7 +51,7 @@ namespace Altinn.FileScan.Repository
             string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
             string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
 
-            UriBuilder fullUri = new UriBuilder
+            UriBuilder fullUri = new()
             {
                 Scheme = "https",
                 Host = $"{accountName}.blob.core.windows.net",

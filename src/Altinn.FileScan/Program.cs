@@ -102,7 +102,7 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
 
         config.AddAzureKeyVault(new Uri(keyVaultSettings.SecretUri), azureCredentials);
 
-        SecretClient client = new SecretClient(new Uri(keyVaultSettings.SecretUri), azureCredentials);
+        SecretClient client = new(new Uri(keyVaultSettings.SecretUri), azureCredentials);
 
         try
         {

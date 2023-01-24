@@ -14,15 +14,13 @@ namespace Altinn.FileScan.Controllers
     public class DataElementController : ControllerBase
     {
         private readonly IDataElement _dataElement;
-        private readonly ILogger<DataElementController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataElementController"/> class.
         /// </summary>
-        public DataElementController(IDataElement dataElement, ILogger<DataElementController> logger)
+        public DataElementController(IDataElement dataElement)
         {
             _dataElement = dataElement;
-            _logger = logger;
         }
 
         /// <summary>
@@ -35,8 +33,6 @@ namespace Altinn.FileScan.Controllers
         public async Task<ActionResult> Scan(DataElement dataElement)
         {
             bool successful = await _dataElement.Scan(dataElement);
-
-            _logger.LogWarning("// DataElementController // Scanned file  {Filename} and it was successful: {successful}", dataElement.Filename, successful);
 
             if (!successful)
             { 

@@ -74,7 +74,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
 
             HttpClient client = GetTestClient(dataElementMock.Object);
 
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri)
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
             {
                 Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
             };
@@ -103,7 +103,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
             string requestUri = $"{BasePath}/dataelement";
             HttpClient client = GetTestClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(1));
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri)
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
             {
                 Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
             };
@@ -129,7 +129,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
             // Arrange
             string requestUri = $"{BasePath}/dataelement";
             HttpClient client = GetTestClient();
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri)
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
             {
                 Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
             };
@@ -143,10 +143,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
 
         private HttpClient GetTestClient(IDataElement dataElementMock = null)
         {
-            if (dataElementMock is null)
-            {
-                dataElementMock = new Mock<IDataElement>().Object;
-            }
+            dataElementMock ??= new Mock<IDataElement>().Object;
 
             HttpClient client = _factory.WithWebHostBuilder(builder =>
             {
