@@ -68,7 +68,6 @@ namespace Altinn.FileScan.Services
                     FileScanResult = fileScanResult
                 };
 
-                // send status or result? 
                 await _storageClient.PatchFileScanStatus(dataElement.Id, status);
             }
             catch (MuescheliHttpException e)
