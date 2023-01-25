@@ -43,9 +43,9 @@ namespace Altinn.FileScan.Functions.Clients
         }
 
         /// <inheritdoc/>
-        public async Task PostDataElement(string dataElement)
+        public async Task PostDataElementScanRequest(string dataElementScanRequest)
         {
-            StringContent httpContent = new(dataElement, Encoding.UTF8, "application/json");
+            StringContent httpContent = new(dataElementScanRequest, Encoding.UTF8, "application/json");
 
             string endpointUrl = "dataelement";
 
@@ -54,9 +54,9 @@ namespace Altinn.FileScan.Functions.Clients
             HttpResponseMessage response = await _client.PostAsync(endpointUrl, httpContent, accessToken);
             if (!response.IsSuccessStatusCode)
             {
-                var n = JsonNode.Parse(dataElement);
-                string dataElementId = n["id"].ToString();
-                var msg = $"// Post to FileScan for id {dataElementId}failed with status code {response.StatusCode}";
+                var n = JsonNode.Parse(dataElementScanRequest, new() { PropertyNameCaseInsensitive = true });
+                string dataElementId = n["dataElementId"].ToString();
+                var msg = $"// Post to FileScan for id {dataElementId} failed with status code {response.StatusCode}";
                 _logger.LogError("{msg}", msg);
                 throw new HttpRequestException(msg);
             }
