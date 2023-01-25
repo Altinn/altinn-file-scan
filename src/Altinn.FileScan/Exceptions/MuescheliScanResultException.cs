@@ -1,4 +1,6 @@
-﻿using Altinn.FileScan.Models;
+﻿using System.Runtime.Serialization;
+
+using Altinn.FileScan.Models;
 
 namespace Altinn.FileScan.Exceptions
 {
@@ -34,6 +36,13 @@ namespace Altinn.FileScan.Exceptions
         {
             DataElementId = dataElementId;
             ScanResult = result;
+        }
+
+        /// <summary>
+        /// Add serialization info.
+        /// </summary>
+        protected MuescheliScanResultException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

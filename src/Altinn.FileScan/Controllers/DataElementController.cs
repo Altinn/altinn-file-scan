@@ -1,6 +1,5 @@
 ﻿using Altinn.FileScan.Models;
 using Altinn.FileScan.Services.Interfaces;
-using Altinn.Platform.Storage.Interface.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

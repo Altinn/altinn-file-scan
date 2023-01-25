@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
+using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Extensions;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Models;
@@ -51,7 +52,7 @@ namespace Altinn.FileScan.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException($"Unexpected response from storage {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+                throw new PlatformHttpException(response, "Unexpected response from StorageClient when setting file scan status.");
             }
         }
     }

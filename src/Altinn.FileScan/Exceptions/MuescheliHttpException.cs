@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Runtime.Serialization;
 
 namespace Altinn.FileScan.Exceptions
 {
@@ -30,6 +31,13 @@ namespace Altinn.FileScan.Exceptions
         public MuescheliHttpException(HttpResponseMessage response, string message) : base(message)
         {
             Response = response;
+        }
+
+        /// <summary>
+        /// Add serialization info.
+        /// </summary>
+        protected MuescheliHttpException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }

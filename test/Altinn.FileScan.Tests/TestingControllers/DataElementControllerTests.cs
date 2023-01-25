@@ -96,7 +96,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
         ///   The response has correct status code.
         /// </summary>
         [Fact]
-        public async void Post_ScanDataElement_PlatformAccessTokenOmmited()
+        public async void Post_ScanDataElement_PlatformAccessTokenOmmited_BearerIncluded()
         {
             // Arrange
             string requestUri = $"{BasePath}/dataelement";
