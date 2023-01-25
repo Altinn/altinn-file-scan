@@ -5,11 +5,11 @@ using System.Text;
 
 using Altinn.Common.AccessToken.Services;
 using Altinn.FileScan.Controllers;
+using Altinn.FileScan.Models;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.FileScan.Tests.Mocks;
 using Altinn.FileScan.Tests.Mocks.Authentication;
 using Altinn.FileScan.Tests.Utils;
-using Altinn.Platform.Storage.Interface.Models;
 
 using AltinnCore.Authentication.JwtCookie;
 
@@ -69,7 +69,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
             string requestUri = $"{BasePath}/dataelement";
             var dataElementMock = new Mock<IDataElement>();
             dataElementMock
-                .Setup(de => de.Scan(It.IsAny<DataElement>()));
+                .Setup(de => de.Scan(It.IsAny<DataElementScanRequest>()));
 
             HttpClient client = GetTestClient(dataElementMock.Object);
 
