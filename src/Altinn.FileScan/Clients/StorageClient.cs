@@ -34,7 +34,7 @@ namespace Altinn.FileScan.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<bool> PatchFileScanStatus(string instanceId, string dataElementId, FileScanStatus fileScanStatus)
+        public async Task PatchFileScanStatus(string instanceId, string dataElementId, FileScanStatus fileScanStatus)
         {
             string endpoint = $"instances/{instanceId}/dataelements/{dataElementId}/filescanstatus";
             StringContent httpContent = new(JsonSerializer.Serialize(fileScanStatus), Encoding.UTF8, "application/json");
@@ -45,10 +45,8 @@ namespace Altinn.FileScan.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                return false;
+                throw new HttpRequestException($"Unexpected response from storage {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
             }
-
-            return true;
         }
     }
 }
