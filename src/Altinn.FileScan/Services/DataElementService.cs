@@ -30,14 +30,13 @@ namespace Altinn.FileScan.Services
         }
 
         /// <inheritdoc/>
-        public async Task Scan(DataElement dataElement)
+        public async Task Scan(DataElementScanRequest scanRequest)
         {
             try
             {
-                string org = dataElement.BlobStoragePath.Split("/")[0];
-                var stream = await _repository.GetBlob(org, dataElement.BlobStoragePath);
+                var stream = await _repository.GetBlob(scanRequest.Org, scanRequest.BlobStoragePath);
 
-                var filename = string.IsNullOrEmpty(dataElement.Filename) ? $"{dataElement.Id}.txt" : dataElement.Filename;
+                var filename = string.IsNullOrEmpty(scanRequest.Filename) ? $"{scanRequest.DataElementId}.txt" : scanRequest.Filename;
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);
 
                 FileScanResult fileScanResult = FileScanResult.Pending;
@@ -53,8 +52,8 @@ namespace Altinn.FileScan.Services
                     case ScanResult.ERROR:
                     case ScanResult.PARSE_ERROR:
                     case ScanResult.UNDEFINED:
-                        _logger.LogError("Scan of {dataElementId} completed with unexpected result {scanResult}.", dataElement.Id, scanResult);
-                        throw MuescheliScanResultException.Create(dataElement.Id, scanResult);
+                        _logger.LogError("Scan of {dataElementId} completed with unexpected result {scanResult}.", scanRequest.DataElementId, scanResult);
+                        throw MuescheliScanResultException.Create(scanRequest.DataElementId, scanResult);
                 }
 
                 FileScanStatus status = new()
@@ -63,11 +62,11 @@ namespace Altinn.FileScan.Services
                     FileScanResult = fileScanResult
                 };
 
-                await _storageClient.PatchFileScanStatus(dataElement.Id, status);
+                await _storageClient.PatchFileScanStatus(scanRequest.InstanceId, scanRequest.DataElementId, status);
             }
             catch (MuescheliHttpException e)
             {
-                _logger.LogError(e, "Scan of {dataElementId} failed with a http exception.", dataElement.Id);
+                _logger.LogError(e, "Scan of {dataElementId} failed with a http exception.", scanRequest.DataElementId);
                 throw;
             }
         }

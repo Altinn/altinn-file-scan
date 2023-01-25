@@ -34,9 +34,9 @@ namespace Altinn.FileScan.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<bool> PatchFileScanStatus(string dataElementId, FileScanStatus fileScanStatus)
+        public async Task<bool> PatchFileScanStatus(string instanceId, string dataElementId, FileScanStatus fileScanStatus)
         {
-            string endpoint = $"dataelements/{dataElementId}/filescanstatus";
+            string endpoint = $"instances/{instanceId}/dataelements/{dataElementId}/filescanstatus";
             StringContent httpContent = new(JsonSerializer.Serialize(fileScanStatus), Encoding.UTF8, "application/json");
 
             var accessToken = await _accessTokenService.Generate();

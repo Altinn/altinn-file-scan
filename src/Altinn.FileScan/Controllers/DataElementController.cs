@@ -1,4 +1,5 @@
-﻿using Altinn.FileScan.Services.Interfaces;
+﻿using Altinn.FileScan.Models;
+using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Models;
 
 using Microsoft.AspNetCore.Authorization;
@@ -29,9 +30,9 @@ namespace Altinn.FileScan.Controllers
         [Authorize(Policy = "PlatformAccess")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpPost]
-        public async Task<ActionResult> Scan(DataElement dataElement)
+        public async Task<ActionResult> Scan(DataElementScanRequest scanRequest)
         {
-            await _dataElement.Scan(dataElement);
+            await _dataElement.Scan(scanRequest);
 
             return Ok();
         }
