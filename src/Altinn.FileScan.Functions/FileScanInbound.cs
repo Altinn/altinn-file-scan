@@ -28,10 +28,10 @@ namespace Altinn.FileScan.Functions
         /// Retrieves dataElements from file-scna-inbound queue and send to FileScans rest-api
         /// </summary>
         [Function("FileScanInbound")]
-        public async Task Run([QueueTrigger("file-scan-inbound", Connection = "QueueStorage")] string dataElement)
+        public async Task Run([QueueTrigger("file-scan-inbound", Connection = "QueueStorage")] string dataElementScanRequest)
         {
-            _logger.LogInformation("C# Queue trigger function processed: {dataElement}", dataElement);
-            await _fileScanClient.PostDataElement(dataElement);
+            _logger.LogInformation("C# Queue trigger function processed: {dataElement}", dataElementScanRequest);
+            await _fileScanClient.PostDataElementScanRequest(dataElementScanRequest);
         }
     }
 }
