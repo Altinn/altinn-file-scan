@@ -10,7 +10,7 @@ namespace Altinn.FileScan.Functions.Clients.Interfaces
         /// <summary>
         /// Send dataElement for file scanning.
         /// </summary>
-        /// <param name="dataElement">DataElement to send</param>
+        /// <param name="dataElementScanRequest">DataElement to send</param>
         Task PostDataElementScanRequest(string dataElementScanRequest);
     }
 }
