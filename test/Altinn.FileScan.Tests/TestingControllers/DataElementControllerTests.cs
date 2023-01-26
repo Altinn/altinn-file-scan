@@ -5,6 +5,8 @@ using System.Text;
 
 using Altinn.Common.AccessToken.Services;
 using Altinn.FileScan.Controllers;
+using Altinn.FileScan.Models;
+using Altinn.FileScan.Services.Interfaces;
 using Altinn.FileScan.Tests.Mocks;
 using Altinn.FileScan.Tests.Mocks.Authentication;
 using Altinn.FileScan.Tests.Utils;
@@ -15,6 +17,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+
+using Moq;
 
 using Xunit;
 
@@ -63,9 +67,13 @@ namespace Altinn.FileScan.Tests.TestingControllers
         {
             // Arrange
             string requestUri = $"{BasePath}/dataelement";
-            HttpClient client = GetTestClient();
+            var dataElementMock = new Mock<IDataElement>();
+            dataElementMock
+                .Setup(de => de.Scan(It.IsAny<DataElementScanRequest>()));
 
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri)
+            HttpClient client = GetTestClient(dataElementMock.Object);
+
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
             {
                 Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
             };
@@ -88,13 +96,13 @@ namespace Altinn.FileScan.Tests.TestingControllers
         ///   The response has correct status code.
         /// </summary>
         [Fact]
-        public async void Post_ScanDataElement_PlatformAccessTokenOmmited()
+        public async void Post_ScanDataElement_PlatformAccessTokenOmmited_BearerIncluded()
         {
             // Arrange
             string requestUri = $"{BasePath}/dataelement";
             HttpClient client = GetTestClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(1));
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri)
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
             {
                 Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
             };
@@ -120,7 +128,7 @@ namespace Altinn.FileScan.Tests.TestingControllers
             // Arrange
             string requestUri = $"{BasePath}/dataelement";
             HttpClient client = GetTestClient();
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, requestUri)
+            HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
             {
                 Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
             };
@@ -132,8 +140,10 @@ namespace Altinn.FileScan.Tests.TestingControllers
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
-        private HttpClient GetTestClient()
+        private HttpClient GetTestClient(IDataElement dataElementMock = null)
         {
+            dataElementMock ??= new Mock<IDataElement>().Object;
+
             HttpClient client = _factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureTestServices(services =>
@@ -141,6 +151,8 @@ namespace Altinn.FileScan.Tests.TestingControllers
                     // Set up mock authentication so that not well known endpoint is used
                     services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
                     services.AddSingleton<ISigningKeysResolver, SigningKeyResolverMock>();
+
+                    services.AddSingleton(dataElementMock);
                 });
             }).CreateClient();
 

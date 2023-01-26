@@ -19,9 +19,9 @@ namespace Altinn.FileScan.Tests.Mocks
 
         public Task<IEnumerable<SecurityKey>> GetSigningKeys(string issuer)
         {
-            List<SecurityKey> signingKeys = new List<SecurityKey>();
+            List<SecurityKey> signingKeys = new();
 
-            X509Certificate2 cert = new X509Certificate2($"{issuer}-org.pem");
+            X509Certificate2 cert = new($"{issuer}-org.pem");
             SecurityKey key = new X509SecurityKey(cert);
 
             signingKeys.Add(key);

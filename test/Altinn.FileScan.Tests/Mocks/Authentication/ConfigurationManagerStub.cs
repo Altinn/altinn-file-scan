@@ -27,7 +27,7 @@ namespace Altinn.FileScan.Tests.Mocks.Authentication
         {
             ICollection<SecurityKey> signingKeys = await GetSigningKeys();
 
-            OpenIdConnectConfiguration configuration = new OpenIdConnectConfiguration();
+            OpenIdConnectConfiguration configuration = new();
             foreach (var securityKey in signingKeys)
             {
                 configuration.SigningKeys.Add(securityKey);
@@ -44,9 +44,9 @@ namespace Altinn.FileScan.Tests.Mocks.Authentication
 
         private static async Task<ICollection<SecurityKey>> GetSigningKeys()
         {
-            List<SecurityKey> signingKeys = new List<SecurityKey>();
+            List<SecurityKey> signingKeys = new();
 
-            X509Certificate2 cert = new X509Certificate2("JWTValidationCert.cer");
+            X509Certificate2 cert = new("JWTValidationCert.cer");
             SecurityKey key = new X509SecurityKey(cert);
 
             signingKeys.Add(key);

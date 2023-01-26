@@ -15,7 +15,7 @@ namespace Altinn.FileScan.Tests.Utils
         {
             string issuer = "www.altinn.no";
 
-            List<Claim> claims = new List<Claim>
+            List<Claim> claims = new()
             {
                 new Claim(AltinnCoreClaimTypes.UserId, userId.ToString(), ClaimValueTypes.String, issuer),
                 new Claim(AltinnCoreClaimTypes.UserName, "UserOne", ClaimValueTypes.String, issuer),
@@ -29,7 +29,7 @@ namespace Altinn.FileScan.Tests.Utils
                 claims.Add(new Claim("urn:altinn:scope", scope, ClaimValueTypes.String, "maskinporten"));
             }
 
-            ClaimsIdentity identity = new ClaimsIdentity("mock");
+            ClaimsIdentity identity = new("mock");
             identity.AddClaims(claims);
 
             return new ClaimsPrincipal(identity);
@@ -46,14 +46,14 @@ namespace Altinn.FileScan.Tests.Utils
 
         public static string GetAccessToken(string issuer, string app)
         {
-            List<Claim> claims = new List<Claim>
+            List<Claim> claims = new()
             {
                 new Claim(AccessTokenClaimTypes.App, app, ClaimValueTypes.String, issuer)
             };
 
-            ClaimsIdentity identity = new ClaimsIdentity("mock");
+            ClaimsIdentity identity = new("mock");
             identity.AddClaims(claims);
-            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+            ClaimsPrincipal principal = new(identity);
             string token = JwtTokenMock.GenerateToken(principal, new TimeSpan(0, 1, 5), issuer);
 
             return token;
