@@ -99,8 +99,6 @@ namespace Altinn.FileScan.Repository
             string secretName = $"{storageAccount}-{sasDefinition}";
             string keyVaultUri = string.Format(_storageConfig.OrgKeyVaultURI, org);
 
-            _logger.LogInformation("Getting secret '{secretName}' from '{keyVaultUri}'.", secretName, keyVaultUri);
-
             return await _keyVault.GetSecretAsync(keyVaultUri, secretName);
         }
     }

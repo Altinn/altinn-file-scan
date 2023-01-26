@@ -1,14 +1,9 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 
-using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessTokenClient.Services;
-using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Services.Interfaces;
 
-using Azure;
-using Azure.Identity;
-using Azure.Security.KeyVault.Certificates;
-using Azure.Security.KeyVault.Secrets;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Altinn.FileScan.Services
 {
@@ -19,27 +14,48 @@ namespace Altinn.FileScan.Services
     {
         private readonly IPlatformKeyVault _keyVault;
         private readonly IAccessTokenGenerator _accessTokenGenerator;
+        private readonly IMemoryCache _cache;
+        private readonly MemoryCacheEntryOptions _cacheOptions;
+
         private const string CertId = "platform-access-token-private-cert";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccessTokenService"/> class.
         /// </summary>
-        public AccessTokenService(IPlatformKeyVault keyVault, IAccessTokenGenerator accessTokenGenerator)
+        public AccessTokenService(IPlatformKeyVault keyVault, IAccessTokenGenerator accessTokenGenerator, IMemoryCache cache)
         {
             _keyVault = keyVault;
             _accessTokenGenerator = accessTokenGenerator;
+            _cache = cache;
+
+            _cacheOptions = new()
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(55)
+            };
         }
 
-        /// <inheritdoc/>
-        public async Task<string> Generate(string issuer = "platform", string app = "file-scan")
+        /// <summary>
+        /// Generates an access token with issuer `platform` and app `file-scan`
+        /// </summary>
+        public async Task<string> Generate()
         {
-            string certBase64 =
-                       await _keyVault.GetCertificateAsync(CertId);
+            var accessTokenCacheKey = "accesstoken-platform-file-scan";
 
-            string accessToken = _accessTokenGenerator.GenerateAccessToken("platform", app, new X509Certificate2(
+            if (_cache.TryGetValue(accessTokenCacheKey, out string accessToken))
+            {
+                return accessToken;
+            }
+
+            string certBase64 =
+                  await _keyVault.GetCertificateAsync(CertId);
+
+            accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "file-scan", new X509Certificate2(
                 Convert.FromBase64String(certBase64),
                 (string)null,
                 X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable));
+
+            _cache.Set(accessTokenCacheKey, accessToken, _cacheOptions);
+
             return accessToken;
         }
     }
