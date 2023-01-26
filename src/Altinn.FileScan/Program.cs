@@ -21,6 +21,7 @@ using Azure.Security.KeyVault.Secrets;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
 using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -207,6 +208,13 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         options.AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
     });
 
+    SetUpAppInsightsService(services);
+
+    services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
+}
+
+void SetUpAppInsightsService(IServiceCollection services)
+{
     if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
     {
         services.AddSingleton(typeof(ITelemetryChannel), new ServerTelemetryChannel { StorageFolder = "/tmp/logtelemetry" });
@@ -215,13 +223,21 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
             ConnectionString = applicationInsightsConnectionString
         });
 
+        services.ConfigureTelemetryModule<EventCounterCollectionModule>(
+             (module, o) =>
+             {
+                 module.Counters.Clear();
+                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-queue-length"));
+                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-thread-count"));
+                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "monitor-lock-contention-count"));
+                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gc-heap-size"));
+                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "time-in-gc"));
+                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "working-set"));
+             });
+
         services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
         services.AddApplicationInsightsTelemetryProcessor<HealthTelemetryFilter>();
-
-        logger.LogInformation("Program // ApplicationInsightsTelemetryKey = {applicationInsightsConnectionString}", applicationInsightsConnectionString);
     }
-
-    services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
 
 void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
