@@ -1,9 +1,11 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 
+using Altinn.Common.AccessTokenClient.Configuration;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.FileScan.Services.Interfaces;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace Altinn.FileScan.Services
 {
@@ -22,7 +24,7 @@ namespace Altinn.FileScan.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="AccessTokenService"/> class.
         /// </summary>
-        public AccessTokenService(IPlatformKeyVault keyVault, IAccessTokenGenerator accessTokenGenerator, IMemoryCache cache)
+        public AccessTokenService(IPlatformKeyVault keyVault, IAccessTokenGenerator accessTokenGenerator, IMemoryCache cache, IOptions<AccessTokenSettings> settings)
         {
             _keyVault = keyVault;
             _accessTokenGenerator = accessTokenGenerator;
@@ -30,7 +32,7 @@ namespace Altinn.FileScan.Services
 
             _cacheOptions = new()
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(55)
+                AbsoluteExpiration = new DateTimeOffset(DateTime.Now.AddSeconds(settings.Value.TokenLifetimeInSeconds - 2))
             };
         }
 
