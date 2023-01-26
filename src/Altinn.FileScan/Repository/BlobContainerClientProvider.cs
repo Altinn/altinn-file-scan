@@ -56,29 +56,34 @@ namespace Altinn.FileScan.Repository
             await _semaphore.WaitAsync();
             try
             {
+                BlobContainerClient blobContainerClient;
+
                 if (_storageConfig.AccountName == "devstoreaccount1")
                 {
                     StorageSharedKeyCredential storageCredentials = new(_storageConfig.AccountName, _storageConfig.AccountKey);
                     Uri storageUrl = new(_storageConfig.BlobEndPoint);
                     BlobServiceClient commonBlobClient = new(storageUrl, storageCredentials);
-                    BlobContainerClient blobContainerClient = commonBlobClient.GetBlobContainerClient(_storageConfig.StorageContainer);
+                    blobContainerClient = commonBlobClient.GetBlobContainerClient(_storageConfig.StorageContainer);
+                }
+                else
+                {
+                    string sasToken = await GetSasToken(org);
+                    string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
+                    string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
 
-                    return blobContainerClient;
+                    UriBuilder fullUri = new()
+                    {
+                        Scheme = "https",
+                        Host = $"{accountName}.blob.core.windows.net",
+                        Path = $"{containerName}",
+                        Query = sasToken
+                    };
+
+                    blobContainerClient = new BlobContainerClient(fullUri.Uri);
                 }
 
-                string sasToken = await GetSasToken(org);
-                string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
-                string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
-
-                UriBuilder fullUri = new()
-                {
-                    Scheme = "https",
-                    Host = $"{accountName}.blob.core.windows.net",
-                    Path = $"{containerName}",
-                    Query = sasToken
-                };
-
-                return new BlobContainerClient(fullUri.Uri);
+                _containerClients.TryAdd(org, (DateTime.UtcNow, blobContainerClient));
+                return blobContainerClient;
             }
             finally
             {
