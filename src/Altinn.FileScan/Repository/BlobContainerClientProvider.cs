@@ -67,19 +67,8 @@ namespace Altinn.FileScan.Repository
                 }
                 else
                 {
-                    string sasToken = await GetSasToken(org);
-                    string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
-                    string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
-
-                    UriBuilder fullUri = new()
-                    {
-                        Scheme = "https",
-                        Host = $"{accountName}.blob.core.windows.net",
-                        Path = $"{containerName}",
-                        Query = sasToken
-                    };
-
-                    blobContainerClient = new BlobContainerClient(fullUri.Uri);
+                    var containerUri = await GetBlobUri(org);
+                    blobContainerClient = new BlobContainerClient(containerUri);
                 }
 
                 _containerClients.TryAdd(org, (DateTime.UtcNow, blobContainerClient));
@@ -89,6 +78,26 @@ namespace Altinn.FileScan.Repository
             {
                 _semaphore.Release();
             }
+        }
+
+        /// <summary>
+        /// Generates a container uri for an app owner blob container
+        /// </summary>
+        internal async Task<Uri> GetBlobUri(string org)
+        {
+            string sasToken = await GetSasToken(org);
+            string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
+            string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
+
+            UriBuilder fullUri = new()
+            {
+                Scheme = "https",
+                Host = $"{accountName}.blob.core.windows.net",
+                Path = $"{containerName}",
+                Query = sasToken
+            };
+
+            return fullUri.Uri;
         }
 
         private bool StillYoung(DateTime created)
