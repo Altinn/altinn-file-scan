@@ -175,7 +175,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddSingleton<IAppOwnerKeyVault, AppOwnerKeyVaultService>();
     services.AddSingleton<IPlatformKeyVault, PlatformKeyVaultService>();
-    services.AddSingleton<ISasTokenProvider, SasTokenProvider>();
+    services.AddSingleton<IBlobContainerClientProvider, BlobContainerClientProvider>();
     services.AddSingleton<IAppOwnerBlob, AppOwnerBlobRepository>();
 
     services.AddHttpClient<IStorageClient, StorageClient>();
