@@ -19,7 +19,6 @@ namespace Altinn.FileScan.Clients
     {
         private readonly HttpClient _client;
         private readonly IAccessToken _accessTokenService;
-        private readonly ILogger<IStorageClient> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StorageClient"/> class.
@@ -27,15 +26,12 @@ namespace Altinn.FileScan.Clients
         public StorageClient(
            HttpClient httpClient,
            IAccessToken accessToken,
-           IOptions<PlatformSettings> settings,
-           ILogger<IStorageClient> logger)
+           IOptions<PlatformSettings> settings)
         {
             _accessTokenService = accessToken;
 
             _client = httpClient;
             _client.BaseAddress = new Uri(settings.Value.ApiStorageEndpoint);
-
-            _logger = logger;
         }
 
         /// <inheritdoc/>
@@ -45,8 +41,6 @@ namespace Altinn.FileScan.Clients
             StringContent httpContent = new(JsonSerializer.Serialize(fileScanStatus), Encoding.UTF8, "application/json");
 
             var accessToken = await _accessTokenService.Generate();
-
-            _logger.LogInformation($"Access token sent to storage {accessToken}");
 
             HttpResponseMessage response = await _client.PutAsync(endpoint, httpContent, accessToken);
 

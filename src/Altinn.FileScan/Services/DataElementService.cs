@@ -21,7 +21,7 @@ namespace Altinn.FileScan.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="DataElementService"/> class.
         /// </summary>
-        public DataElementService(IAppOwnerBlob repository, IStorageClient storageClient, IMuescheliClient muescheliClient, ILogger<IDataElement> logger)
+        public DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<IDataElement> logger)
         {
             _repository = repository;
             _storageClient = storageClient;
