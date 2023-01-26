@@ -6,9 +6,8 @@
     public interface IAccessToken
     {
         /// <summary>
-        /// Generates an access token based on the provided issuer and app
+        /// Generates an access token
         /// </summary>
-        /// <returns>An access token</returns>
-        public Task<string> Generate(string issuer = "platform", string app = "file-scan");
+        public Task<string> Generate();
     }
 }
