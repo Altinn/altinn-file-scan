@@ -1,6 +1,6 @@
 /*
     Test script to platform events api with user token
-    Command: docker-compose run k6 run /src/tests/end2end.js -e tokenGeneratorUserName=autotest -e tokenGeneratorUserPwd=*** -e env=*** -e subsKey=*** -e partyId=*** -e personNumber=***
+    Command: docker-compose run k6 run /src/tests/end2end.js -e tokenGeneratorUserName=autotest -e tokenGeneratorUserPwd=*** -e env=*** -e subskey=*** -e partyId=*** -e personNumber=*** -e org=ttd -e app=filescan-end-to-end
 */
 import { check, sleep } from "k6";
 import * as setupToken from "../setup.js";
