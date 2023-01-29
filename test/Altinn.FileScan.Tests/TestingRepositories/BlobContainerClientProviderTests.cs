@@ -14,16 +14,63 @@ namespace Altinn.FileScan.Tests.TestingRepositories
 {
     public class BlobContainerClientProviderTests
     {
+        private AppOwnerAzureStorageConfig _storageConfig; 
+
+        public BlobContainerClientProviderTests()
+        {
+            _storageConfig = new AppOwnerAzureStorageConfig
+            {
+                OrgKeyVaultURI = "https =//{0}-dev-keyvault.vault.azure.net/",
+                OrgStorageAccount = "{0}altinndevstrg01",
+                OrgStorageContainer = "{0}-dev-appsdata-blob-db",
+                OrgSasDefinition = "{0}devsasdef01",
+                AllowedSasTokenAgeHours = 8
+            };
+        }
+
         [Fact]
         public async Task GetBlobContainerClient_TokenInCache_StillYoungTrue_ReturnedFromCache()
         {
-            Assert.True(true);
+            // Arrange 
+            Mock<IAppOwnerKeyVault> keyVaultMock = new();
+            keyVaultMock.Setup(kv => kv.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("sasToken");
+
+            var sut = new BlobContainerClientProvider(
+                keyVaultMock.Object,
+                Options.Create(_storageConfig),
+                null);
+
+            await sut.GetBlobContainerClient("ttd");
+
+            // Act
+            var actual = await sut.GetBlobContainerClient("ttd");
+
+            // Assert
+            Assert.NotNull(actual);
+            keyVaultMock.Verify(kv => kv.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>()), Times.AtMostOnce);
         }
 
         [Fact]
         public async Task GetBlobContainerClient_TokenInCache_StillYoungFalse_NewClientCreatedAndCached()
         {
-            Assert.True(true);
+            // Arrange 
+            Mock<IAppOwnerKeyVault> keyVaultMock = new();
+            keyVaultMock.Setup(kv => kv.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync("sasToken");
+            _storageConfig.AllowedSasTokenAgeHours = 0;
+
+            var sut = new BlobContainerClientProvider(
+                            keyVaultMock.Object,
+                            Options.Create(_storageConfig),
+                            null);
+
+            await sut.GetBlobContainerClient("ttd");
+
+            // Act
+            var actual = await sut.GetBlobContainerClient("ttd");
+
+            // Assert
+            Assert.NotNull(actual);
+            keyVaultMock.Verify(kv => kv.GetSecretAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
         }
 
         [Theory]
