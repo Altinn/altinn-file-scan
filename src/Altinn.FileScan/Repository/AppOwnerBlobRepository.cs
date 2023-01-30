@@ -27,5 +27,14 @@ namespace Altinn.FileScan.Repository
             Azure.Response<BlobDownloadInfo> response = await blobClient.DownloadAsync();
             return response.Value.Content;
         }
+
+        /// <inheritdoc/>
+        public async Task<BlobProperties> GetBlobProperties(string org, string blobPath)
+        {
+            var containerClient = await _containerClientProvider.GetBlobContainerClient(org);
+            var blobClient = containerClient.GetBlobClient(blobPath);
+            Azure.Response<BlobProperties> response = await blobClient.GetPropertiesAsync();
+            return response.Value;
+        }
     }
 }
