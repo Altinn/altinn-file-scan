@@ -44,7 +44,7 @@ export function hardDeleteInstance(token, instanceId) {
 }
 
 export function getInstance(token, instanceId) {
-  var endpoint = config.platformStorage["instances"] + instanceId;
+  var endpoint = config.platformStorage.instances + instanceId;
 
   var params = {
     headers: {
@@ -57,7 +57,7 @@ export function getInstance(token, instanceId) {
 
 
 export function postData(token, instanceId, dataType, content){
-  var endpoint = config.platformStorage["instances"] + instanceId + "/data?dataType=" + dataType;
+  var endpoint = config.platformStorage.instances + instanceId + "/data?dataType=" + dataType;
 
   var params = {
     headers: {

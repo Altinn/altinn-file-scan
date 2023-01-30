@@ -12,7 +12,6 @@ const tokenGeneratorUserPwd = __ENV.tokenGeneratorUserPwd;
 Generate enterprise token for test environment
 */
 export function generateEnterpriseToken(queryParams) {
-  var success;
   const credentials = `${tokenGeneratorUserName}:${tokenGeneratorUserPwd}`;
   const encodedCredentials = encoding.b64encode(credentials);
 
@@ -35,6 +34,36 @@ export function generateEnterpriseToken(queryParams) {
   var token = response.body;
   return token;
 }
+
+
+/*
+Generate personal token for test environment
+*/
+export function generatePersonalToken(queryParams) {
+  const credentials = `${tokenGeneratorUserName}:${tokenGeneratorUserPwd}`;
+  const encodedCredentials = encoding.b64encode(credentials);
+
+  var endpoint =
+    config.tokenGenerator.getPersonalToken +
+    buildQueryParametersForEndpoint(queryParams);
+
+  var params = {
+    headers: {
+      Authorization: `Basic ${encodedCredentials}`,
+    },
+  };
+
+  var response = http.get(endpoint, params);
+
+  if (response.status != 200) {
+    stopIterationOnFail("Personal token generation failed", false, response);
+  }
+
+  var token = response.body;
+  return token;
+}
+
+
 
 /*
 Build query parameters
