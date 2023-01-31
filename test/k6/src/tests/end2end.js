@@ -12,7 +12,6 @@ const instanceJson = JSON.parse(open("../data/instance.json"));
 const kattebilde = open("../data/kattebilde.png");
 
 export function setup() {
-  console.log("Starting test.");
   const partyId = __ENV.partyId;
   const personNumber = __ENV.personNumber;
   const userId = __ENV.userId;
@@ -21,6 +20,9 @@ export function setup() {
   const environment = __ENV.env;
   const org = __ENV.org.toLowerCase();
   const app = __ENV.app.toLowerCase();
+
+
+  console.log("Starting test with org: " + org + " and app: " + app);
 
   let userToken;
 
