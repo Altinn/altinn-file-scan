@@ -9,7 +9,10 @@ on:
 
 jobs:
   use-case:
-    environment: at21
+    strategy:
+      matrix:
+        environment: [at21, at23]
+    environment: $${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
