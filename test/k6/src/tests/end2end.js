@@ -21,6 +21,8 @@ export function setup() {
   const password = __ENV.password;
   const environment = __ENV.env.toLowerCase();
 
+  console.log("environment: " + environment);
+
   let userToken;
 
   if (environment === "prod"){
