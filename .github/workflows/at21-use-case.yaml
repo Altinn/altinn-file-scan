@@ -1,0 +1,29 @@
+name: AT21 Use Case
+
+on:
+  schedule:
+  - cron: '*/10 * * * *'
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  use-case:
+    environment: at21
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run use case tests
+      run:  |
+              cd test/k6
+              docker-compose run k6 run /src/tests/end2end.js `
+              -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} `
+              -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} `
+              -e subskey=${{ secrets.APIM_SUBSKEY }} `
+              -e partyId=${{ secrets.PARTY_ID }} `
+              -e personNumber=${{ secrets.PERSON_NUMBER }} `
+              -e userId=${{ secrets.USER_ID }} `
+              -e env=${{ env.ENV }} `
+              -e org=${{ env.ORG }} `
+              -e app=${{ env.APP }}
+
