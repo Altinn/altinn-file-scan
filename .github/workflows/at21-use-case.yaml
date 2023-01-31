@@ -23,7 +23,7 @@ jobs:
               -e partyId=${{ secrets.PARTY_ID }} `
               -e personNumber=${{ secrets.PERSON_NUMBER }} `
               -e userId=${{ secrets.USER_ID }} `
-              -e env=${{ $ENV }} `
-              -e org=${{ $ORG }} `
-              -e app=${{ $APP }}
+              -e env=${{ vars.ENV }} `
+              -e org=${{ vars.ORG }} `
+              -e app=${{ vars.APP }}
 
