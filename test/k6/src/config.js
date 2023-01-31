@@ -10,7 +10,7 @@ export var baseUrls = {
 };
 
 //Get values from environment
-const environment = __ENV.env;
+const environment = __ENV.env.toLowerCase();
 export let baseUrl = baseUrls[environment];
 
 //AltinnTestTools

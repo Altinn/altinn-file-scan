@@ -4,7 +4,7 @@ import * as tokenGenerator from "./api/token-generator.js";
 import * as config from "../config.js";
 import { stopIterationOnFail } from "../errorhandler.js";
 
-const environment = __ENV.env;
+const environment = __ENV.env.toLowerCase();
 
 /*
  * generate an altinn token for TTD based on the environment using AltinnTestTools

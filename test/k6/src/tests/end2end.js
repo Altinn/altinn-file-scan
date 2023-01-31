@@ -6,7 +6,7 @@ import { check, sleep } from "k6";
 import * as setupToken from "../setup.js";
 import { generateJUnitXML, reportPath } from "../report.js";
 import * as storageApi from "../api/storage.js";
-import { stopIterationOnFail } from "../errorhandler.js";
+import { addErrorCount, stopIterationOnFail } from "../errorhandler.js";
 
 const instanceJson = JSON.parse(open("../data/instance.json"));
 const kattebilde = open("../data/kattebilde.png");
@@ -20,9 +20,6 @@ export function setup() {
   const environment = __ENV.env;
   const org = __ENV.org.toLowerCase();
   const app = __ENV.app.toLowerCase();
-
-
-  console.log("Starting test with org: " + org + " and app: " + app);
 
   let userToken;
 
@@ -72,6 +69,7 @@ export default function (data) {
       r.status === 201,
   });
 
+  addErrorCount(success);
   stopIterationOnFail("POST valid cloud event with all parameters", success, res);
 
 
@@ -92,6 +90,7 @@ export default function (data) {
       dataElement.fileScanResult == ("Pending" || "Clean"),
   });
 
+  addErrorCount(success);
   sleep(15);
 
   res = storageApi.getInstance(data.token, instanceId);
@@ -106,6 +105,7 @@ export default function (data) {
     "GET check data element. Confirm that scan result is clean.":
       dataElement.fileScanResult === "Clean",
   });
+  addErrorCount(success);
 
   // clean up instance
   res = storageApi.hardDeleteInstance(data.token, instanceId);
@@ -114,6 +114,8 @@ export default function (data) {
     "DELETE hard delete instance after test status is 200.": (r) =>
       r.status === 200,
   });
+  addErrorCount(success);
+
 }
 
 /*
