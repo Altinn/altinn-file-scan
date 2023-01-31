@@ -11,8 +11,11 @@ jobs:
   use-case:
     strategy:
       matrix:
-        environment: [at21, at23]
-    environment: $${{ matrix.environment }}
+        include:
+          - environment: at21
+          - environment: at23
+    environment:
+      name: $${{ matrix.environment }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
