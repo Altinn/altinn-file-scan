@@ -16,10 +16,9 @@ jobs:
     - name: Run use case tests
       run:  |
               cd test/k6
-              docker-compose run k6 run /src/tests/end2end.js `
+              docker-compose run k6 run /src/tests/end2end.js -e subskey=${{ secrets.APIM_SUBSKEY }} `
               -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} `
               -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} `
-              -e subskey=${{ secrets.APIM_SUBSKEY }} `
               -e partyId=${{ secrets.PARTY_ID }} `
               -e personNumber=${{ secrets.PERSON_NUMBER }} `
               -e userId=${{ secrets.USER_ID }} `
