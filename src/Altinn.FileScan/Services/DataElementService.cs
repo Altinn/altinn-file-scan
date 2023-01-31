@@ -39,9 +39,10 @@ namespace Altinn.FileScan.Services
                 if (blobProps.LastModified != scanRequest.Timestamp)
                 {
                     _logger.LogError(
-                        "Scan request timestamp != blob last modified timestamp. Instance Id: {instanceId}, DataElementId: {dataElementId}", 
+                        "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {instanceId}, DataElementId: {dataElementId}, timestamp diff: {timeDiff} seconds", 
                         scanRequest.InstanceId, 
-                        scanRequest.DataElementId);
+                        scanRequest.DataElementId,
+                        scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds);
                     return;
                 }
 
