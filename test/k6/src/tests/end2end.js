@@ -12,6 +12,8 @@ const instanceJson = JSON.parse(open("../data/instance.json"));
 const kattebilde = open("../data/kattebilde.png");
 
 export function setup() {
+  console.log("environment: " + environment);
+
   const org = __ENV.org.toLowerCase();
   const app = __ENV.app.toLowerCase();
   const partyId = __ENV.partyId;
@@ -21,7 +23,6 @@ export function setup() {
   const password = __ENV.password;
   const environment = __ENV.env.toLowerCase();
 
-  console.log("environment: " + environment);
 
   let userToken;
 
