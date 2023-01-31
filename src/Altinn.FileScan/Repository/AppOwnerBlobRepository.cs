@@ -1,4 +1,5 @@
-﻿using Altinn.FileScan.Repository.Interfaces;
+﻿using Altinn.FileScan.Models;
+using Altinn.FileScan.Repository.Interfaces;
 
 using Azure.Storage.Blobs.Models;
 
@@ -29,12 +30,12 @@ namespace Altinn.FileScan.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<BlobProperties> GetBlobProperties(string org, string blobPath)
+        public async Task<BlobPropertyModel> GetBlobProperties(string org, string blobPath)
         {
             var containerClient = await _containerClientProvider.GetBlobContainerClient(org);
             var blobClient = containerClient.GetBlobClient(blobPath);
             Azure.Response<BlobProperties> response = await blobClient.GetPropertiesAsync();
-            return response.Value;
+            return new BlobPropertyModel { LastModified = response.Value.LastModified };
         }
     }
 }

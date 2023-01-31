@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs.Models;
+﻿using Altinn.FileScan.Models;
+using Azure.Storage.Blobs.Models;
 
 namespace Altinn.FileScan.Repository.Interfaces
 {
@@ -21,6 +22,6 @@ namespace Altinn.FileScan.Repository.Interfaces
         /// <param name="org">The short name of the organisation</param>
         /// <param name="blobPath">Full path to the blob within a storage account</param>
         /// <returns>Blob properties object</returns>
-        public Task<BlobProperties> GetBlobProperties(string org, string blobPath);
+        public Task<BlobPropertyModel> GetBlobProperties(string org, string blobPath);
     }
 }

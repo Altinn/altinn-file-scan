@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 using Altinn.FileScan.Clients.Interfaces;
@@ -22,7 +23,7 @@ namespace Altinn.FileScan.Tests.TestingServices
         [Fact]
         public async Task Scan_HappyPath_AllServicesAreCalledWithExpectedData()
         {
-            // Arraange
+            // Arrange
             Mock<IAppOwnerBlob> blobMock = new();
             blobMock
                 .Setup(b => b.GetBlob(It.Is<string>(s => s == "ttd"), It.Is<string>(s => s == "blobstoragePath/org/attachment.pdf")))
@@ -59,7 +60,17 @@ namespace Altinn.FileScan.Tests.TestingServices
         [Fact]
         public async Task Scan_FilenameMissing_DataElementIdIsUsed()
         {
-            // Arraange
+            // Arrange
+            DateTimeOffset requestTimestamp = new DateTimeOffset(2023, 1, 10, 8, 0, 0, new TimeSpan(0, 0, 0));
+            
+            Mock<IAppOwnerBlob> blobMock = new();
+            blobMock
+                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new BlobPropertyModel { LastModified = requestTimestamp });
+            blobMock
+                .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((Stream)null);
+
             Mock<IMuescheliClient> muescheliClientMock = new();
             muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
                 .ReturnsAsync(ScanResult.OK);
@@ -70,6 +81,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             {
                 BlobStoragePath = "blobstoragePath/org/attachment.pdf",
                 DataElementId = "dataElementId",
+                Timestamp = requestTimestamp,
                 InstanceId = "instanceId",
                 Org = "ttd"
             };
@@ -95,7 +107,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 var blobMock = new Mock<IAppOwnerBlob>();
 
                 blobMock
-                    .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>()))
+                    .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>()))                    
                     .ReturnsAsync((Stream)null);
 
                 appOwnerBlob = blobMock.Object;
