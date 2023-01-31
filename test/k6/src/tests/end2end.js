@@ -11,6 +11,12 @@ import { addErrorCount, stopIterationOnFail } from "../errorhandler.js";
 const instanceJson = JSON.parse(open("../data/instance.json"));
 const kattebilde = open("../data/kattebilde.png");
 
+export const options = {
+  thresholds: {
+    errors: ['count<1'],
+  },
+};
+
 export function setup() {
   const partyId = __ENV.partyId;
   const personNumber = __ENV.personNumber;
