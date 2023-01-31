@@ -13,16 +13,14 @@ const kattebilde = open("../data/kattebilde.png");
 
 export function setup() {
   console.log("Starting test.");
-
-  const org = __ENV.org.toLowerCase();
-  const app = __ENV.app.toLowerCase();
   const partyId = __ENV.partyId;
   const personNumber = __ENV.personNumber;
   const userId = __ENV.userId;
   const username = __ENV.username;
   const password = __ENV.password;
-  const environment = __ENV.env.toLowerCase();
-
+  const environment = __ENV.env;
+  const org = __ENV.org.toLowerCase();
+  const app = __ENV.app.toLowerCase();
 
   let userToken;
 
