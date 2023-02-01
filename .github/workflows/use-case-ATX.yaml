@@ -51,6 +51,7 @@ jobs:
   report-status:
     runs-on: ubuntu-latest
     needs: [AT21, AT22, AT23, AT24]
+    if: always()
     # if: ${{ contains(join(needs.*.result, ','), 'failure') }}
     steps:
       - name: Show the values of the outputs
