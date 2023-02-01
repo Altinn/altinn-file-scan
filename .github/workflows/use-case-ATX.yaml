@@ -59,3 +59,4 @@ jobs:
           # using the syntax steps.<step_id>.outputs.<output_name> to access the output parameters
           echo "Use case test status"
           echo ${{ join(needs.*.result, ',') }}
+          echo ${{ contains(join(needs.*.result, ','), 'failure') }}
