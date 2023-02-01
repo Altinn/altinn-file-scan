@@ -3,8 +3,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
-using Altinn.FileScan.Clients;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
@@ -13,24 +11,24 @@ using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Enums;
 using Altinn.Platform.Storage.Interface.Models;
-
-using Castle.Core.Logging;
-
 using Microsoft.Extensions.Logging;
-
 using Moq;
-
 using Xunit;
 
 namespace Altinn.FileScan.Tests.TestingServices
 {
     public class DataElementServiceTests
     {
+        private static DateTimeOffset requestTimestamp = new DateTimeOffset(2023, 1, 10, 8, 0, 0, new TimeSpan(0, 0, 0));
+        private static DateTimeOffset matchingTimestamp = new DateTimeOffset(2023, 1, 10, 8, 0, 0, new TimeSpan(0, 0, 0));
+        private static DateTimeOffset nonMatchingTimestamp = new DateTimeOffset(2023, 1, 10, 8, 30, 0, new TimeSpan(0, 0, 0));
+
         private DataElementScanRequest _defaultDataElementScanRequest = new DataElementScanRequest
         {
             BlobStoragePath = "blobstoragePath/org/attachment.pdf",
             DataElementId = "dataElementId",
             InstanceId = "instanceId",
+            Timestamp = requestTimestamp,
             Filename = "attachment.pdf",
             Org = "ttd"
         };
@@ -38,8 +36,14 @@ namespace Altinn.FileScan.Tests.TestingServices
         [Fact]
         public async Task Scan_HappyPath_AllServicesAreCalledWithExpectedData()
         {
-            // Arraange
+            // Arrange
             Mock<IAppOwnerBlob> blobMock = new();
+            blobMock
+                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new BlobPropertyModel
+                {
+                    LastModified = matchingTimestamp
+                });
             blobMock
                 .Setup(b => b.GetBlob(It.Is<string>(s => s == "ttd"), It.Is<string>(s => s == "blobstoragePath/org/attachment.pdf")))
                 .ReturnsAsync((Stream)null);
@@ -66,7 +70,7 @@ namespace Altinn.FileScan.Tests.TestingServices
         [Fact]
         public async Task Scan_FilenameMissing_DataElementIdIsUsed()
         {
-            // Arraange
+            // Arrange
             Mock<IMuescheliClient> muescheliClientMock = new();
             muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
                 .ReturnsAsync(ScanResult.OK);
@@ -77,6 +81,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             {
                 BlobStoragePath = "blobstoragePath/org/attachment.pdf",
                 DataElementId = "dataElementId",
+                Timestamp = requestTimestamp,
                 InstanceId = "instanceId",
                 Org = "ttd"
             };
@@ -86,6 +91,46 @@ namespace Altinn.FileScan.Tests.TestingServices
 
             // Assert
             muescheliClientMock.VerifyAll();
+        }
+
+        [Fact]
+        public async Task Scan_TimestampDoesNotMatch_ErrorLogged()
+        {
+            // Arrange
+            Mock<IAppOwnerBlob> blobMock = new();
+            blobMock
+                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new BlobPropertyModel { LastModified = nonMatchingTimestamp });
+            blobMock
+                .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync((Stream)null);
+
+            Mock<ILogger<IDataElement>> loggerMock = new Mock<ILogger<IDataElement>>();
+
+            Mock<IMuescheliClient> muescheliClientMock = new();
+            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
+                .ReturnsAsync(ScanResult.OK);
+
+            DataElementService sut = SetUpTestService(
+                appOwnerBlob: blobMock.Object, 
+                muescheliClient: muescheliClientMock.Object,
+                logger: loggerMock.Object);
+
+            var input = new DataElementScanRequest
+            {
+                BlobStoragePath = "blobstoragePath/org/attachment.pdf",
+                DataElementId = "dataElementId",
+                Timestamp = requestTimestamp,
+                InstanceId = "instanceId",
+                Org = "ttd"
+            };
+
+            // Act
+            await sut.Scan(input);
+
+            // Assert
+            loggerMock.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            muescheliClientMock.Verify(x => x.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
         }
 
         [Theory]
@@ -153,12 +198,18 @@ namespace Altinn.FileScan.Tests.TestingServices
         private static DataElementService SetUpTestService(
             IAppOwnerBlob appOwnerBlob = null,
             IMuescheliClient muescheliClient = null,
-            IStorageClient storageClient = null)
+            IStorageClient storageClient = null,
+            ILogger<IDataElement> logger = null)
         {
             if (appOwnerBlob is null)
             {
-                var blobMock = new Mock<IAppOwnerBlob>();
-
+                Mock<IAppOwnerBlob> blobMock = new();
+                blobMock
+                    .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>()))
+                    .ReturnsAsync(new BlobPropertyModel 
+                    { 
+                        LastModified = matchingTimestamp
+                    });
                 blobMock
                     .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>()))
                     .ReturnsAsync((Stream)null);
@@ -184,7 +235,10 @@ namespace Altinn.FileScan.Tests.TestingServices
                 storageClient = storageClientMock.Object;
             }
 
-            var logger = new Mock<ILogger<IDataElement>>().Object;
+            if (logger == null)
+            {
+                logger = new Mock<ILogger<IDataElement>>().Object;
+            }
 
             return new DataElementService(appOwnerBlob, muescheliClient, storageClient, logger);
         }

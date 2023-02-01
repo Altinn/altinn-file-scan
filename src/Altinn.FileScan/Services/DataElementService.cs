@@ -34,6 +34,18 @@ namespace Altinn.FileScan.Services
         {
             try
             {
+                var blobProps = await _repository.GetBlobProperties(scanRequest.Org, scanRequest.BlobStoragePath);
+
+                if (blobProps.LastModified != scanRequest.Timestamp)
+                {
+                    _logger.LogError(
+                        "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {instanceId}, DataElementId: {dataElementId}, timestamp diff: {timeDiff} seconds", 
+                        scanRequest.InstanceId, 
+                        scanRequest.DataElementId,
+                        scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds);
+                    return;
+                }
+
                 var stream = await _repository.GetBlob(scanRequest.Org, scanRequest.BlobStoragePath);
 
                 var filename = string.IsNullOrEmpty(scanRequest.Filename) ? $"{scanRequest.DataElementId}.txt" : scanRequest.Filename;

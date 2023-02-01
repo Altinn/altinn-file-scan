@@ -19,7 +19,7 @@ namespace Altinn.FileScan.Functions.Clients
     {
         private readonly HttpClient _client;
         private readonly IAccessTokenGenerator _accessTokenGenerator;
-        private readonly IKeyVaultService _keyVaultService;
+        private readonly IKeyVaultService _keyVaultService; 
         private readonly KeyVaultSettings _keyVaultSettings;
         private readonly ILogger<IFileScanClient> _logger;
 

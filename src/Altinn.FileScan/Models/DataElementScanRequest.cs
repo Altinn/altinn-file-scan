@@ -24,6 +24,11 @@
         public string Filename { get; set; }
 
         /// <summary>
+        /// Gets or sets the time when blob was saved.
+        /// </summary>
+        public DateTimeOffset Timestamp { get; set; }
+
+        /// <summary>
         /// Gets or sets the path to blob storage.
         /// </summary>
         public string BlobStoragePath { get; set; }
