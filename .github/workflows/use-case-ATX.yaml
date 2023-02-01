@@ -56,10 +56,23 @@ jobs:
     steps:
       - name: Show the values of the outputs
         run: |
-          # using the syntax steps.<step_id>.outputs.<output_name> to access the output parameters
           echo "Use case test status"
           echo "AT21:" ${{ needs.AT21.result}}
           echo "AT22:" ${{ needs.AT22.result}}
           echo "AT23:" ${{ needs.AT23.result}}
           echo "AT24:" ${{ needs.AT24.result}}
-          echo ${{ needs }}
+          echo ${{ needs | jq }}
+
+      - name: Report failute to Slack
+        if: never()
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          # This data can be any valid JSON from a previous step in the GitHub Action
+          payload: |
+            {
+              "key": "value",
+              "foo": "bar"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
