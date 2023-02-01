@@ -15,7 +15,7 @@ namespace Altinn.FileScan.Functions
         public void Initialize(ITelemetry telemetry)
         {
             // set custom role name here
-            telemetry.Context.Cloud.RoleName = "file-scan-function";
+            telemetry.Context.Cloud.RoleName = "filescan-function";
         }
     }
 }
