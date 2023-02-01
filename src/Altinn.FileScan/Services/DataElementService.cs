@@ -66,7 +66,7 @@ namespace Altinn.FileScan.Services
             }
             catch (MuescheliHttpException e)
             {
-                _logger.LogError(e, "Scan of {dataElementId} failed with a http exception.", scanRequest.DataElementId);
+                _logger.LogError(e, "Scan of {dataElementId} failed with an http exception.", scanRequest.DataElementId);
                 throw;
             }
         }

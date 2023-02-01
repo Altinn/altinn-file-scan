@@ -1,13 +1,20 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
+using Altinn.FileScan.Clients;
 using Altinn.FileScan.Clients.Interfaces;
+using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
 using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Enums;
 using Altinn.Platform.Storage.Interface.Models;
+
+using Castle.Core.Logging;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,6 +26,15 @@ namespace Altinn.FileScan.Tests.TestingServices
 {
     public class DataElementServiceTests
     {
+        private DataElementScanRequest _defaultDataElementScanRequest = new DataElementScanRequest
+        {
+            BlobStoragePath = "blobstoragePath/org/attachment.pdf",
+            DataElementId = "dataElementId",
+            InstanceId = "instanceId",
+            Filename = "attachment.pdf",
+            Org = "ttd"
+        };
+
         [Fact]
         public async Task Scan_HappyPath_AllServicesAreCalledWithExpectedData()
         {
@@ -38,17 +54,8 @@ namespace Altinn.FileScan.Tests.TestingServices
 
             DataElementService sut = SetUpTestService(blobMock.Object, muescheliClientMock.Object, storageClientMock.Object);
 
-            var input = new DataElementScanRequest
-            {
-                BlobStoragePath = "blobstoragePath/org/attachment.pdf",
-                DataElementId = "dataElementId",
-                InstanceId = "instanceId",
-                Filename = "attachment.pdf",
-                Org = "ttd"
-            };
-
             // Act
-            await sut.Scan(input);
+            await sut.Scan(_defaultDataElementScanRequest);
 
             // Assert
             blobMock.VerifyAll();
@@ -82,13 +89,71 @@ namespace Altinn.FileScan.Tests.TestingServices
         }
 
         [Theory]
-        [InlineData("OK", "Clean")]
-        public void Scan_DeterminateScanResult_MappedCorrectly(string scanResult, string expectedFileScanResult)
+        [InlineData(ScanResult.OK, FileScanResult.Clean)]
+        [InlineData(ScanResult.FOUND, FileScanResult.Infected)]
+        public async Task Scan_DeterminateScanResult_MappedCorrectlyToFileSCcanResult(ScanResult scanResult, FileScanResult expectedFileScanResult)
         {
-            // inline data with ok and infected results. 
+            // Arraange
+            Mock<IMuescheliClient> muescheliClientMock = new();
+            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
+                .ReturnsAsync(scanResult);
+
+            Mock<IStorageClient> storageClientMock = new();
+            storageClientMock
+                .Setup(s => s.PatchFileScanStatus(It.IsAny<string>(), It.IsAny<string>(), It.Is<FileScanStatus>(f => f.FileScanResult == expectedFileScanResult)));
+
+            DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object, storageClient: storageClientMock.Object);
+
+            // Act
+            await sut.Scan(_defaultDataElementScanRequest);
+
+            // Assert
+            muescheliClientMock.VerifyAll();
+            storageClientMock.VerifyAll();
         }
 
-        private static DataElementService SetUpTestService(IAppOwnerBlob appOwnerBlob = null, IMuescheliClient muescheliClient = null, IStorageClient storageClient = null)
+        [Theory]
+        [InlineData(ScanResult.UNDEFINED)]
+        [InlineData(ScanResult.ERROR)]
+        [InlineData(ScanResult.PARSE_ERROR)]
+        public async Task Scan_IndeterminateScanResult_ExceptionIsThrown(ScanResult scanResult)
+        {
+            // Arraange
+            Mock<IMuescheliClient> muescheliClientMock = new();
+            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
+                .ReturnsAsync(scanResult);
+
+            DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object);
+
+            // Act
+            Task Act() => sut.Scan(_defaultDataElementScanRequest);
+
+            // Assert
+            MuescheliScanResultException exception = await Assert.ThrowsAsync<MuescheliScanResultException>(Act);
+            Assert.Equal($"Muescheli scan returned result code `{scanResult}` for data element with id dataElementId", exception.Message);
+        }
+
+        [Fact]
+        public async Task Scan_MuscliClientThrowsException_ExceptionBubblesUp()
+        {
+            // Arraange            
+            Mock<IMuescheliClient> muescheliClientMock = new();
+            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
+                .ThrowsAsync(await MuescheliHttpException.CreateAsync(HttpStatusCode.NotFound, new HttpResponseMessage(HttpStatusCode.NotFound)));
+
+            DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object);
+
+            // Act
+            Task Act() => sut.Scan(_defaultDataElementScanRequest);
+
+            // Assert
+            MuescheliHttpException exception = await Assert.ThrowsAsync<MuescheliHttpException>(Act);
+        }
+
+        private static DataElementService SetUpTestService(
+            IAppOwnerBlob appOwnerBlob = null,
+            IMuescheliClient muescheliClient = null,
+            IStorageClient storageClient = null)
         {
             if (appOwnerBlob is null)
             {
@@ -119,9 +184,9 @@ namespace Altinn.FileScan.Tests.TestingServices
                 storageClient = storageClientMock.Object;
             }
 
-            var logger = new Mock<ILogger<IDataElement>>();
+            var logger = new Mock<ILogger<IDataElement>>().Object;
 
-            return new DataElementService(appOwnerBlob, muescheliClient, storageClient, logger.Object);
+            return new DataElementService(appOwnerBlob, muescheliClient, storageClient, logger);
         }
     }
 }
