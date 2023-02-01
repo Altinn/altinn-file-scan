@@ -184,7 +184,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 storageClient = storageClientMock.Object;
             }
 
-           var logger = new Mock<ILogger<IDataElement>>().Object;
+            var logger = new Mock<ILogger<IDataElement>>().Object;
 
             return new DataElementService(appOwnerBlob, muescheliClient, storageClient, logger);
         }
