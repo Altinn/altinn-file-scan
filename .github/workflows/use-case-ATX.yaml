@@ -58,5 +58,7 @@ jobs:
         run: |
           # using the syntax steps.<step_id>.outputs.<output_name> to access the output parameters
           echo "Use case test status"
+          echo "AT21 \t" + ${{ needs.AT21.result}}
+          echo "AT24 \t" + ${{ needs.AT21.result}}
           echo ${{ join(needs.*.result, ',') }}
           echo ${{ contains(join(needs.*.result, ','), 'failure') }}
