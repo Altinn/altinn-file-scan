@@ -61,9 +61,6 @@ jobs:
           echo "AT22:" ${{ needs.AT22.result}}
           echo "AT23:" ${{ needs.AT23.result}}
           echo "AT24:" ${{ needs.AT24.result}}
-
-          foreach job (neeeds.*)
-          echo $job
       - name: Report failute to Slack
         if: false
         id: slack
@@ -71,9 +68,23 @@ jobs:
         with:
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
+            [
             {
-              "key": "value",
-              "foo": "bar"
-            }
+              "environment": "AT21",
+              "test result": "${{ needs.AT21.result}}"
+            },
+               {
+              "environment": "AT22",
+              "test result": "${{ needs.AT22.result}}"
+            },
+               {
+              "environment": "AT23",
+              "test result": "${{ needs.AT23.result}}"
+            },
+               {
+              "environment": "AT24",
+              "test result": "${{ needs.AT24.result}}"
+            },
+            ]
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
