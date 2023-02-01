@@ -1,5 +1,4 @@
 ﻿using Altinn.FileScan.Models;
-using Azure.Storage.Blobs.Models;
 
 namespace Altinn.FileScan.Repository.Interfaces
 {
