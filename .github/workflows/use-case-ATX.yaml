@@ -61,8 +61,9 @@ jobs:
           echo "AT22:" ${{ needs.AT22.result}}
           echo "AT23:" ${{ needs.AT23.result}}
           echo "AT24:" ${{ needs.AT24.result}}
-          echo ${{ needs  }} | jq
 
+          foreach job (neeeds.*)
+          echo $job
       - name: Report failute to Slack
         if: false
         id: slack
