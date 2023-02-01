@@ -64,7 +64,7 @@ jobs:
           echo ${{ needs  }} | jq
 
       - name: Report failute to Slack
-        if: never()
+        if: false()
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
