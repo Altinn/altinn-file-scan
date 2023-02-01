@@ -1,0 +1,30 @@
+name: Use Case - PROD
+
+on:
+  schedule:
+  - cron: '*/10 * * * *'
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  PROD:
+    environment: PROD
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run use case tests
+      run:  |
+              cd test/k6
+              docker-compose run k6 run /src/tests/end2end.js -e subskey=${{ secrets.APIM_SUBSKEY }} -e env=${{ vars.ENV }} -e org=${{ vars.ORG }} -e app=${{ vars.APP }} -e userId=${{ secrets.USER_ID }} -e personNumber=${{ secrets.PERSON_NUMBER }} -e partyId=${{ secrets.PARTY_ID }} -e username=${{ USERNAME }} -e password=${{ PASSWORD }}
+
+  report-status:
+    name: Report status
+    runs-on: ubuntu-latest
+    needs: [PROD]
+    if: always() && contains(join(needs.*.result, ','), 'failure')
+    steps:
+      - name: Show the values of the outputs
+        run: |
+          echo "Use case test status"
+          echo "PROD:" ${{ needs.PROD.result}}
