@@ -1,5 +1,4 @@
-using System.Threading;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -9,6 +8,7 @@ namespace Altinn.FileScan.Health
     /// Health check service configured in startup
     /// Listen to 
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class HealthCheck : IHealthCheck
     {
         /// <summary>
