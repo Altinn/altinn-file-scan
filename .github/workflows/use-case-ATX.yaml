@@ -70,7 +70,7 @@ jobs:
 
           if [ ${{ needs.AT23.result == 'failure' }} ]
           then
-          report+="AT23 "\r\n"
+          report+="AT23 \r\n"
           fi
 
           if [ ${{ needs.AT24.result == 'failure' }} ]
