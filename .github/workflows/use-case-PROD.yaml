@@ -23,8 +23,9 @@ jobs:
     steps:
       - name: Build failure report
         run: |
-          echo "stepreport=:warning: FileScan use case test failure in production! :warning:" >> $GITHUB_ENV
-
+          report="stepreport=:warning: FileScan use case test failure in production :warning: \n"
+          report+="Test run available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "stepreport="$report >> $GITHUB_ENV
       - name: Report failure to Slack
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
