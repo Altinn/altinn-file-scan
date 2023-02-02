@@ -58,6 +58,7 @@ jobs:
         run: |
           report=":warning: **Use case test failure in AT!** :warning: \n  :party_parrot: See environment listed below: :party_parrot: \n"
           echo ${{ needs.AT21.result == 'failure' }}
+          echo ${{ needs.AT21.result }}
 
           if [ ${{ needs.AT21.result == 'failure' }} ]
           then
