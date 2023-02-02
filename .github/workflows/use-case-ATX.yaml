@@ -62,30 +62,20 @@ jobs:
           echo ${{ needs.AT23.result == 'failure' }}
           echo ${{ needs.AT24.result == 'failure' }}
 
-          if [ ${{ needs.AT21.result == 'failure' }} ]
-          then
-          report+="AT21 \r\n"
-          fi
-
           if [ " ${{ needs.AT21.result }}" = 'failure' ]; then
-              echo "Strings are equal."
-          else
-              echo "Strings are not equal."
+            report+="AT21 \r\n"
           fi
 
-          if [ ${{ needs.AT22.result == 'failure' }} ]
-          then
-          report+="AT22: \r\n"
+          if [ " ${{ needs.AT22.result }}" = 'failure' ]; then
+            report+="AT22 \r\n"
           fi
 
-          if [ ${{ needs.AT23.result == 'failure' }} ]
-          then
-          report+="AT23 \r\n"
+          if [ " ${{ needs.AT23.result }}" = 'failure' ]; then
+            report+="AT23 \r\n"
           fi
 
-          if [ ${{ needs.AT24.result == 'failure' }} ]
-          then
-          report+="AT24 \r\n"
+          if [ " ${{ needs.AT24.result }}" = 'failure' ]; then
+            report+="AT24 \r\n"
           fi
 
           echo "stepreport="$report >> $GITHUB_ENV
