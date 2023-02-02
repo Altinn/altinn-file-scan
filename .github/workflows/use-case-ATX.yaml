@@ -52,20 +52,34 @@ jobs:
     name: Report status
     runs-on: ubuntu-latest
     needs: [AT21, AT22, AT23, AT24]
-    #if: always() && contains(join(needs.*.result, ','), 'failure')
+    if: always() && contains(join(needs.*.result, ','), 'failure')
     steps:
       - name: Build failure report
         run: |
-          report="Use case test failure in AT! :party_parrot: \n See environment listed below: \n"
+          report=":warning: **Use case test failure in AT!** :warning: \n  :party_parrot: See environment listed below: :party_parrot: \n"
 
           if [ !  ${{ needs.AT21.result}}]
           then
           report={$report}"AT21 \r\n"
           fi
 
+          if [ !  ${{ needs.AT22.result}}]
+          then
+          report={$report}"AT22 \r\n"
+          fi
+
+          if [ !  ${{ needs.AT23.result}}]
+          then
+          report={$report}"AT23 \r\n"
+          fi
+
+          if [ !  ${{ needs.AT24.result}}]
+          then
+          report={$report}"AT24 \r\n"
+          fi
+
           echo "stepreport="$report >> $GITHUB_ENV
-      - name: test report output
-        run: echo ${{ env.stepreport }}
+
       - name: Report failute to Slack
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
