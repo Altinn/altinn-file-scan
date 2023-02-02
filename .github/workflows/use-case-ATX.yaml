@@ -62,7 +62,6 @@ jobs:
           echo "AT23:" ${{ needs.AT23.result}}
           echo "AT24:" ${{ needs.AT24.result}}
       - name: Report failute to Slack
-        if: false
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
