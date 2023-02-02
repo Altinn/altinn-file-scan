@@ -58,24 +58,24 @@ jobs:
         run: |
           report=":warning: **Use case test failure in AT!** :warning: \n  :party_parrot: See environment listed below: :party_parrot: \n"
 
-          if [ ${{ needs.AT21.result == false }} ]
+          if [ ${{ needs.AT21.result == failure }} ]
           then
-          report={$report}"AT21 \r\n"
+          report=$report"AT21 \r\n"
           fi
 
-          if [ ${{ needs.AT22.result == false }} ]
+          if [ ${{ needs.AT22.result == failure }} ]
           then
-          report={$report}"AT22 \r\n"
+          report=$report"AT22 \r\n"
           fi
 
-          if [ ${{ needs.AT23.result == false }} ]
+          if [ ${{ needs.AT23.result == failure }} ]
           then
-          report={$report}"AT23 \r\n"
+          report=$report"AT23 \r\n"
           fi
 
-          if [ ${{ needs.AT24.result == false }} ]
+          if [ ${{ needs.AT24.result == failure }} ]
           then
-          report={$report}"AT24 \r\n"
+          report=$report"AT24 \r\n"
           fi
 
           echo "stepreport="$report >> $GITHUB_ENV
