@@ -65,22 +65,6 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
-          payload: |
-              {
-                "text": "FileScan use test failure",
-                "attachments": [
-                  {
-                    "pretext": "AT",
-                    "color": "dbab09",
-                    "fields": [
-                      {
-                        "title": "Status",
-                        "short": true,
-                        "value": "In Progress"
-                      }
-                    ]
-                  }
-                ]
-              }
+          slack-message: "FileScan use test failure"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
