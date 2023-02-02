@@ -54,20 +54,24 @@ jobs:
     needs: [AT21, AT22, AT23, AT24]
     #if: always() && contains(join(needs.*.result, ','), 'failure')
     steps:
-      - name: Show the values of the outputs
+      - name: Build failure report
         run: |
-          echo "Use case test status"
-          echo "AT21:" ${{ needs.AT21.result}}
-          echo "AT22:" ${{ needs.AT22.result}}
-          echo "AT23:" ${{ needs.AT23.result}}
-          echo "AT24:" ${{ needs.AT24.result}}
+          $report = "## Use case test failure in AT! :party_parrot: \n See environment listed below: \n"
+
+          if [ !  ${{ needs.AT21.result}}]
+          then
+          $report += "AT21 \r\n"
+          fi
+
+          echo $report >> $GITHUB_STEP_SUMMARY
+
       - name: Report failute to Slack
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
               {
-                "text": "FileScan use test failure in ${{ format('AT21: {0} AT22: {1} AT23: {2} AT24: {3}', needs.AT21.result, needs.AT22.result, needs.AT23.result, needs.AT24.result) }}"
+                "text": ${{ GITHUB_STEP_SUMMARY }}"
               }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
