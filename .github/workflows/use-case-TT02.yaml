@@ -3,6 +3,9 @@ name: Use Case - TT02
 on:
   schedule:
   - cron: '*/10 * * * *'
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
 
 jobs:
   TT02:
@@ -21,7 +24,17 @@ jobs:
     needs: [TT02]
     if: always() && contains(join(needs.*.result, ','), 'failure')
     steps:
-      - name: Show the values of the outputs
+      - name: Build failure report
         run: |
-          echo "Use case test status"
-          echo "TT02:" ${{ needs.TT02.result}}
+          echo "stepreport=:warning: Use case test failure in TT02! :warning:" >> $GITHUB_ENV
+
+      - name: Report failure to Slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+              {
+                "text": "${{ env.stepreport }}"
+              }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_PROD }}

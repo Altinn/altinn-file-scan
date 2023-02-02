@@ -3,9 +3,6 @@ name: Use Case - AT
 on:
   schedule:
   - cron: '*/10 * * * *'
-  pull_request:
-    branches: [ main ]
-    types: [opened, synchronize, reopened]
 
 jobs:
   AT21:
@@ -56,11 +53,7 @@ jobs:
     steps:
       - name: Build failure report
         run: |
-          report=":warning: **Use case test failure in AT!** :warning: \n  :party_parrot: See environment listed below: :party_parrot: \n"
-          echo ${{ needs.AT21.result == 'failure' }}
-          echo ${{ needs.AT22.result == 'failure' }}
-          echo ${{ needs.AT23.result == 'failure' }}
-          echo ${{ needs.AT24.result == 'failure' }}
+          report=":warning: Use case test failure in AT! :warning: \n See environment(s) listed below: \n"
 
           if [ ${{ needs.AT21.result }} = 'failure' ]; then
             report+="AT21 \r\n"
