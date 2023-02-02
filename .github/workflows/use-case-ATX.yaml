@@ -56,14 +56,14 @@ jobs:
     steps:
       - name: Build failure report
         run: |
-          $report = "## Use case test failure in AT! :party_parrot: \n See environment listed below: \n"
+          report="Use case test failure in AT! :party_parrot: \n See environment listed below: \n"
 
           if [ !  ${{ needs.AT21.result}}]
           then
-          $report += "AT21 \r\n"
+          report={$report}"AT21 \r\n"
           fi
 
-          echo "report=$report" >> $GITHUB_ENV
+          echo "stepReport="$report >> $GITHUB_ENV
 
       - name: Report failute to Slack
         id: slack
@@ -71,7 +71,7 @@ jobs:
         with:
           payload: |
               {
-                "text": ${{ env.report }}"
+                "text": ${{ env.stepReport }}"
               }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
