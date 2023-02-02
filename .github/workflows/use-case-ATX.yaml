@@ -84,7 +84,16 @@ jobs:
         with:
           payload: |
               {
-                "text": "${{ env.stepreport }}"
+                "text": "${{ env.stepreport }}",
+                "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ env.stepreport }}"
+                  }
+                }
+              ]
               }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
