@@ -63,7 +63,7 @@ jobs:
           $report += "AT21 \r\n"
           fi
 
-          echo $report >> $GITHUB_STEP_SUMMARY
+          echo "report=$report" >> $GITHUB_ENV
 
       - name: Report failute to Slack
         id: slack
@@ -71,7 +71,7 @@ jobs:
         with:
           payload: |
               {
-                "text": ${{ GITHUB_STEP_SUMMARY }}"
+                "text": ${{ env.report }}"
               }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
