@@ -54,7 +54,7 @@ jobs:
     needs: [AT21, AT22, AT23, AT24]
     if: always()
     steps:
-      - run: echo ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      - run: echo ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job_id }}
 
   report-status:
     name: Report status
