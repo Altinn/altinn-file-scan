@@ -71,7 +71,7 @@ jobs:
             report+="AT24 \r\n"
           fi
 
-          report+="Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          report+="\n Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "stepreport="$report >> $GITHUB_ENV
 
       - name: Report failure to Slack
