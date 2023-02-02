@@ -67,7 +67,7 @@ jobs:
         with:
           payload: |
               {
-                "text": "FileScan use test failure in ${{ (needs.AT21.result) ? AT1 : ``}}"
+                "text": "FileScan use test failure in ${{ (needs.AT21.result) ? \"AT\" : \"not AT21\"}}"
               }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
