@@ -65,19 +65,22 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
         with:
-          # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
-            {
-              "text": "File scan usse case test failure in AT",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "## Hello steph is testing!"
+              {
+                "text": "FileScan use test failure",
+                "attachments": [
+                  {
+                    "pretext": "AT",
+                    "color": "dbab09",
+                    "fields": [
+                      {
+                        "title": "Status",
+                        "short": true,
+                        "value": "In Progress"
+                      }
+                    ]
                   }
-                }
-              ]
-            }
+                ]
+              }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_TEST }}
