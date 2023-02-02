@@ -64,7 +64,8 @@ jobs:
           fi
 
           echo "stepreport="$report >> $GITHUB_ENV
-
+      - name: test report output
+        run: echo ${{ env.stepreport }}
       - name: Report failute to Slack
         id: slack
         uses: slackapi/slack-github-action@v1.23.0
