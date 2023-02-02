@@ -57,13 +57,14 @@ jobs:
       - name: Build failure report
         run: |
           report=":warning: **Use case test failure in AT!** :warning: \n  :party_parrot: See environment listed below: :party_parrot: \n"
+          echo ${{ needs.AT21.result == 'failure' }}
 
           if [ ${{ needs.AT21.result == 'failure' }} ]
           then
           report+="AT21 \r\n"
           fi
 
-          if [${{ needs.AT22.result == 'failure' }} ]
+          if [ ${{ needs.AT22.result == 'failure' }} ]
           then
           report+="AT22: \r\n"
           fi
