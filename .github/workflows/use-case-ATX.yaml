@@ -3,9 +3,6 @@ name: Use Case - AT
 on:
   schedule:
   - cron: '*/15 * * * *'
-  pull_request:
-    branches: [ main ]
-    types: [opened, synchronize, reopened]
 
 jobs:
   AT21:
@@ -74,7 +71,7 @@ jobs:
             report+="AT24 \r\n"
           fi
 
-          report+="Test run available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          report+="Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "stepreport="$report >> $GITHUB_ENV
 
       - name: Report failure to Slack

@@ -2,6 +2,9 @@ name: Code test and analysis
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 jobs:
   build-and-test:

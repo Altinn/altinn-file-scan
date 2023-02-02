@@ -24,7 +24,7 @@ jobs:
       - name: Build failure report
         run: |
           report=" :warning: FileScan use case test failure in production :warning: \n"
-          report+="Test run available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          report+="Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "stepreport="$report >> $GITHUB_ENV
       - name: Report failure to Slack
         id: slack
