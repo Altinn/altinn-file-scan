@@ -3,7 +3,10 @@ name: Use Case - AT
 on:
   schedule:
   - cron: '*/15 * * * *'
-
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+    
 jobs:
   AT21:
     environment: AT21
