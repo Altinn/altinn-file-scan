@@ -1,0 +1,40 @@
+name: Use Case - TT02
+
+on:
+  schedule:
+  - cron: '*/15 * * * *'
+
+jobs:
+  TT02:
+    environment: TT02
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run use case tests
+      run:  |
+              cd test/k6
+              docker-compose run k6 run /src/tests/end2end.js -e subskey=${{ secrets.APIM_SUBSKEY }} -e env=${{ vars.ENV }} -e org=${{ vars.ORG }}  -e app=${{ vars.APP }} -e userId=${{ secrets.USER_ID }} -e personNumber=${{ secrets.PERSON_NUMBER }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e partyId=${{ secrets.PARTY_ID }}
+
+  report-status:
+    name: Report status
+    runs-on: ubuntu-latest
+    needs: [TT02]
+    if: always() && contains(join(needs.*.result, ','), 'failure')
+    steps:
+      - name: Build failure report
+        run: |
+          report=":warning: FileScan use case test failure in TT02 :warning: \n"
+          report+="Workflow available here: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "stepreport="$report >> $GITHUB_ENV
+
+      - name: Report failure to Slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+              {
+                "text": "${{ env.stepreport }}"
+              }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_PROD }}
+          

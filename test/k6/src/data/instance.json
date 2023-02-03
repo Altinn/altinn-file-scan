@@ -1,0 +1,22 @@
+{
+    "instanceOwner": {
+        "partyId": "replace",
+        "personNumber": "replace"
+    },
+    "org": "replace",
+    "appId": "replace",
+    "process": {
+        "started": "2023-01-24T13:40:39.7765055Z",
+        "startEvent": "StartEvent_1",
+        "currentTask": {
+            "flow": 2,
+            "started": "2023-01-24T13:40:39.7857766Z",
+            "elementId": "Task_1",
+            "name": "Utfylling",
+            "altinnTaskType": "data",
+            "flowType": "CompleteCurrentMoveToNext"
+        }
+    },
+    "created": "2023-01-24T13:40:39.8120526Z",
+    "createdBy": "20000000"
+}
