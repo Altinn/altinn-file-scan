@@ -82,6 +82,8 @@ export default function (data) {
   res = storageApi.postData(data.token, instanceId, "vedlegg", data.kattebilde);
   const dataElementId = JSON.parse(res.body).id;
 
+  sleep(3);
+
   res = storageApi.getInstance(data.token, instanceId);
 
   let retrievedInstance = JSON.parse(res.body);
