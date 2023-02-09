@@ -78,11 +78,8 @@ export default function (data) {
   addErrorCount(success);
   stopIterationOnFail("POST valid cloud event with all parameters", success, res);
 
-
   res = storageApi.postData(data.token, instanceId, "vedlegg", data.kattebilde);
   const dataElementId = JSON.parse(res.body).id;
-
-  sleep(3);
 
   res = storageApi.getInstance(data.token, instanceId);
 
@@ -93,9 +90,9 @@ export default function (data) {
 
   let dataElement = dataElements[0];
 
-  success = check(res, {
+  success = check(dataElement, {
     "GET check data element. Confirm that scan result is pending or clean.":
-      dataElement.fileScanResult == ("Pending" || "Clean"),
+      dataElement.fileScanResult == "Pending" || dataElement.fileScanResult == "Clean",
   });
 
   addErrorCount(success);
