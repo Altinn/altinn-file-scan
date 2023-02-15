@@ -69,14 +69,14 @@ export default function (data) {
   );
 
   success = check(res, {
-    "POST valid cloud event with all parameters status is 201.": (r) =>
+    "POST instance status is 201.": (r) =>
       r.status === 201,
   });
 
   addErrorCount(success);
-  stopIterationOnFail("POST valid cloud event with all parameters", success, res);
+  stopIterationOnFail("POST instance", success, res);
 
-  const instanceId = JSON.parse(res.body).id;
+  const instanceId = res.json('id');
 
   res = storageApi.postData(data.token, instanceId, "vedlegg", data.kattebilde);
   success = check(res, {
@@ -87,7 +87,7 @@ export default function (data) {
   addErrorCount(success);
   stopIterationOnFail("POST attachment kattebilde", success, res);
 
-  const dataElementId = JSON.parse(res.body).id;
+  const dataElementId = res.json('id');
 
   res = storageApi.getInstance(data.token, instanceId);
   success = check(res, {
