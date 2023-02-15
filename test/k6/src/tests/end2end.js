@@ -68,8 +68,6 @@ export default function (data) {
     JSON.stringify(data.instance)
   );
 
-  const instanceId = JSON.parse(res.body).id;
-
   success = check(res, {
     "POST valid cloud event with all parameters status is 201.": (r) =>
       r.status === 201,
@@ -77,6 +75,8 @@ export default function (data) {
 
   addErrorCount(success);
   stopIterationOnFail("POST valid cloud event with all parameters", success, res);
+
+  const instanceId = JSON.parse(res.body).id;
 
   res = storageApi.postData(data.token, instanceId, "vedlegg", data.kattebilde);
   const dataElementId = JSON.parse(res.body).id;
