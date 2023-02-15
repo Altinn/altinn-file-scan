@@ -79,9 +79,23 @@ export default function (data) {
   const instanceId = JSON.parse(res.body).id;
 
   res = storageApi.postData(data.token, instanceId, "vedlegg", data.kattebilde);
+  success = check(res, {
+    "POST attachment kattebilde status is 201.": (r) =>
+      r.status === 201,
+  });
+
+  addErrorCount(success);
+  stopIterationOnFail("POST attachment kattebilde", success, res);
+
   const dataElementId = JSON.parse(res.body).id;
 
   res = storageApi.getInstance(data.token, instanceId);
+  success = check(res, {
+    "Get instance status is 200.": (r) =>
+      r.status === 200,
+  });
+  addErrorCount(success);
+  stopIterationOnFail("Get instance", success, res);
 
   let retrievedInstance = JSON.parse(res.body);
   let dataElements = retrievedInstance.data.filter(function (d) {
@@ -120,7 +134,6 @@ export default function (data) {
       r.status === 200,
   });
   addErrorCount(success);
-
 }
 
 /*
