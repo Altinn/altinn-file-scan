@@ -5,9 +5,9 @@ networks:
 
 services:
   k6:
-    # must solve mounting of local files before upgrade t0 0.43.1
+    # must solve mounting of local files before upgrade to 0.43.1
     # See https://k6.io/docs/using-k6/modules/#using-local-modules-with-docker
-    image: loadimpact/k6:0.43.1
+    image: loadimpact/k6:0.42.0
     networks:
       - k6
     ports:
