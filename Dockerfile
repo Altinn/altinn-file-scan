@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0.203-alpine3.17 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0.302-alpine3.17 AS build
 
 # Copy event backend
 COPY src/Altinn.FileScan ./Altinn.FileScan
