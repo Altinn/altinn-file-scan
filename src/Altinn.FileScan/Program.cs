@@ -167,7 +167,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-    services.AddSingleton<ISigningKeysResolver, SigningKeysResolver>();
+    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProvider>();
 
     services.AddSingleton<IAccessToken, AccessTokenService>();
     services.AddSingleton<IAccessTokenGenerator, AccessTokenGenerator>();
