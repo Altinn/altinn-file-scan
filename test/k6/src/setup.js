@@ -1,8 +1,8 @@
 import http from "k6/http";
 import { check } from "k6";
 import * as tokenGenerator from "./api/token-generator.js";
-import * as config from "../config.js";
-import { stopIterationOnFail } from "../errorhandler.js";
+import * as config from "./config.js";
+import { stopIterationOnFail } from "./errorhandler.js";
 
 const environment = __ENV.env.toLowerCase();
 
