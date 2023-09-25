@@ -1,14 +1,32 @@
-﻿namespace Altinn.FileScan.Models
+﻿namespace Altinn.FileScan.Models;
+
+/// <summary>
+/// Enum for possible responses from the malware scan as being presented by the Muescheli container.
+/// </summary>
+public enum ScanResult
 {
     /// <summary>
-    /// Enum for malware scan results
+    /// The result of the scan is unknown.
     /// </summary>
-    public enum ScanResult
-    {
-        UNDEFINED,
-        OK,
-        FOUND,
-        ERROR,
-        PARSE_ERROR
-    }
+    UNDEFINED,
+
+    /// <summary>
+    /// The scan didn't find any malware.
+    /// </summary>
+    OK,
+
+    /// <summary>
+    /// The scan identified malware.
+    /// </summary>
+    FOUND,
+
+    /// <summary>
+    /// An error occured.
+    /// </summary>
+    ERROR,
+
+    /// <summary>
+    /// An error occured.
+    /// </summary>
+    PARSE_ERROR
 }
