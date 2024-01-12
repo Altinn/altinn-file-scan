@@ -38,16 +38,12 @@ jobs:
   report-status:
     name: Report status
     runs-on: ubuntu-latest
-    needs: [AT21, AT22, AT23, AT24]
+    needs: [AT22, AT23, AT24]
     if: always() && contains(join(needs.*.result, ','), 'failure')
     steps:
       - name: Build failure report
         run: |
           report=":warning: FileScan use case test failure in AT :warning: \n See environment(s) listed below: \n"
-
-          if [ ${{ needs.AT21.result }} = 'failure' ]; then
-            report+="AT21 \r\n"
-          fi
 
           if [ ${{ needs.AT22.result }} = 'failure' ]; then
             report+="AT22 \r\n"
