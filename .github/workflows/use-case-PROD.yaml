@@ -1,6 +1,7 @@
 name: Use Case - PROD
 
 on:
+  workflow_dispatch:
   schedule:
   - cron: '*/15 * * * *'
 
