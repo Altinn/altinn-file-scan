@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Repository.Interfaces;
@@ -25,6 +26,7 @@ namespace Altinn.FileScan.Repository
         private readonly ILogger<IBlobContainerClientProvider> _logger;
 
         private readonly SemaphoreSlim _semaphore = new(1, 1);
+        private readonly Dictionary<string, string> _orgKeyVaultDict;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobContainerClientProvider"/> class/>.
@@ -37,6 +39,7 @@ namespace Altinn.FileScan.Repository
             _keyVault = keyVault;
             _storageConfig = storageConfiguration.Value;
             _logger = logger;
+            _orgKeyVaultDict = JsonSerializer.Deserialize<Dictionary<string, string>>(_storageConfig.OrgKeyVaultDict);
         }
 
         /// <summary>
@@ -111,7 +114,15 @@ namespace Altinn.FileScan.Repository
             string sasDefinition = string.Format(_storageConfig.OrgSasDefinition, org);
 
             string secretName = $"{storageAccount}-{sasDefinition}";
-            string keyVaultUri = string.Format(_storageConfig.OrgKeyVaultURI, org);
+
+            if (_orgKeyVaultDict.TryGetValue(org, out string keyVaultUri))
+            {
+                // key was found in dictionary and keyVaultUri populated with a value
+            }
+            else
+            {
+                keyVaultUri = string.Format(_storageConfig.OrgKeyVaultURI, org);
+            }
 
             return await _keyVault.GetSecretAsync(keyVaultUri, secretName);
         }

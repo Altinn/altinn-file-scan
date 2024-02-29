@@ -14,7 +14,7 @@ namespace Altinn.FileScan.Tests.TestingRepositories
 {
     public class BlobContainerClientProviderTests
     {
-        private AppOwnerAzureStorageConfig _storageConfig; 
+        private AppOwnerAzureStorageConfig _storageConfig;
 
         public BlobContainerClientProviderTests()
         {
@@ -103,6 +103,35 @@ namespace Altinn.FileScan.Tests.TestingRepositories
             // Assert
             keyVaultMock.VerifyAll();
             Assert.Equal(expectedUri, actual.ToString());
+        }
+
+        [Fact]
+        public async Task GetBlobUri_OrgKvUsesAlternativeName_NameRetrievedFromDictionary()
+        {
+            // Arrange
+            Mock<IAppOwnerKeyVault> keyVaultMock = new();
+            keyVaultMock.Setup(kv => kv.GetSecretAsync(
+                It.Is<string>(s => s.Equals("https://random-uri.com")),
+                It.Is<string>(s => s.Equals("ttd-sa-ttd-sasdef"))))
+                .ReturnsAsync("sasToken=value");
+
+            var sut = new BlobContainerClientProvider(
+                    keyVaultMock.Object,
+                    Options.Create(new AppOwnerAzureStorageConfig
+                    {
+                        OrgKeyVaultURI = "https://{0}.kv.com",
+                        OrgKeyVaultDict = "{\"ttd\":\"https://random-uri.com\"}",
+                        OrgStorageAccount = "{0}-sa",
+                        OrgSasDefinition = "{0}-sasdef",
+                        OrgStorageContainer = "{0}-sc"
+                    }),
+                    null);
+
+            // Act
+            var actual = await sut.GetBlobUri("ttd");
+
+            // Assert
+            keyVaultMock.VerifyAll();
         }
     }
 }
