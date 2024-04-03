@@ -33,12 +33,12 @@ Run test suite by specifying filename.
 
 For example:
 
->$> docker-compose run k6 run /src/tests/end2end.js -e tokenGeneratorUserName=autotest -e tokenGeneratorUserPwd=*** -e env=at23 -e subskey=*** -e partyId=*** -e personNumber=*** -e org=ttd -e app=filescan-end-to-end
+>$> docker compose run k6 run /src/tests/end2end.js -e tokenGeneratorUserName=autotest -e tokenGeneratorUserPwd=*** -e env=at23 -e subskey=*** -e partyId=*** -e personNumber=*** -e org=ttd -e app=filescan-end-to-end
 
 
 The comand consists of three sections
 
-`docker-compose run` to run the test in a docker container
+`docker compose run` to run the test in a docker container
 
 `k6 run {path to test file}` pointing to the test file you want to run e.g. `/src/test/events.js`
 
