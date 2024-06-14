@@ -22,7 +22,7 @@ namespace Altinn.FileScan.Functions.Clients
         private readonly HttpClient _client;
         private readonly IAccessTokenGenerator _accessTokenGenerator;
         private readonly ICertificateResolverService _certificateResolverService;
-        private readonly ILogger<IFileScanClient> _logger;
+        private readonly ILogger<FileScanClient> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileScanClient"/> class.
@@ -32,7 +32,7 @@ namespace Altinn.FileScan.Functions.Clients
             IAccessTokenGenerator accessTokenGenerator,
             ICertificateResolverService certificateResolverService,
             IOptions<PlatformSettings> platformSettings,
-            ILogger<IFileScanClient> logger)
+            ILogger<FileScanClient> logger)
         {
             _accessTokenGenerator = accessTokenGenerator;
             _certificateResolverService = certificateResolverService;
