@@ -4,11 +4,13 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.FileScan.Functions.Clients.Interfaces;
 using Altinn.FileScan.Functions.Configuration;
 using Altinn.FileScan.Functions.Extensions;
 using Altinn.FileScan.Functions.Services.Interfaces;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -19,8 +21,7 @@ namespace Altinn.FileScan.Functions.Clients
     {
         private readonly HttpClient _client;
         private readonly IAccessTokenGenerator _accessTokenGenerator;
-        private readonly IKeyVaultService _keyVaultService; 
-        private readonly KeyVaultSettings _keyVaultSettings;
+        private readonly ICertificateResolverService _certificateResolverService;
         private readonly ILogger<IFileScanClient> _logger;
 
         /// <summary>
@@ -29,16 +30,15 @@ namespace Altinn.FileScan.Functions.Clients
         public FileScanClient(
             HttpClient httpClient,
             IAccessTokenGenerator accessTokenGenerator,
-            IKeyVaultService keyVaultService,
+            ICertificateResolverService certificateResolverService,
             IOptions<PlatformSettings> platformSettings,
-            IOptions<KeyVaultSettings> keyVaultSettings,
             ILogger<IFileScanClient> logger)
         {
-            _client = httpClient;
             _accessTokenGenerator = accessTokenGenerator;
-            _keyVaultService = keyVaultService;
-            _keyVaultSettings = keyVaultSettings.Value;
+            _certificateResolverService = certificateResolverService;
             _logger = logger;
+
+            _client = httpClient;
             _client.BaseAddress = new Uri(platformSettings.Value.ApiFileScanEndpoint);
         }
 
@@ -67,14 +67,9 @@ namespace Altinn.FileScan.Functions.Clients
         /// </summary>
         protected async Task<string> GenerateAccessToken()
         {
-            string certBase64 =
-            await _keyVaultService.GetCertificateAsync(
-                    _keyVaultSettings.KeyVaultURI,
-                    _keyVaultSettings.PlatformCertSecretId);
-            string accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "file-scan", new X509Certificate2(
-                Convert.FromBase64String(certBase64),
-                (string)null,
-                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable));
+            X509Certificate2 certificate = await _certificateResolverService.GetCertificateAsync();
+
+            string accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "file-scan", certificate);
             return accessToken;
         }
     }
