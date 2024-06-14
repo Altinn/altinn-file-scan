@@ -13,7 +13,7 @@ namespace Altinn.FileScan.Tests
 {
     public class CertificateResolverServiceTests
     {
-        private readonly Mock<ILogger<ICertificateResolverService>> _mockLogger = new Mock<ILogger<ICertificateResolverService>>();
+        private readonly Mock<ILogger<CertificateResolverService>> _mockLogger = new Mock<ILogger<CertificateResolverService>>();
         private readonly IOptions<CertificateResolverSettings> _certificateResolverSettings = Options.Create(new CertificateResolverSettings { CacheCertLifetimeInSeconds = 1 });
         private readonly Mock<IKeyVaultService> _mockKeyVaultService = new Mock<IKeyVaultService>();
         private readonly IOptions<KeyVaultSettings> _keyVaultSettings = Options.Create(new KeyVaultSettings());

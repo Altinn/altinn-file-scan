@@ -15,7 +15,7 @@ namespace Altinn.FileScan.Functions.Services
     /// </summary>
     public class CertificateResolverService : ICertificateResolverService
     {
-        private readonly ILogger<ICertificateResolverService> _logger;
+        private readonly ILogger<CertificateResolverService> _logger;
         private readonly CertificateResolverSettings _certificateResolverSettings;
         private readonly IKeyVaultService _keyVaultService;
         private readonly KeyVaultSettings _keyVaultSettings;
@@ -31,7 +31,7 @@ namespace Altinn.FileScan.Functions.Services
         /// <param name="keyVaultService">Key vault service</param>
         /// <param name="keyVaultSettings">Key vault settings</param>
         public CertificateResolverService(
-            ILogger<ICertificateResolverService> logger,
+            ILogger<CertificateResolverService> logger,
             IOptions<CertificateResolverSettings> certificateResolverSettings,
             IKeyVaultService keyVaultService,
             IOptions<KeyVaultSettings> keyVaultSettings)
