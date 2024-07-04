@@ -19,7 +19,8 @@ These instructions will get you a copy of the filescan component up and running 
    - Also install [recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) (e.g. [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp))
 5. [Podman](https://podman.io/) or another container tool such as Docker Desktop
 6. Install [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage#install-azurite)
-7. Follow the readme to run [Muescheli](https://github.com/Altinn/muescheli) locally
+7. Install [Azure Functions Core Tool](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Chttp-trigger%2Ccontainer-apps&pivots=programming-language-powershell#install-the-azure-functions-core-tools)
+8. Follow the readme to run [Muescheli](https://github.com/Altinn/muescheli) locally
 
 ### Cloning the application
 Clone Altinn FileScan repo and navigate to the folder.
