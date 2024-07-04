@@ -42,6 +42,8 @@ To access swagger use http://localhost:5200/filescan/swagger.
 
 ### Running functions
 
+- [Start Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage#run-azurite)
+  
 Start Altinn FileScan Functions
 ```bash
 cd src/Altinn.FileScan.Functions
