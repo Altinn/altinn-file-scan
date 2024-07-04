@@ -15,14 +15,15 @@ These instructions will get you a copy of the filescan component up and running 
 1. [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 2. Newest [Git](https://git-scm.com/downloads)
 3. A code editor - we like [Visual Studio Code](https://code.visualstudio.com/download)
+   - Install [Azure Functions extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions). You can also install the [Azure Tools extension pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack), which is recommended for working with Azure resources.
    - Also install [recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) (e.g. [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp))
-4. [Podman](https://podman.io/) or another container tool such as Docker Desktop
-5. Install [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage#install-azurite)
-6. Follow the readme to run [Muescheli](https://github.com/Altinn/muescheli) locally
+5. [Podman](https://podman.io/) or another container tool such as Docker Desktop
+6. Install [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage#install-azurite)
+7. Follow the readme to run [Muescheli](https://github.com/Altinn/muescheli) locally
 
 ### Cloning the application
+Clone Altinn FileScan repo and navigate to the folder.
 
-Clone [Altinn FileScan repo](https://github.com/Altinn/altinn-file-scan) and navigate to the folder.
 
 ```bash
 git clone https://github.com/Altinn/altinn-file-scan
