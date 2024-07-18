@@ -23,17 +23,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Altinn.FileScan.Functions\Altinn.FileScan.Functions.csproj" />
-  </ItemGroup>
   
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
@@ -44,14 +33,16 @@
       <Link>stylecop.json</Link>
     </AdditionalFiles>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Altinn.FileScan.Functions\Altinn.FileScan.Functions.csproj" />
+  </ItemGroup>
   
   <ItemGroup>
     <None Update="base64-encoded-cert.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
-  
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
