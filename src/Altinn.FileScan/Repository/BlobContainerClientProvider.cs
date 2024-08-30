@@ -42,11 +42,7 @@ namespace Altinn.FileScan.Repository
             _orgKeyVaultDict = JsonSerializer.Deserialize<Dictionary<string, string>>(_storageConfig.OrgKeyVaultDict);
         }
 
-        /// <summary>
-        /// Get the SAS token needed to access the storage account for given application owner.
-        /// </summary>
-        /// <param name="org">The application owner id.</param>
-        /// <returns>The SAS token to use when accessing the application owner storage account.</returns>
+        /// <inheritdoc/>
         public async Task<BlobContainerClient> GetBlobContainerClient(string org, int? storageContainerNumber)
         {
             string clientsKey = $"{org}-{storageContainerNumber}";
