@@ -47,14 +47,15 @@ namespace Altinn.FileScan.Repository
         /// </summary>
         /// <param name="org">The application owner id.</param>
         /// <returns>The SAS token to use when accessing the application owner storage account.</returns>
-        public async Task<BlobContainerClient> GetBlobContainerClient(string org)
+        public async Task<BlobContainerClient> GetBlobContainerClient(string org, int? storageContainerNumber)
         {
-            if (_containerClients.TryGetValue(org, out (DateTime Created, BlobContainerClient Client) containerClient) && StillYoung(containerClient.Created))
+            string clientsKey = $"{org}-{storageContainerNumber}";
+            if (_containerClients.TryGetValue(clientsKey, out (DateTime Created, BlobContainerClient Client) containerClient) && StillYoung(containerClient.Created))
             {
                 return containerClient.Client;
             }
 
-            _containerClients.TryRemove(org, out _);
+            _containerClients.TryRemove(clientsKey, out _);
 
             await _semaphore.WaitAsync();
             try
@@ -70,11 +71,11 @@ namespace Altinn.FileScan.Repository
                 }
                 else
                 {
-                    var containerUri = await GetBlobUri(org);
+                    var containerUri = await GetBlobUri(org, storageContainerNumber);
                     blobContainerClient = new BlobContainerClient(containerUri);
                 }
 
-                _containerClients.TryAdd(org, (DateTime.UtcNow, blobContainerClient));
+                _containerClients.TryAdd(clientsKey, (DateTime.UtcNow, blobContainerClient));
                 return blobContainerClient;
             }
             finally
@@ -86,11 +87,12 @@ namespace Altinn.FileScan.Repository
         /// <summary>
         /// Generates a container uri for an app owner blob container
         /// </summary>
-        internal async Task<Uri> GetBlobUri(string org)
+        internal async Task<Uri> GetBlobUri(string org, int? storageContainerNumber)
         {
             string sasToken = await GetSasToken(org);
             string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
-            string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
+            string containerName = string.Format(_storageConfig.OrgStorageContainer, org)
+                + (storageContainerNumber != null ? $"-{storageContainerNumber}" : null);
 
             UriBuilder fullUri = new()
             {

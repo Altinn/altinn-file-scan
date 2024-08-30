@@ -39,13 +39,13 @@ namespace Altinn.FileScan.Tests.TestingServices
             // Arrange
             Mock<IAppOwnerBlob> blobMock = new();
             blobMock
-                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), null))
                 .ReturnsAsync(new BlobPropertyModel
                 {
                     LastModified = matchingTimestamp
                 });
             blobMock
-                .Setup(b => b.GetBlob(It.Is<string>(s => s == "ttd"), It.Is<string>(s => s == "blobstoragePath/org/attachment.pdf")))
+                .Setup(b => b.GetBlob(It.Is<string>(s => s == "ttd"), It.Is<string>(s => s == "blobstoragePath/org/attachment.pdf"), null))
                 .ReturnsAsync((Stream)null);
 
             Mock<IMuescheliClient> muescheliClientMock = new();
@@ -99,10 +99,10 @@ namespace Altinn.FileScan.Tests.TestingServices
             // Arrange
             Mock<IAppOwnerBlob> blobMock = new();
             blobMock
-                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), null))
                 .ReturnsAsync(new BlobPropertyModel { LastModified = nonMatchingTimestamp });
             blobMock
-                .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
                 .ReturnsAsync((Stream)null);
 
             Mock<ILogger<IDataElement>> loggerMock = new Mock<ILogger<IDataElement>>();
@@ -205,13 +205,13 @@ namespace Altinn.FileScan.Tests.TestingServices
             {
                 Mock<IAppOwnerBlob> blobMock = new();
                 blobMock
-                    .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>()))
+                    .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), null))
                     .ReturnsAsync(new BlobPropertyModel 
                     { 
                         LastModified = matchingTimestamp
                     });
                 blobMock
-                    .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>()))
+                    .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
                     .ReturnsAsync((Stream)null);
 
                 appOwnerBlob = blobMock.Object;
