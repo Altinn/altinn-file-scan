@@ -99,7 +99,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             // Arrange
             Mock<IAppOwnerBlob> blobMock = new();
             blobMock
-                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), null))
+                .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
                 .ReturnsAsync(new BlobPropertyModel { LastModified = nonMatchingTimestamp });
             blobMock
                 .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
