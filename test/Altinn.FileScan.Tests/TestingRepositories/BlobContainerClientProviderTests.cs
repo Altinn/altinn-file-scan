@@ -128,10 +128,13 @@ namespace Altinn.FileScan.Tests.TestingRepositories
                     null);
 
             // Act
-            var actual = await sut.GetBlobUri("ttd", null);
+            var actualDefaultContainer = await sut.GetBlobUri("ttd", null);
+            var actualAlternateContainer = await sut.GetBlobUri("ttd", 2);
 
             // Assert
             keyVaultMock.VerifyAll();
+            Assert.Equal("/ttd-sc-2", actualAlternateContainer.AbsolutePath);
+            Assert.Equal("/ttd-sc", actualDefaultContainer.AbsolutePath);
         }
     }
 }
