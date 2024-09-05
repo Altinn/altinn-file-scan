@@ -40,10 +40,10 @@ namespace Altinn.FileScan.Tests.TestingRepositories
                 Options.Create(_storageConfig),
                 null);
 
-            await sut.GetBlobContainerClient("ttd");
+            await sut.GetBlobContainerClient("ttd", null);
 
             // Act
-            var actual = await sut.GetBlobContainerClient("ttd");
+            var actual = await sut.GetBlobContainerClient("ttd", null);
 
             // Assert
             Assert.NotNull(actual);
@@ -63,10 +63,10 @@ namespace Altinn.FileScan.Tests.TestingRepositories
                             Options.Create(_storageConfig),
                             null);
 
-            await sut.GetBlobContainerClient("ttd");
+            await sut.GetBlobContainerClient("ttd", null);
 
             // Act
-            var actual = await sut.GetBlobContainerClient("ttd");
+            var actual = await sut.GetBlobContainerClient("ttd", null);
 
             // Assert
             Assert.NotNull(actual);
@@ -98,7 +98,7 @@ namespace Altinn.FileScan.Tests.TestingRepositories
                     null);
 
             // Act
-            var actual = await sut.GetBlobUri(org);
+            var actual = await sut.GetBlobUri(org, null);
 
             // Assert
             keyVaultMock.VerifyAll();
@@ -128,10 +128,13 @@ namespace Altinn.FileScan.Tests.TestingRepositories
                     null);
 
             // Act
-            var actual = await sut.GetBlobUri("ttd");
+            var actualDefaultContainer = await sut.GetBlobUri("ttd", null);
+            var actualAlternateContainer = await sut.GetBlobUri("ttd", 2);
 
             // Assert
             keyVaultMock.VerifyAll();
+            Assert.Equal("/ttd-sc-2", actualAlternateContainer.AbsolutePath);
+            Assert.Equal("/ttd-sc", actualDefaultContainer.AbsolutePath);
         }
     }
 }
