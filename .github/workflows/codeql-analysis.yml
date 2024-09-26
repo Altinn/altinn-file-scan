@@ -30,6 +30,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
     - name: Setup .NET 8.0.* SDK
       uses: actions/setup-dotnet@v4
       with:
@@ -37,6 +38,7 @@ jobs:
           8.0.x
           7.0.x
           6.0.x
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
@@ -45,6 +47,7 @@ jobs:
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
+
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
 
