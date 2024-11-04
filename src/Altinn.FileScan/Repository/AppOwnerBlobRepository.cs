@@ -21,18 +21,18 @@ namespace Altinn.FileScan.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<Stream> GetBlob(string org, string blobPath, int? storageContainerNumber)
+        public async Task<Stream> GetBlob(string org, string blobPath, int? storageAccountNumber)
         {
-            var containerClient = await _containerClientProvider.GetBlobContainerClient(org, storageContainerNumber);
+            var containerClient = _containerClientProvider.GetBlobContainerClient(org, storageAccountNumber);
             var blobClient = containerClient.GetBlobClient(blobPath);
             Azure.Response<BlobDownloadInfo> response = await blobClient.DownloadAsync();
             return response.Value.Content;
         }
 
         /// <inheritdoc/>
-        public async Task<BlobPropertyModel> GetBlobProperties(string org, string blobPath, int? storageContainerNumber)
+        public async Task<BlobPropertyModel> GetBlobProperties(string org, string blobPath, int? storageAccountNumber)
         {
-            var containerClient = await _containerClientProvider.GetBlobContainerClient(org, storageContainerNumber);
+            var containerClient = _containerClientProvider.GetBlobContainerClient(org, storageAccountNumber);
             var blobClient = containerClient.GetBlobClient(blobPath);
             Azure.Response<BlobProperties> response = await blobClient.GetPropertiesAsync();
             return new BlobPropertyModel { LastModified = response.Value.LastModified };

@@ -46,6 +46,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestingRepositories\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
