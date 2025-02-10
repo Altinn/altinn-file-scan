@@ -31,11 +31,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup .NET 9.0.* SDK
+    - name: Setup .NET 8.0.* SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
-          9.0.x
+          8.0.x
+          7.0.x
+          6.0.x
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
