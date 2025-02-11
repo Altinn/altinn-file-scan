@@ -57,8 +57,6 @@ namespace Altinn.FileScan.Functions.Services
 
                 lock (_lockObject)
                 {
-                    var contentType = X509Certificate2.GetCertContentType(Convert.FromBase64String(certBase64));
-
                     _cachedX509Certificate = X509CertificateLoader.LoadCertificate(Convert.FromBase64String(certBase64));
 
                     _reloadTime = DateTime.UtcNow.AddSeconds(_certificateResolverSettings.CacheCertLifetimeInSeconds);
