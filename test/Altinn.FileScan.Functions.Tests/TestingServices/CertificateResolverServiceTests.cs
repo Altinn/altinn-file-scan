@@ -1,4 +1,6 @@
-﻿using Altinn.FileScan.Functions.Configuration;
+﻿using System.Security.Cryptography.X509Certificates;
+
+using Altinn.FileScan.Functions.Configuration;
 using Altinn.FileScan.Functions.Services;
 using Altinn.FileScan.Functions.Services.Interfaces;
 
@@ -6,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
 using Xunit;
 
 namespace Altinn.FileScan.Tests
@@ -22,9 +23,11 @@ namespace Altinn.FileScan.Tests
         public async Task GetCertificateAsync_ReturnsCachedCertificate_WhenCalledMultipleTimesWithinCacheLifetime()
         {
             // Arrange
-            var certBase64 = File.ReadAllLines(@$"base64-encoded-cert.txt")[0];
+            string certPath = "platform-org.pfx";
+            X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, null);
+
             _mockKeyVaultService.Setup(s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(certBase64)
+                .ReturnsAsync(cert)
                 .Verifiable();
 
             var resolverService = new CertificateResolverService(_mockLogger.Object, _certificateResolverSettings, _mockKeyVaultService.Object, _keyVaultSettings);
@@ -41,9 +44,11 @@ namespace Altinn.FileScan.Tests
         public async Task GetCertificateAsync_ReloadsCertificate_WhenCalledAfterCacheLifetime()
         {
             // Arrange
-            var certBase64 = File.ReadAllLines(@$"base64-encoded-cert.txt")[0];
+            string certPath = "platform-org.pfx";
+            X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, null);
+
             _mockKeyVaultService.Setup(s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(certBase64)
+                .ReturnsAsync(cert)
                 .Verifiable();
 
             var resolverService = new CertificateResolverService(_mockLogger.Object, _certificateResolverSettings, _mockKeyVaultService.Object, _keyVaultSettings);
