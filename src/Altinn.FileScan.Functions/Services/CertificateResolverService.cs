@@ -51,16 +51,13 @@ namespace Altinn.FileScan.Functions.Services
         {
             if (DateTime.UtcNow > _reloadTime || _cachedX509Certificate == null)
             {
-                string certBase64 = await _keyVaultService.GetCertificateAsync(
+                var certificate = await _keyVaultService.GetCertificateAsync(
                     _keyVaultSettings.KeyVaultURI,
                     _keyVaultSettings.PlatformCertSecretId);
-
                 lock (_lockObject)
                 {
-                    _cachedX509Certificate = new X509Certificate2(
-                        Convert.FromBase64String(certBase64),
-                        (string)null,
-                        X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+                    _cachedX509Certificate = certificate;
+
                     _reloadTime = DateTime.UtcNow.AddSeconds(_certificateResolverSettings.CacheCertLifetimeInSeconds);
                     _logger.LogInformation("Certificate reloaded.");
                 }
