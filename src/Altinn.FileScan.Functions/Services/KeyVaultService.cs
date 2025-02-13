@@ -1,11 +1,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Altinn.FileScan.Functions.Services.Interfaces;
 using Azure;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
+using Azure.Security.KeyVault.Secrets;
 
 namespace Altinn.FileScan.Functions.Services
 {
@@ -17,7 +17,7 @@ namespace Altinn.FileScan.Functions.Services
     public class KeyVaultService : IKeyVaultService
     {
         /// <inheritdoc/>
-        public async Task<X509Certificate2> GetCertificateAsync(string vaultUri, string secretId)
+        public async Task<string> GetCertificateAsync(string vaultUri, string secretId)
         {
             CertificateClient certificateClient = new(new Uri(vaultUri), new DefaultAzureCredential());
             AsyncPageable<CertificateProperties> certificatePropertiesPage = certificateClient.GetPropertiesOfCertificateVersionsAsync(secretId);
@@ -25,12 +25,14 @@ namespace Altinn.FileScan.Functions.Services
             {
                 if (certificateProperties.Enabled == true &&
                     (certificateProperties.ExpiresOn == null || certificateProperties.ExpiresOn >= DateTime.UtcNow))
-                {
-                    X509Certificate2 cert = await certificateClient.DownloadCertificateAsync(certificateProperties.Name, certificateProperties.Version);
-                    return cert;
+                {                    
+                    SecretClient secretClient = new(new Uri(vaultUri), new DefaultAzureCredential());
+
+                    KeyVaultSecret secret = await secretClient.GetSecretAsync(certificateProperties.Name, certificateProperties.Version);
+                    return secret.Value;
                 }
             }
-            
+
             return null;
         }
     }

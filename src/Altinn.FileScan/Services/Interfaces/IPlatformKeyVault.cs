@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace Altinn.FileScan.Services.Interfaces
+﻿namespace Altinn.FileScan.Services.Interfaces
 {
     /// <summary>
     /// Interface containing all actions for an Altinn Platform Azure Key Vault
@@ -12,6 +10,6 @@ namespace Altinn.FileScan.Services.Interfaces
         /// </summary>
         /// <param name="certId">The id of the secret.</param>
         /// <returns>The certificate value.</returns>
-        Task<X509Certificate2> GetCertificateAsync(string certId);
+        Task<string> GetCertificateAsync(string certId);
     }
 }

@@ -33,7 +33,7 @@ Run test suite by specifying filename.
 
 For example:
 
->$> docker compose run k6 run /src/tests/end2end.js -e tokenGeneratorUserName=autotest -e tokenGeneratorUserPwd=*** -e env=at23 -e subskey=*** -e partyId=*** -e personNumber=*** -e org=ttd -e app=filescan-end-to-end -e userId=***
+>$> docker compose run k6 run /src/tests/end2end.js -e tokenGeneratorUserName=autotest -e tokenGeneratorUserPwd=*** -e env=at23 -e subskey=*** -e partyId=*** -e personNumber=*** -e org=ttd -e app=filescan-end-to-end
 
 
 The comand consists of three sections

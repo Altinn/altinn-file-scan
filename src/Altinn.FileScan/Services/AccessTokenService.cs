@@ -48,9 +48,13 @@ namespace Altinn.FileScan.Services
                 return accessToken;
             }
 
-            X509Certificate2 certificate = await _keyVault.GetCertificateAsync(CertId);
+            string certBase64 =
+                  await _keyVault.GetCertificateAsync(CertId);
 
-            accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "file-scan", certificate);
+            accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "file-scan", new X509Certificate2(
+                Convert.FromBase64String(certBase64),
+                (string)null,
+                X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable));
 
             _cache.Set(accessTokenCacheKey, accessToken, _cacheOptions);
 
