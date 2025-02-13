@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0.200-alpine3.21 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0.200-alpine AS build
 
 # Copy event backend
 COPY src/Altinn.FileScan ./Altinn.FileScan
@@ -9,7 +9,7 @@ WORKDIR Altinn.FileScan/
 RUN dotnet build Altinn.FileScan.csproj -c Release -o /app_output
 RUN dotnet publish Altinn.FileScan.csproj -c Release -o /app_output
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0.2-alpine3.21 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0.2-alpine AS final
 EXPOSE 5200
 WORKDIR /app
 COPY --from=build /app_output .
