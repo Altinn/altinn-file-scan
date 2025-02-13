@@ -14,6 +14,9 @@ EXPOSE 5200
 WORKDIR /app
 COPY --from=build /app_output .
 
+# Upgrade all installed packages (temporary fix for CVE 2024-12797)
+RUN apk upgrade -a
+
 # setup the user and group
 # the user will have no password, using shell /bin/false and using the group dotnet
 RUN addgroup -g 3000 dotnet && adduser -u 1000 -G dotnet -D -s /bin/false dotnet
