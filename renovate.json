@@ -3,10 +3,13 @@
   "extends": [
     "local>Altinn/renovate-config"
   ],
-  "regexManagers": [
+  "customManagers": [
     {
+      "customType": "regex",
       "description": "Manage Alpine OS versions in container image tags",
-      "fileMatch": ["Dockerfile"],
+      "fileMatch": [
+        "Dockerfile"
+      ],
       "matchStrings": [
         "(?:image:\\s+name:\\s*|image:\\s*|services:\\s+-\\s+|FROM\\s+)(?<depName>[\\S]+):(?<currentValue>[\\S]+)"
       ],
