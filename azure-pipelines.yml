@@ -1,0 +1,11 @@
+steps:
+- task: Docker@1
+  displayName: 'Build altinn file scan image'
+  inputs:
+    azureSubscriptionEndpoint: 'Altinn-Platform-Registry (SPR-AzDevOps-AltPlatformReg)'
+    azureContainerRegistry: altinntjenesterregistry.azurecr.io
+    dockerFile: Dockerfile
+    imageName: 'altinn-file-scan:$(Build.BuildId)'
+    addDefaultLabels: false
+    useDefaultContext: false
+    buildContext: .
