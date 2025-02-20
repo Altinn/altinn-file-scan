@@ -275,8 +275,6 @@ void Configure()
     app.UseAuthentication();
     app.UseAuthorization();
 
-    app.UseTelemetryEnricher();
-
     app.MapControllers();
     app.MapHealthChecks("/health");
 }
