@@ -49,7 +49,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 .ReturnsAsync((Stream)null);
 
             Mock<IMuescheliClient> muescheliClientMock = new();
-            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "attachment.pdf")))
+            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
                 .ReturnsAsync(ScanResult.OK);
 
             Mock<IStorageClient> storageClientMock = new();
