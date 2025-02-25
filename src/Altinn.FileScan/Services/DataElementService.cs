@@ -48,7 +48,7 @@ namespace Altinn.FileScan.Services
 
                 var stream = await _repository.GetBlob(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageContainerNumber);
 
-                var filename = $"{scanRequest.DataElementId}.txt";
+                var filename = $"{scanRequest.DataElementId}.bin";
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);
 
                 FileScanResult fileScanResult = FileScanResult.Pending;
