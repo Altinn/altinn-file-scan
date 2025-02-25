@@ -52,7 +52,7 @@ namespace Altinn.FileScan.Services
                 var filename = string.IsNullOrEmpty(scanRequest.Filename) ? $"{scanRequest.DataElementId}.txt" : scanRequest.Filename;
                 filename = filename.Contains("henning") ? "\"" + filename + "\"" : filename;
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);
-                _logger.LogError($"Scan debug for: ${filename}${JsonSerializer.Serialize(scanRequest)}");
+                _logger.LogError($"Scan debug for: ${filename}${JsonSerializer.Serialize(scanResult)}");
 
                 FileScanResult fileScanResult = FileScanResult.Pending;
 
