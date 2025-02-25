@@ -5,7 +5,6 @@ using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Enums;
 using Altinn.Platform.Storage.Interface.Models;
-using System.Text.Json;
 
 namespace Altinn.FileScan.Services
 {
@@ -49,10 +48,8 @@ namespace Altinn.FileScan.Services
 
                 var stream = await _repository.GetBlob(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageContainerNumber);
 
-                var filename = string.IsNullOrEmpty(scanRequest.Filename) ? $"{scanRequest.DataElementId}.txt" : scanRequest.Filename;
-                filename = filename.Contains("henning") ? "\"" + filename + "\"" : filename;
+                var filename = $"{scanRequest.DataElementId}.txt";
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);
-                _logger.LogError($"Scan debug for: ${filename}${JsonSerializer.Serialize(scanResult)}");
 
                 FileScanResult fileScanResult = FileScanResult.Pending;
 
