@@ -47,16 +47,14 @@ namespace Altinn.FileScan.Telemetry
         /// <param name="activity">xx</param>
         public override void OnEnd(Activity activity)
         {
-            if (activity.OperationName == RequestKind && _httpContextAccessor.HttpContext is not null)
+            if (activity.OperationName == RequestKind && _httpContextAccessor.HttpContext is not null &&
+                _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipAddress))
             {
-                if (_httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipAddress))
-                {
-                    activity.SetTag("ipAddress", ipAddress.FirstOrDefault());
-                }
+                activity.SetTag("ipAddress", ipAddress.FirstOrDefault());
             }
         }
 
-        private bool ExcludeRequest(string localpath)
+        private static bool ExcludeRequest(string localpath)
         {
             return localpath switch
             {
