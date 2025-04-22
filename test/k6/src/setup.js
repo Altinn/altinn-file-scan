@@ -59,7 +59,7 @@ function getAspxAuth(username, password) {
 
   stopIterationOnFail("Authentication towards Altinn 2 Failed", success, res);
 
-  const cookieName = ".ASPXAUTH";
+  const cookieName = config.authCookieName;
   var cookieValue = res.cookies[cookieName][0].value;
   return cookieValue;
 }
@@ -69,7 +69,7 @@ export function getAltinnStudioRuntimeToken(aspxauthCookie) {
   var endpoint = config.platformAuthentication.authentication + '?goto=' + config.platformAuthentication.refresh;
 
   var params = {
-    cookies: { '.ASPXAUTH': aspxauthCookie },
+    cookies: { [config.authCookieName]: aspxauthCookie },
   };
 
   var res = http.get(endpoint, params);
@@ -84,5 +84,5 @@ export function getAltinnStudioRuntimeToken(aspxauthCookie) {
 export function clearCookies() {
   var jar = http.cookieJar();
   jar.set('https://' + config.baseUrl, 'AltinnStudioRuntime', 'test', { expires: 'Mon, 02 Jan 2010 15:04:05 MST' });
-  jar.set('https://' + config.baseUrl, '.ASPXAUTH', 'test', { expires: 'Mon, 02 Jan 2010 15:04:05 MST' });
+  jar.set('https://' + config.baseUrl, config.authCookieName, 'test', { expires: 'Mon, 02 Jan 2010 15:04:05 MST' });
 }
