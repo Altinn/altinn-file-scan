@@ -49,7 +49,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 .ReturnsAsync((Stream)null);
 
             Mock<IMuescheliClient> muescheliClientMock = new();
-            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "attachment.pdf")))
+            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
                 .ReturnsAsync(ScanResult.OK);
 
             Mock<IStorageClient> storageClientMock = new();
@@ -72,7 +72,7 @@ namespace Altinn.FileScan.Tests.TestingServices
         {
             // Arrange
             Mock<IMuescheliClient> muescheliClientMock = new();
-            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
+            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.bin")))
                 .ReturnsAsync(ScanResult.OK);
 
             DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object);

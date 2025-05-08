@@ -12,21 +12,20 @@ using Altinn.FileScan.Repository;
 using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
-
+using Altinn.FileScan.Telemetry;
 using AltinnCore.Authentication.JwtCookie;
 
 using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using Azure.Security.KeyVault.Secrets;
 
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.EventCounterCollector;
-using Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 ILogger logger;
@@ -36,11 +35,11 @@ string applicationInsightsConnectionString = string.Empty;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ConfigureSetupLogging();
+ConfigureWebHostCreationLogging();
 
 await SetConfigurationProviders(builder.Configuration);
 
-ConfigureLogging(builder.Logging);
+ConfigureApplicationLogging(builder.Logging);
 
 ConfigureServices(builder.Services, builder.Configuration);
 
@@ -50,7 +49,7 @@ Configure();
 
 app.Run();
 
-void ConfigureSetupLogging()
+void ConfigureWebHostCreationLogging()
 {
     var logFactory = LoggerFactory.Create(builder =>
     {
@@ -117,44 +116,51 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
     }
 }
 
-void ConfigureLogging(ILoggingBuilder logging)
+void ConfigureApplicationLogging(ILoggingBuilder logging)
 {
-    // The default ASP.NET Core project templates call CreateDefaultBuilder, which adds the following logging providers:
-    // Console, Debug, EventSource
-    // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/logging/?view=aspnetcore-3.1
-
-    // Clear log providers
-    logging.ClearProviders();
-
-    // Setup up application insight if applicationInsightsKey   is available
-    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
+    logging.AddOpenTelemetry(builder =>
     {
-        // Add application insights https://docs.microsoft.com/en-us/azure/azure-monitor/app/ilogger
-        logging.AddApplicationInsights(
-            configureTelemetryConfiguration: (config) => config.ConnectionString = applicationInsightsConnectionString,
-            configureApplicationInsightsLoggerOptions: (options) => { });
-
-        // Optional: Apply filters to control what logs are sent to Application Insights.
-        // The following configures LogLevel Information or above to be sent to
-        // Application Insights for all categories.
-        logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Warning);
-
-        // Adding the filter below to ensure logs of all severity from Program.cs
-        // is sent to ApplicationInsights.
-        logging.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>(typeof(Program).FullName, LogLevel.Trace);
-    }
-    else
-    {
-        // If not application insight is available log to console
-        logging.AddFilter("Microsoft", LogLevel.Warning);
-        logging.AddFilter("System", LogLevel.Warning);
-    }
-
-    logging.AddConsole();
+        builder.IncludeFormattedMessage = true;
+        builder.IncludeScopes = true;
+    });
 }
 
 void ConfigureServices(IServiceCollection services, IConfiguration config)
 {
+    logger.LogInformation("Program // ConfigureServices");
+
+    var attributes = new List<KeyValuePair<string, object>>(2)
+    {
+        KeyValuePair.Create("service.name", (object)"platform-filescan"),
+    };
+
+    services.AddOpenTelemetry()
+        .ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(attributes))
+        .WithMetrics(metrics =>
+        {
+            metrics.AddAspNetCoreInstrumentation();
+            metrics.AddMeter(
+                "Microsoft.AspNetCore.Hosting",
+                "Microsoft.AspNetCore.Server.Kestrel",
+                "System.Net.Http");
+        })
+        .WithTracing(tracing =>
+        {
+            if (builder.Environment.IsDevelopment())
+            {
+                tracing.SetSampler(new AlwaysOnSampler());
+            }
+
+            tracing.AddAspNetCoreInstrumentation();
+            tracing.AddHttpClientInstrumentation();
+            tracing.AddProcessor(new RequestFilterProcessor(new HttpContextAccessor()));
+        });
+
+    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
+    {
+        AddAzureMonitorTelemetryExporters(services, applicationInsightsConnectionString);
+    }
+
     services.AddControllers();
     services.AddMemoryCache();
     services.AddHealthChecks().AddCheck<HealthCheck>("filescan_health_check");
@@ -204,41 +210,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
               }
           });
 
-    services.AddAuthorization(options =>
-    {
-        options.AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
-    });
-
-    SetUpAppInsightsService(services);
+    services.AddAuthorizationBuilder()
+        .AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
-}
-
-void SetUpAppInsightsService(IServiceCollection services)
-{
-    if (!string.IsNullOrEmpty(applicationInsightsConnectionString))
-    {
-        services.AddSingleton(typeof(ITelemetryChannel), new ServerTelemetryChannel { StorageFolder = "/tmp/logtelemetry" });
-        services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
-        {
-            ConnectionString = applicationInsightsConnectionString
-        });
-
-        services.ConfigureTelemetryModule<EventCounterCollectionModule>(
-             (module, o) =>
-             {
-                 module.Counters.Clear();
-                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-queue-length"));
-                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "threadpool-thread-count"));
-                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "monitor-lock-contention-count"));
-                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "gc-heap-size"));
-                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "time-in-gc"));
-                 module.Counters.Add(new EventCounterCollectionRequest("System.Runtime", "working-set"));
-             });
-
-        services.AddSingleton<ITelemetryInitializer, CustomTelemetryInitializer>();
-        services.AddApplicationInsightsTelemetryProcessor<HealthTelemetryFilter>();
-    }
 }
 
 void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
@@ -255,6 +230,22 @@ void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
     {
         logger.LogWarning(e, "Program // Exception when attempting to include the XML comments file.");
     }
+}
+
+void AddAzureMonitorTelemetryExporters(IServiceCollection services, string applicationInsightsConnectionString)
+{
+    services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddAzureMonitorLogExporter(o =>
+    {
+        o.ConnectionString = applicationInsightsConnectionString;
+    }));
+    services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddAzureMonitorMetricExporter(o =>
+    {
+        o.ConnectionString = applicationInsightsConnectionString;
+    }));
+    services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddAzureMonitorTraceExporter(o =>
+    {
+        o.ConnectionString = applicationInsightsConnectionString;
+    }));
 }
 
 void Configure()
