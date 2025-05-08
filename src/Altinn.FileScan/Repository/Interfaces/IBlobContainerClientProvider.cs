@@ -8,11 +8,11 @@ namespace Altinn.FileScan.Repository.Interfaces
     public interface IBlobContainerClientProvider
     {
         /// <summary>
-        /// Get the blob client to access blobs in the storage account for given application owner.
+        /// Get the container client to access blobs in the storage account for given application owner.
         /// </summary>
         /// <param name="org">The application owner id.</param>
-        /// <param name="storageContainerNumber">Alternate number to append to container name</param>
-        /// <returns>The SAS token to use when accessing the application owner storage account.</returns>
-        Task<BlobContainerClient> GetBlobContainerClient(string org, int? storageContainerNumber);
+        /// <param name="storageAccountNumber">Alternate number to append to container name</param>
+        /// <returns>The container client to use when accessing the application owner storage account.</returns>
+        BlobContainerClient GetBlobContainerClient(string org, int? storageAccountNumber);
     }
 }
