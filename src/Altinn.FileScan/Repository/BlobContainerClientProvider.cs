@@ -51,7 +51,7 @@ namespace Altinn.FileScan.Repository
                 string cacheKey = GetClientCacheKey(org, storageAccountNumber);
                 if (!_memoryCache.TryGetValue(cacheKey, out BlobContainerClient client))
                 {
-                    string containerName = string.Format(_storageConfig.StorageContainer, org);
+                    string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
                     string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
                     if (storageAccountNumber != null)
                     {
