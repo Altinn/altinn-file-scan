@@ -34,7 +34,7 @@ namespace Altinn.FileScan.Services
         {
             try
             {
-                var blobProps = await _repository.GetBlobProperties(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageContainerNumber);
+                var blobProps = await _repository.GetBlobProperties(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageAccountNumber);
 
                 if (blobProps.LastModified != scanRequest.Timestamp)
                 {
@@ -46,7 +46,7 @@ namespace Altinn.FileScan.Services
                     return;
                 }
 
-                var stream = await _repository.GetBlob(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageContainerNumber);
+                var stream = await _repository.GetBlob(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageAccountNumber);
 
                 var filename = $"{scanRequest.DataElementId}.bin";
                 ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);

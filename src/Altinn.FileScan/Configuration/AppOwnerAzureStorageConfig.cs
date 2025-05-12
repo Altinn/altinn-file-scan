@@ -26,33 +26,13 @@
         public string BlobEndPoint { get; set; }
 
         /// <summary>
-        /// url for the app owner Key Vault
-        /// </summary>
-        public string OrgKeyVaultURI { get; set; }
-
-        /// <summary>
-        /// Dictionary containing alternative key vault names for app owner
-        /// </summary>
-        public string OrgKeyVaultDict { get; set; } = "{}";
-
-        /// <summary>
         /// name of app owner storage account
         /// </summary>
         public string OrgStorageAccount { get; set; }
 
         /// <summary>
-        /// name of SAS definition in app owner Key Vault
-        /// </summary>
-        public string OrgSasDefinition { get; set; }
-
-        /// <summary>
         /// name of storage container in app owner storage account
         /// </summary>
         public string OrgStorageContainer { get; set; }
-
-        /// <summary>
-        /// Gets or sets the number of hours old a shared access signature token can be before requesting a new.
-        /// </summary>
-        public int AllowedSasTokenAgeHours { get; set; }
     }
 }
