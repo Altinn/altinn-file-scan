@@ -11,7 +11,7 @@
         "/Dockerfile/"
       ],
       "matchStrings": [
-        "(?:image:\\s+name:\\s*|image:\\s*|services:\\s+-\\s+|FROM\\s+)(?<depName>[\\S]+):(?<currentValue>[\\S]+)"
+        "(?:FROM\\s+)(?<depName>[\\S]+):(?<currentValue>[\\S]+)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "versioningTemplate": "regex:^(?<compatibility>[\\S]*\\d+\\.\\d+(?:\\.\\d+)?(?:[\\S]*)?-alpine-?)(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?$",
       "datasourceTemplate": "docker"
