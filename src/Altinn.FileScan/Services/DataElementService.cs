@@ -38,10 +38,11 @@ namespace Altinn.FileScan.Services
 
                 if (blobProps.LastModified != scanRequest.Timestamp)
                 {
+                    // we replace newline characters in log messages to avoid log injection attacks
                     _logger.LogError(
                         "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {instanceId}, DataElementId: {dataElementId}, timestamp diff: {timeDiff} seconds", 
-                        scanRequest.InstanceId, 
-                        scanRequest.DataElementId,
+                        scanRequest.InstanceId.Replace(Environment.NewLine, string.Empty), 
+                        scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
                         scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds);
                     return;
                 }
@@ -64,7 +65,7 @@ namespace Altinn.FileScan.Services
                     case ScanResult.ERROR:
                     case ScanResult.PARSE_ERROR:
                     case ScanResult.UNDEFINED:
-                        _logger.LogError("Scan of {dataElementId} completed with unexpected result {scanResult}.", scanRequest.DataElementId, scanResult);
+                        _logger.LogError("Scan of {dataElementId} completed with unexpected result {scanResult}.", scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty), scanResult);
                         throw MuescheliScanResultException.Create(scanRequest.DataElementId, scanResult);
                 }
 
@@ -78,7 +79,7 @@ namespace Altinn.FileScan.Services
             }
             catch (MuescheliHttpException e)
             {
-                _logger.LogError(e, "Scan of {dataElementId} failed with an http exception.", scanRequest.DataElementId);
+                _logger.LogError(e, "Scan of {dataElementId} failed with an http exception.", scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty));
                 throw;
             }
         }
