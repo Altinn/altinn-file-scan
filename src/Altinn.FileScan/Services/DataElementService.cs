@@ -16,12 +16,12 @@ namespace Altinn.FileScan.Services
         private readonly IAppOwnerBlob _repository;
         private readonly IStorageClient _storageClient;
         private readonly IMuescheliClient _muescheliClient;
-        private readonly ILogger<IDataElement> _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataElementService"/> class.
         /// </summary>
-        public DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<IDataElement> logger)
+        public DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<DataElementService> logger)
         {
             _repository = repository;
             _storageClient = storageClient;
