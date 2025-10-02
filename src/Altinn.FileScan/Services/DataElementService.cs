@@ -16,12 +16,12 @@ namespace Altinn.FileScan.Services
         private readonly IAppOwnerBlob _repository;
         private readonly IStorageClient _storageClient;
         private readonly IMuescheliClient _muescheliClient;
-        private readonly ILogger<IDataElement> _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataElementService"/> class.
         /// </summary>
-        public DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<IDataElement> logger)
+        public DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<DataElementService> logger)
         {
             _repository = repository;
             _storageClient = storageClient;
@@ -38,10 +38,11 @@ namespace Altinn.FileScan.Services
 
                 if (blobProps.LastModified != scanRequest.Timestamp)
                 {
+                    // we replace newline characters in log messages to avoid log injection attacks
                     _logger.LogError(
-                        "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {instanceId}, DataElementId: {dataElementId}, timestamp diff: {timeDiff} seconds", 
-                        scanRequest.InstanceId, 
-                        scanRequest.DataElementId,
+                        "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {InstanceId}, DataElementId: {DataElementId}, timestamp diff: {TimeDiff} seconds", 
+                        scanRequest.InstanceId.Replace(Environment.NewLine, string.Empty), 
+                        scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
                         scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds);
                     return;
                 }
@@ -64,7 +65,7 @@ namespace Altinn.FileScan.Services
                     case ScanResult.ERROR:
                     case ScanResult.PARSE_ERROR:
                     case ScanResult.UNDEFINED:
-                        _logger.LogError("Scan of {dataElementId} completed with unexpected result {scanResult}.", scanRequest.DataElementId, scanResult);
+                        _logger.LogError("Scan of {DataElementId} completed with unexpected result {ScanResult}.", scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty), scanResult);
                         throw MuescheliScanResultException.Create(scanRequest.DataElementId, scanResult);
                 }
 
@@ -78,7 +79,7 @@ namespace Altinn.FileScan.Services
             }
             catch (MuescheliHttpException e)
             {
-                _logger.LogError(e, "Scan of {dataElementId} failed with an http exception.", scanRequest.DataElementId);
+                _logger.LogError(e, "Scan of {DataElementId} failed with an http exception.", scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty));
                 throw;
             }
         }
