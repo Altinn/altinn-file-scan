@@ -105,7 +105,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
                 .ReturnsAsync((Stream)null);
 
-            Mock<ILogger<IDataElement>> loggerMock = new Mock<ILogger<IDataElement>>();
+            Mock<ILogger<DataElementService>> loggerMock = new Mock<ILogger<DataElementService>>();
 
             Mock<IMuescheliClient> muescheliClientMock = new();
             muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
@@ -199,7 +199,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             IAppOwnerBlob appOwnerBlob = null,
             IMuescheliClient muescheliClient = null,
             IStorageClient storageClient = null,
-            ILogger<IDataElement> logger = null)
+            ILogger<DataElementService> logger = null)
         {
             if (appOwnerBlob is null)
             {
@@ -237,7 +237,7 @@ namespace Altinn.FileScan.Tests.TestingServices
 
             if (logger == null)
             {
-                logger = new Mock<ILogger<IDataElement>>().Object;
+                logger = new Mock<ILogger<DataElementService>>().Object;
             }
 
             return new DataElementService(appOwnerBlob, muescheliClient, storageClient, logger);
