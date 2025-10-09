@@ -199,7 +199,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             IAppOwnerBlob appOwnerBlob = null,
             IMuescheliClient muescheliClient = null,
             IStorageClient storageClient = null,
-            ILogger<IDataElementService> logger = null)
+            ILogger<DataElementService> logger = null)
         {
             if (appOwnerBlob is null)
             {
@@ -237,7 +237,7 @@ namespace Altinn.FileScan.Tests.TestingServices
 
             if (logger == null)
             {
-                logger = new Mock<ILogger<IDataElementService>>().Object;
+                logger = new Mock<ILogger<DataElementService>>().Object;
             }
 
             return new DataElementService(appOwnerBlob, muescheliClient, storageClient, logger);
