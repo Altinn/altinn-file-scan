@@ -105,7 +105,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
                 .ReturnsAsync((Stream)null);
 
-            Mock<ILogger<IDataElement>> loggerMock = new Mock<ILogger<IDataElement>>();
+            Mock<ILogger<DataElementService>> loggerMock = new Mock<ILogger<DataElementService>>();
 
             Mock<IMuescheliClient> muescheliClientMock = new();
             muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
