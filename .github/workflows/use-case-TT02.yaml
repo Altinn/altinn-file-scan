@@ -1,5 +1,7 @@
 name: Use Case - TT02
-
+permissions:
+  contents: read
+  
 on:
   workflow_dispatch:
   schedule:

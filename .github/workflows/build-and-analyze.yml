@@ -1,4 +1,8 @@
 name: Code test and analysis
+permissions:
+  contents: read
+  checks: write
+
 on:
   push:
     branches: [ main ]
