@@ -1,5 +1,7 @@
 name: Use Case - PROD
-
+permissions:
+  contents: read
+  
 on:
   workflow_dispatch:
   schedule:
