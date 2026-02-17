@@ -1,7 +1,7 @@
 # Altinn FileScan
 
 Microservice that performs asynchronous malware scanning of files uploaded to Altinn 3.
-Documentation for setting up filescan in an app: https://docs.altinn.studio/app/development/configuration/filescan/
+Documentation for setting up filescan in an app: https://docs.altinn.studio/nb/altinn-studio/v8/reference/configuration/filescan/
 
 ## Build status
 [![Filescan build status](https://dev.azure.com/brreg/altinn-studio/_apis/build/status/altinn-platform/filescan-master?label=altinn/filescan)](https://dev.azure.com/brreg/altinn-studio/_build/latest?definitionId=405)
