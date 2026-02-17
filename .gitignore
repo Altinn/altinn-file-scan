@@ -93,6 +93,9 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+# Files built by JetBrains IDEs
+.idea
+
 # Chutzpah Test files
 _Chutzpah*
 
