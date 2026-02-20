@@ -8,9 +8,9 @@ using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
 using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services;
-using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Enums;
 using Altinn.Platform.Storage.Interface.Models;
+using Azure;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -19,16 +19,16 @@ namespace Altinn.FileScan.Tests.TestingServices
 {
     public class DataElementServiceTests
     {
-        private static DateTimeOffset requestTimestamp = new DateTimeOffset(2023, 1, 10, 8, 0, 0, new TimeSpan(0, 0, 0));
-        private static DateTimeOffset matchingTimestamp = new DateTimeOffset(2023, 1, 10, 8, 0, 0, new TimeSpan(0, 0, 0));
-        private static DateTimeOffset nonMatchingTimestamp = new DateTimeOffset(2023, 1, 10, 8, 30, 0, new TimeSpan(0, 0, 0));
+        private static readonly DateTimeOffset _requestTimestamp = new(2023, 1, 10, 8, 0, 0, new TimeSpan(0, 0, 0));
+        private static readonly DateTimeOffset _matchingTimestamp = new(2023, 1, 10, 8, 0, 0, new TimeSpan(0, 0, 0));
+        private static readonly DateTimeOffset _nonMatchingTimestamp = new(2023, 1, 10, 8, 30, 0, new TimeSpan(0, 0, 0));
 
-        private DataElementScanRequest _defaultDataElementScanRequest = new DataElementScanRequest
+        private readonly DataElementScanRequest _defaultDataElementScanRequest = new()
         {
             BlobStoragePath = "blobstoragePath/org/attachment.pdf",
             DataElementId = "dataElementId",
             InstanceId = "instanceId",
-            Timestamp = requestTimestamp,
+            Timestamp = _requestTimestamp,
             Filename = "attachment.pdf",
             Org = "ttd"
         };
@@ -42,7 +42,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
                 .ReturnsAsync(new BlobPropertyModel
                 {
-                    LastModified = matchingTimestamp
+                    LastModified = _matchingTimestamp
                 });
             blobMock
                 .Setup(b => b.GetBlob(It.Is<string>(s => s == "ttd"), It.Is<string>(s => s == "blobstoragePath/org/attachment.pdf"), null))
@@ -81,7 +81,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             {
                 BlobStoragePath = "blobstoragePath/org/attachment.pdf",
                 DataElementId = "dataElementId",
-                Timestamp = requestTimestamp,
+                Timestamp = _requestTimestamp,
                 InstanceId = "instanceId",
                 Org = "ttd"
             };
@@ -100,7 +100,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             Mock<IAppOwnerBlob> blobMock = new();
             blobMock
                 .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
-                .ReturnsAsync(new BlobPropertyModel { LastModified = nonMatchingTimestamp });
+                .ReturnsAsync(new BlobPropertyModel { LastModified = _nonMatchingTimestamp });
             blobMock
                 .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
                 .ReturnsAsync((Stream)null);
@@ -112,7 +112,7 @@ namespace Altinn.FileScan.Tests.TestingServices
                 .ReturnsAsync(ScanResult.OK);
 
             DataElementService sut = SetUpTestService(
-                appOwnerBlob: blobMock.Object, 
+                appOwnerBlob: blobMock.Object,
                 muescheliClient: muescheliClientMock.Object,
                 logger: loggerMock.Object);
 
@@ -120,7 +120,7 @@ namespace Altinn.FileScan.Tests.TestingServices
             {
                 BlobStoragePath = "blobstoragePath/org/attachment.pdf",
                 DataElementId = "dataElementId",
-                Timestamp = requestTimestamp,
+                Timestamp = _requestTimestamp,
                 InstanceId = "instanceId",
                 Org = "ttd"
             };
@@ -138,7 +138,7 @@ namespace Altinn.FileScan.Tests.TestingServices
         [InlineData(ScanResult.FOUND, FileScanResult.Infected)]
         public async Task Scan_DeterminateScanResult_MappedCorrectlyToFileSCcanResult(ScanResult scanResult, FileScanResult expectedFileScanResult)
         {
-            // Arraange
+            // Arrange
             Mock<IMuescheliClient> muescheliClientMock = new();
             muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
                 .ReturnsAsync(scanResult);
@@ -163,7 +163,7 @@ namespace Altinn.FileScan.Tests.TestingServices
         [InlineData(ScanResult.PARSE_ERROR)]
         public async Task Scan_IndeterminateScanResult_ExceptionIsThrown(ScanResult scanResult)
         {
-            // Arraange
+            // Arrange
             Mock<IMuescheliClient> muescheliClientMock = new();
             muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
                 .ReturnsAsync(scanResult);
@@ -179,9 +179,9 @@ namespace Altinn.FileScan.Tests.TestingServices
         }
 
         [Fact]
-        public async Task Scan_MuscliClientThrowsException_ExceptionBubblesUp()
+        public async Task Scan_MuescliClientThrowsException_ExceptionBubblesUp()
         {
-            // Arraange            
+            // Arrange
             Mock<IMuescheliClient> muescheliClientMock = new();
             muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
                 .ThrowsAsync(await MuescheliHttpException.CreateAsync(HttpStatusCode.NotFound, new HttpResponseMessage(HttpStatusCode.NotFound)));
@@ -195,6 +195,63 @@ namespace Altinn.FileScan.Tests.TestingServices
             MuescheliHttpException exception = await Assert.ThrowsAsync<MuescheliHttpException>(Act);
         }
 
+        [Fact]
+        public async Task Scan_RequestFailedException_CallsStorage_LogsWarnings()
+        {
+            // Arrange
+            Mock<IAppOwnerBlob> repository = new();
+            Mock<IStorageClient> storageClient = new();
+            Mock<ILogger<DataElementService>> loggerMock = new();
+            repository
+                .Setup(r => r.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
+                .ThrowsAsync(new RequestFailedException(string.Empty));
+            storageClient
+                .Setup(s => s.DataElementExists(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(false);
+
+            DataElementService sut = SetUpTestService(
+                appOwnerBlob: repository.Object,
+                storageClient: storageClient.Object,
+                logger: loggerMock.Object);
+
+            // Act
+            await sut.Scan(_defaultDataElementScanRequest);
+
+            // Assert
+            loggerMock.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
+            storageClient.Verify(x => x.DataElementExists(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Scan_RequestFailedException_DataElementDoesExist_LogsError_ExceptionBubblesUp()
+        {
+            // Arrange
+            Mock<IAppOwnerBlob> repository = new();
+            Mock<IStorageClient> storageClient = new();
+            Mock<ILogger<DataElementService>> loggerMock = new();
+            repository
+                .Setup(r => r.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
+                .ThrowsAsync(new RequestFailedException(string.Empty));
+            storageClient
+                .Setup(s => s.DataElementExists(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            DataElementService sut = SetUpTestService(
+                appOwnerBlob: repository.Object,
+                storageClient: storageClient.Object,
+                logger: loggerMock.Object);
+
+            // Act
+            Task Act() => sut.Scan(_defaultDataElementScanRequest);
+
+            // Assert
+            RequestFailedException exception = await Assert.ThrowsAsync<RequestFailedException>(Act);
+            Assert.Equal($"DataElement {_defaultDataElementScanRequest.DataElementId} found and blob does not exist", exception.Message);
+            loggerMock.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<RequestFailedException>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            loggerMock.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<RequestFailedException>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+            storageClient.Verify(x => x.DataElementExists(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
         private static DataElementService SetUpTestService(
             IAppOwnerBlob appOwnerBlob = null,
             IMuescheliClient muescheliClient = null,
@@ -206,9 +263,9 @@ namespace Altinn.FileScan.Tests.TestingServices
                 Mock<IAppOwnerBlob> blobMock = new();
                 blobMock
                     .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
-                    .ReturnsAsync(new BlobPropertyModel 
-                    { 
-                        LastModified = matchingTimestamp
+                    .ReturnsAsync(new BlobPropertyModel
+                    {
+                        LastModified = _matchingTimestamp
                     });
                 blobMock
                     .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))

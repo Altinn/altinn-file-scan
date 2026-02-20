@@ -3,25 +3,19 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-
 using Altinn.Common.AccessToken.Services;
-
 using Altinn.FileScan.Controllers;
 using Altinn.FileScan.Models;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.FileScan.Tests.Mocks;
 using Altinn.FileScan.Tests.Mocks.Authentication;
 using Altinn.FileScan.Tests.Utils;
-
 using AltinnCore.Authentication.JwtCookie;
-
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-
 using Moq;
-
 using Xunit;
 
 namespace Altinn.FileScan.Tests.TestingControllers;

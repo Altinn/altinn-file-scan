@@ -27,5 +27,24 @@ namespace Altinn.FileScan.Extensions
 
             return httpClient.SendAsync(request, CancellationToken.None);
         }
+
+        /// <summary>
+        /// Extension that adds authorization header to request
+        /// </summary>
+        /// <param name="httpClient">The HttpClient</param>
+        /// <param name="requestUri">The request Uri</param>
+        /// <param name="platformAccessToken">The platformAccess tokens</param>
+        /// <returns>A HttpResponseMessage</returns>
+        public static Task<HttpResponseMessage> GetAsync(this HttpClient httpClient, string requestUri, string platformAccessToken)
+        {
+            HttpRequestMessage request = new(HttpMethod.Get, new Uri(requestUri, UriKind.Relative));
+
+            if (!string.IsNullOrEmpty(platformAccessToken))
+            {
+                request.Headers.Add("PlatformAccessToken", platformAccessToken);
+            }
+
+            return httpClient.SendAsync(request, CancellationToken.None);
+        }
     }
 }
