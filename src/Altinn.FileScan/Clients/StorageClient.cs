@@ -67,7 +67,7 @@ namespace Altinn.FileScan.Clients
                 }
             }
 
-            throw new PlatformHttpException(response, "Unexpected response from StorageClient when setting file scan status.");
+            throw new PlatformHttpException(response, "Unexpected response from StorageClient when checking if data element exists.");
         }
     }
 }
