@@ -33,7 +33,7 @@ public class StorageClientTests
             .Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(requestContent) });
 
-        StorageClient testService = SetupTestService(httpClientMock.Object, accessTokenMock.Object, null);
+        StorageClient testService = SetupTestService(httpClient: httpClientMock.Object, accessToken: accessTokenMock.Object);
 
         // Act
         bool result = await testService.DataElementExists(instanceId, dataElementId);
@@ -60,7 +60,7 @@ public class StorageClientTests
             .Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK, Content = new StringContent(requestContent) });
 
-        StorageClient testService = SetupTestService(httpClientMock.Object, accessTokenMock.Object, null);
+        StorageClient testService = SetupTestService(httpClient: httpClientMock.Object, accessToken: accessTokenMock.Object);
 
         // Act
         bool result = await testService.DataElementExists(instanceId, dataElementId);
@@ -86,7 +86,7 @@ public class StorageClientTests
             .Setup(s => s.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
 
-        StorageClient testService = SetupTestService(httpClientMock.Object, accessTokenMock.Object, null);
+        StorageClient testService = SetupTestService(httpClient: httpClientMock.Object, accessToken: accessTokenMock.Object);
 
         // Act
         Task Act() => testService.DataElementExists(instanceId, dataElementId);
@@ -96,7 +96,7 @@ public class StorageClientTests
         Assert.Equal("Unexpected response from StorageClient when checking if data element exists.", exception.Message);
     }
 
-    private static StorageClient SetupTestService(HttpClient? httpClient, IAccessToken? accessToken, IOptions<PlatformSettings>? platformSettings)
+    private static StorageClient SetupTestService(HttpClient? httpClient = null, IAccessToken? accessToken = null, IOptions<PlatformSettings>? platformSettings = null)
     {
         httpClient ??= new Mock<HttpClient>().Object;
         accessToken ??= new Mock<IAccessToken>().Object;
