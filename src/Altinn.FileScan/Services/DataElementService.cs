@@ -54,7 +54,10 @@ namespace Altinn.FileScan.Services
                     if (result)
                     {
                         RequestFailedException requestFailedException = new($"DataElement {scanRequest.DataElementId} found and blob does not exist");
-                        _logger.LogError(requestFailedException, "DataElement {DataElementId} found and blob does not exist", scanRequest.DataElementId);
+                        _logger.LogError(
+                            requestFailedException,
+                            "DataElement {DataElementId} found and blob does not exist",
+                            scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty));
                         throw requestFailedException;
                     }
 
