@@ -49,5 +49,25 @@ namespace Altinn.FileScan.Clients
                 throw new PlatformHttpException(response, "Unexpected response from StorageClient when setting file scan status.");
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<bool> DataElementExists(string instanceId, string dataElementId)
+        {
+            string endpoint = $"instances/{instanceId}/dataelementexists/{dataElementId}";
+            string accessToken = await _accessTokenService.Generate();
+
+            HttpResponseMessage response = await _client.GetAsync(endpoint, accessToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+                if (bool.TryParse(responseBody, out bool result))
+                {
+                    return result;
+                }
+            }
+
+            throw new PlatformHttpException(response, "Unexpected response from StorageClient when checking if data element exists.");
+        }
     }
 }

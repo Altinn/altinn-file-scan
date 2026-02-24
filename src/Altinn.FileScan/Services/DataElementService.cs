@@ -1,10 +1,12 @@
-﻿using Altinn.FileScan.Clients.Interfaces;
+﻿#nullable enable
+using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
 using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Enums;
 using Altinn.Platform.Storage.Interface.Models;
+using Azure;
 
 namespace Altinn.FileScan.Services
 {
@@ -34,16 +36,44 @@ namespace Altinn.FileScan.Services
         {
             try
             {
-                var blobProps = await _repository.GetBlobProperties(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageAccountNumber);
+                BlobPropertyModel? blobProps = null;
+                try
+                {
+                    blobProps = await _repository.GetBlobProperties(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageAccountNumber);
+                }
+                catch (RequestFailedException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Blob not found with the following parameters. Org: {Org}, BlobStoragePath: {BlobStoragePath}, StorageAccountNumber: {StorageAccountNumber}",
+                        scanRequest.Org.Replace(Environment.NewLine, string.Empty),
+                        scanRequest.BlobStoragePath.Replace(Environment.NewLine, string.Empty),
+                        scanRequest.StorageAccountNumber);
 
-                if (blobProps.LastModified != scanRequest.Timestamp)
+                    bool result = await _storageClient.DataElementExists(scanRequest.InstanceId, scanRequest.DataElementId);
+                    if (result)
+                    {
+                        RequestFailedException requestFailedException = new($"DataElement {scanRequest.DataElementId} found and blob does not exist");
+                        _logger.LogError(
+                            requestFailedException,
+                            "DataElement {DataElementId} found and blob does not exist",
+                            scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty));
+                        throw requestFailedException;
+                    }
+
+                    _logger.LogWarning("DataElement and Blob not found, scan skipped.");
+                    return;
+                }
+
+                if (blobProps?.LastModified != scanRequest.Timestamp)
                 {
                     // we replace newline characters in log messages to avoid log injection attacks
+                    double totalSeconds = blobProps is not null ? scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds : 0;
                     _logger.LogError(
-                        "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {InstanceId}, DataElementId: {DataElementId}, timestamp diff: {TimeDiff} seconds", 
-                        scanRequest.InstanceId.Replace(Environment.NewLine, string.Empty), 
+                        "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {InstanceId}, DataElementId: {DataElementId}, timestamp diff: {TimeDiff} seconds",
+                        scanRequest.InstanceId.Replace(Environment.NewLine, string.Empty),
                         scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
-                        scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds);
+                        totalSeconds);
                     return;
                 }
 
