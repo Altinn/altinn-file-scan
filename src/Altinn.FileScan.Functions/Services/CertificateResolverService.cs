@@ -1,10 +1,10 @@
+#nullable disable
+
 using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-
 using Altinn.FileScan.Functions.Configuration;
 using Altinn.FileScan.Functions.Services.Interfaces;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -44,7 +44,7 @@ namespace Altinn.FileScan.Functions.Services
         }
 
         /// <summary>
-        /// Find the configured 
+        /// Find the configured
         /// </summary>
         /// <returns></returns>
         public async Task<X509Certificate2> GetCertificateAsync()
