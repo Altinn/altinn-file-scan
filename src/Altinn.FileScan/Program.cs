@@ -1,3 +1,5 @@
+#nullable disable
+
 using System.Reflection;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
@@ -24,6 +26,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using ConfigurationManager = Microsoft.Extensions.Configuration.ConfigurationManager;
 
 ILogger logger;
 
@@ -60,7 +63,7 @@ void ConfigureWebHostCreationLogging()
 
 async Task SetConfigurationProviders(ConfigurationManager config)
 {
-    string basePath = Directory.GetParent(Directory.GetCurrentDirectory())!.FullName;
+    string basePath = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
 
     config.SetBasePath(basePath);
     string configJsonFile1 = $"{basePath}/altinn-appsettings/altinn-dbsettings-secret.json";
