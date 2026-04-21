@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace Altinn.FileScan.Configuration
 {
     /// <summary>

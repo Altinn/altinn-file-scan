@@ -1,6 +1,7 @@
+#nullable disable
+
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Repository.Interfaces;
-using Azure.Core;
 using Azure.Identity;
 using Azure.Storage;
 using Azure.Storage.Blobs;
@@ -32,7 +33,7 @@ namespace Altinn.FileScan.Repository
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobContainerClientProvider"/> class/>.
-        /// </summary>       
+        /// </summary>
         public BlobContainerClientProvider(
             IOptions<AppOwnerAzureStorageConfig> storageConfiguration,
             ILogger<BlobContainerClientProvider> logger,
@@ -78,7 +79,7 @@ namespace Altinn.FileScan.Repository
             return commonBlobClient.GetBlobContainerClient(_storageConfig.StorageContainer);
         }
 
-        private TokenCredential GetCachedCredentials()
+        private DefaultAzureCredential GetCachedCredentials()
         {
             if (!_memoryCache.TryGetValue(_credsCacheKey, out DefaultAzureCredential creds))
             {

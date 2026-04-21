@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Altinn.FileScan.Clients.Interfaces;
+﻿using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
 using Altinn.FileScan.Repository.Interfaces;

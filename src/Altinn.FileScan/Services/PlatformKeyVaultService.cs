@@ -1,11 +1,11 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿#nullable disable
+
+using System.Security.Cryptography.X509Certificates;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.FileScan.Services.Interfaces;
-
 using Azure;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
-
 using Microsoft.Extensions.Options;
 
 namespace Altinn.FileScan.Services

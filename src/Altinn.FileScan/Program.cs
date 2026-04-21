@@ -1,5 +1,4 @@
 using System.Reflection;
-
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
@@ -14,11 +13,9 @@ using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.FileScan.Telemetry;
 using AltinnCore.Authentication.JwtCookie;
-
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Azure.Security.KeyVault.Secrets;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -63,7 +60,7 @@ void ConfigureWebHostCreationLogging()
 
 async Task SetConfigurationProviders(ConfigurationManager config)
 {
-    string basePath = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+    string basePath = Directory.GetParent(Directory.GetCurrentDirectory())!.FullName;
 
     config.SetBasePath(basePath);
     string configJsonFile1 = $"{basePath}/altinn-appsettings/altinn-dbsettings-secret.json";
@@ -186,7 +183,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
           .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
           {
-              GeneralSettings generalSettings = config.GetSection("GeneralSettings").Get<GeneralSettings>();
+              GeneralSettings generalSettings = new();
+              config.GetSection("GeneralSettings").Bind(generalSettings);
               options.JwtCookieName = generalSettings.JwtCookieName;
               options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
               options.TokenValidationParameters = new TokenValidationParameters
