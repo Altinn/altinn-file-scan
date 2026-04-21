@@ -1,8 +1,9 @@
+#nullable disable
+
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
-
 using Microsoft.IdentityModel.Tokens;
 
 namespace Altinn.FileScan.Tests.Mocks
