@@ -26,7 +26,6 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using ConfigurationManager = Microsoft.Extensions.Configuration.ConfigurationManager;
 
 ILogger logger;
 
