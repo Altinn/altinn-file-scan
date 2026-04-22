@@ -1,11 +1,13 @@
 #nullable disable
 
+using System;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Repository.Interfaces;
 using Azure.Identity;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.FileScan.Repository;
@@ -14,16 +16,15 @@ namespace Altinn.FileScan.Repository;
 /// Represents a collection of Azure Blob Container Clients and the means to obtain new tokens when needed.
 /// This class should be used as a singleton through dependency injection.
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="BlobContainerClientProvider"/> class/>.
-/// </remarks>
-public class BlobContainerClientProvider(
-    IOptions<AppOwnerAzureStorageConfig> storageConfiguration,
-    ILogger<BlobContainerClientProvider> logger,
-    IMemoryCache memoryCache) : IBlobContainerClientProvider
+public class BlobContainerClientProvider : IBlobContainerClientProvider
 {
     private const string _credsCacheKey = "creds";
-    private readonly AppOwnerAzureStorageConfig _storageConfig = storageConfiguration.Value;
+
+    private readonly AppOwnerAzureStorageConfig _storageConfig;
+    private readonly ILogger<BlobContainerClientProvider> _logger;
+
+    private readonly IMemoryCache _memoryCache;
+
     private static readonly MemoryCacheEntryOptions _cacheEntryOptionsCreds = new MemoryCacheEntryOptions()
         .SetPriority(CacheItemPriority.High)
         .SetAbsoluteExpiration(new TimeSpan(10, 0, 0));
@@ -32,13 +33,26 @@ public class BlobContainerClientProvider(
         .SetPriority(CacheItemPriority.High)
         .SetAbsoluteExpiration(new TimeSpan(10, 0, 0));
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BlobContainerClientProvider"/> class/>.
+    /// </summary>
+    public BlobContainerClientProvider(
+        IOptions<AppOwnerAzureStorageConfig> storageConfiguration,
+        ILogger<BlobContainerClientProvider> logger,
+        IMemoryCache memoryCache)
+    {
+        _storageConfig = storageConfiguration.Value;
+        _logger = logger;
+        _memoryCache = memoryCache;
+    }
+
     /// <inheritdoc/>
     public BlobContainerClient GetBlobContainerClient(string org, int? storageAccountNumber)
     {
         if (!_storageConfig.OrgStorageAccount.Equals("devstoreaccount1"))
         {
             string cacheKey = GetClientCacheKey(org, storageAccountNumber);
-            if (!memoryCache.TryGetValue(cacheKey, out BlobContainerClient client))
+            if (!_memoryCache.TryGetValue(cacheKey, out BlobContainerClient client))
             {
                 string containerName = string.Format(_storageConfig.OrgStorageContainer, org);
                 string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
@@ -55,7 +69,7 @@ public class BlobContainerClientProvider(
                 };
 
                 client = new BlobContainerClient(fullUri.Uri, GetCachedCredentials());
-                memoryCache.Set(cacheKey, client, _cacheEntryOptionsBlobClient);
+                _memoryCache.Set(cacheKey, client, _cacheEntryOptionsBlobClient);
             }
 
             return client;
@@ -69,10 +83,10 @@ public class BlobContainerClientProvider(
 
     private DefaultAzureCredential GetCachedCredentials()
     {
-        if (!memoryCache.TryGetValue(_credsCacheKey, out DefaultAzureCredential creds))
+        if (!_memoryCache.TryGetValue(_credsCacheKey, out DefaultAzureCredential creds))
         {
             creds = new();
-            memoryCache.Set(_credsCacheKey, creds, _cacheEntryOptionsCreds);
+            _memoryCache.Set(_credsCacheKey, creds, _cacheEntryOptionsCreds);
         }
 
         return creds;

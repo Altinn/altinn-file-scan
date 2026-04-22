@@ -1,6 +1,9 @@
 ﻿#nullable disable
 
+using System;
 using System.Diagnostics;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using OpenTelemetry;
 
@@ -9,12 +12,18 @@ namespace Altinn.FileScan.Telemetry;
 /// <summary>
 /// Filter for requests (and child dependencies) that should not be logged.
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="RequestFilterProcessor"/> class.
-/// </remarks>
-public class RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = null) : BaseProcessor<Activity>()
+public class RequestFilterProcessor : BaseProcessor<Activity>
 {
     private const string RequestKind = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RequestFilterProcessor"/> class.
+    /// </summary>
+    public RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = null) : base()
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
 
     /// <summary>
     /// Determine whether to skip a request
@@ -24,7 +33,7 @@ public class RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = n
         bool skip = false;
         if (activity.OperationName == RequestKind)
         {
-            skip = ExcludeRequest(httpContextAccessor.HttpContext.Request.Path.Value);
+            skip = ExcludeRequest(_httpContextAccessor.HttpContext.Request.Path.Value);
         }
         else if (!(activity.Parent?.ActivityTraceFlags.HasFlag(ActivityTraceFlags.Recorded) ?? true))
         {
@@ -43,8 +52,8 @@ public class RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = n
     /// <param name="activity">xx</param>
     public override void OnEnd(Activity activity)
     {
-        if (activity.OperationName == RequestKind && httpContextAccessor.HttpContext is not null &&
-            httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipAddress))
+        if (activity.OperationName == RequestKind && _httpContextAccessor.HttpContext is not null &&
+            _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipAddress))
         {
             activity.SetTag("ipAddress", ipAddress.FirstOrDefault());
         }

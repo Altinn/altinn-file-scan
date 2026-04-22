@@ -1,6 +1,8 @@
 ﻿#nullable disable
 
+using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.FileScan.Services.Interfaces;
 using Azure;
@@ -13,12 +15,17 @@ namespace Altinn.FileScan.Services;
 /// <summary>
 /// Implementation of  <see cref="IPlatformKeyVault"/> using default azure credentials to access the key vault defined in <see cref="KeyVaultSettings"/>
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="PlatformKeyVaultService"/> class.
-/// </remarks>
-public class PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings) : IPlatformKeyVault
+public class PlatformKeyVaultService : IPlatformKeyVault
 {
-    private readonly string _vaultUri = keyVaultSettings.Value.SecretUri;
+    private readonly string _vaultUri;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PlatformKeyVaultService"/> class.
+    /// </summary>
+    public PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings)
+    {
+        _vaultUri = keyVaultSettings.Value.SecretUri;
+    }
 
     /// <inheritdoc/>
     public async Task<X509Certificate2> GetCertificateAsync(string certId)

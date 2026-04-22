@@ -1,4 +1,6 @@
-﻿namespace Altinn.FileScan.Models;
+﻿using System;
+
+namespace Altinn.FileScan.Models;
 
 /// <summary>
 /// Model type containing selected properties from Azure BlobProperties type

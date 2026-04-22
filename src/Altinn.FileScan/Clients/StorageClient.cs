@@ -1,5 +1,8 @@
-﻿using System.Text;
+﻿using System;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Exceptions;
@@ -13,10 +16,24 @@ namespace Altinn.FileScan.Clients;
 /// <summary>
 /// Implementation of the <see cref="IStorageClient"/>
 /// </summary>
-public class StorageClient(HttpClient httpClient, IAccessToken accessToken, IOptions<PlatformSettings> settings) : IStorageClient
+public class StorageClient : IStorageClient
 {
-    private readonly HttpClient _client = Configure(httpClient, settings.Value.ApiStorageEndpoint);
-    private readonly IAccessToken _accessTokenService = accessToken;
+    private readonly HttpClient _client;
+    private readonly IAccessToken _accessTokenService;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StorageClient"/> class.
+    /// </summary>
+    public StorageClient(
+        HttpClient httpClient,
+        IAccessToken accessToken,
+        IOptions<PlatformSettings> settings)
+    {
+        _accessTokenService = accessToken;
+
+        _client = httpClient;
+        _client.BaseAddress = new Uri(settings.Value.ApiStorageEndpoint);
+    }
 
     /// <inheritdoc/>
     public async Task PatchFileScanStatus(string instanceId, string dataElementId, FileScanStatus fileScanStatus)
@@ -52,11 +69,5 @@ public class StorageClient(HttpClient httpClient, IAccessToken accessToken, IOpt
         }
 
         throw new PlatformHttpException(response, "Unexpected response from StorageClient when checking if data element exists.");
-    }
-
-    private static HttpClient Configure(HttpClient client, string endpoint)
-    {
-        client.BaseAddress = new Uri(endpoint);
-        return client;
     }
 }

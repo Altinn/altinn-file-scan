@@ -1,5 +1,7 @@
 ﻿#nullable disable
 
+using System;
+
 namespace Altinn.FileScan.Models
 {
     /// <summary>

@@ -8,15 +8,21 @@ namespace Altinn.FileScan.Functions;
 /// <summary>
 /// Azure Function class.
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="FileScanInbound"/> class.
-/// </remarks>
-/// <param name="fileScanClient">FileScanClient</param>
-/// <param name="loggerFactory">ILoggerFactory</param>
-public class FileScanInbound(IFileScanClient fileScanClient, ILoggerFactory loggerFactory)
+public class FileScanInbound
 {
-    private readonly IFileScanClient _fileScanClient = fileScanClient;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<FileScanInbound>();
+    private readonly IFileScanClient _fileScanClient;
+    private readonly ILogger _logger;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileScanInbound"/> class.
+    /// </summary>
+    /// <param name="fileScanClient">FileScanClient</param>
+    /// <param name="loggerFactory">ILoggerFactory</param>
+    public FileScanInbound(IFileScanClient fileScanClient, ILoggerFactory loggerFactory)
+    {
+        _fileScanClient = fileScanClient;
+        _logger = loggerFactory.CreateLogger<FileScanInbound>();
+    }
 
     /// <summary>
     /// Retrieves dataElements from file-scna-inbound queue and send to FileScans rest-api

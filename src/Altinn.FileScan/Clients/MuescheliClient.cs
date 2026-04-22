@@ -1,7 +1,13 @@
 ﻿#nullable disable
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Exceptions;
@@ -13,14 +19,27 @@ namespace Altinn.FileScan.Clients;
 /// <summary>
 /// Implementation of the <see cref="IMuescheliClient"/>
 /// </summary>
-public class MuescheliClient(HttpClient httpClient, IOptions<PlatformSettings> settings) : IMuescheliClient
+public class MuescheliClient : IMuescheliClient
 {
-    private readonly HttpClient _client = Configure(httpClient, settings.Value.ApiMuescheliEndpoint);
-    private readonly JsonSerializerOptions _serializerOptions = new()
+    private readonly HttpClient _client;
+    private readonly JsonSerializerOptions _serializerOptions;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MuescheliClient"/> class.
+    /// </summary>
+    public MuescheliClient(
+        HttpClient httpClient,
+        IOptions<PlatformSettings> settings)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
-    };
+        _client = httpClient;
+        _client.BaseAddress = new Uri(settings.Value.ApiMuescheliEndpoint);
+
+        _serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() }
+        };
+    }
 
     /// <inheritdoc/>
     public async Task<ScanResult> ScanStream(Stream stream, string filename)
@@ -45,11 +64,5 @@ public class MuescheliClient(HttpClient httpClient, IOptions<PlatformSettings> s
             .First();
 
         return r.Result;
-    }
-
-    private static HttpClient Configure(HttpClient client, string endpoint)
-    {
-        client.BaseAddress = new Uri(endpoint);
-        return client;
     }
 }

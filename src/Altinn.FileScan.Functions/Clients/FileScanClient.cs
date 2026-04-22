@@ -17,14 +17,30 @@ using Microsoft.Extensions.Options;
 namespace Altinn.FileScan.Functions.Clients;
 
 /// <inheritdoc/>
-public class FileScanClient(
-    HttpClient httpClient,
-    IAccessTokenGenerator accessTokenGenerator,
-    ICertificateResolverService certificateResolverService,
-    IOptions<PlatformSettings> platformSettings,
-    ILogger<FileScanClient> logger) : IFileScanClient
+public class FileScanClient : IFileScanClient
 {
-    private readonly HttpClient _client = Configure(httpClient, platformSettings.Value.ApiFileScanEndpoint);
+    private readonly HttpClient _client;
+    private readonly IAccessTokenGenerator _accessTokenGenerator;
+    private readonly ICertificateResolverService _certificateResolverService;
+    private readonly ILogger<FileScanClient> _logger;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileScanClient"/> class.
+    /// </summary>
+    public FileScanClient(
+        HttpClient httpClient,
+        IAccessTokenGenerator accessTokenGenerator,
+        ICertificateResolverService certificateResolverService,
+        IOptions<PlatformSettings> platformSettings,
+        ILogger<FileScanClient> logger)
+    {
+        _accessTokenGenerator = accessTokenGenerator;
+        _certificateResolverService = certificateResolverService;
+        _logger = logger;
+
+        _client = httpClient;
+        _client.BaseAddress = new Uri(platformSettings.Value.ApiFileScanEndpoint);
+    }
 
     /// <inheritdoc/>
     public async Task PostDataElementScanRequest(string dataElementScanRequest)
@@ -41,7 +57,7 @@ public class FileScanClient(
             var n = JsonNode.Parse(dataElementScanRequest, new() { PropertyNameCaseInsensitive = true });
             string dataElementId = n["dataElementId"].ToString();
             var msg = $"// Post to FileScan for id {dataElementId} failed with status code {response.StatusCode}";
-            logger.LogError("{msg}", msg);
+            _logger.LogError("{msg}", msg);
             throw new HttpRequestException(msg);
         }
     }
@@ -51,15 +67,9 @@ public class FileScanClient(
     /// </summary>
     protected async Task<string> GenerateAccessToken()
     {
-        X509Certificate2 certificate = await certificateResolverService.GetCertificateAsync();
+        X509Certificate2 certificate = await _certificateResolverService.GetCertificateAsync();
 
-        string accessToken = accessTokenGenerator.GenerateAccessToken("platform", "file-scan", certificate);
+        string accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "file-scan", certificate);
         return accessToken;
-    }
-
-    private static HttpClient Configure(HttpClient client, string endpoint)
-    {
-        client.BaseAddress = new Uri(endpoint);
-        return client;
     }
 }
