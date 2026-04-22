@@ -195,8 +195,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
           .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
           {
-              GeneralSettings generalSettings = new();
-              config.GetSection("GeneralSettings").Bind(generalSettings);
+              GeneralSettings generalSettings = config.GetSection("GeneralSettings").Get<GeneralSettings>();
               options.JwtCookieName = generalSettings.JwtCookieName;
               options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
               options.TokenValidationParameters = new TokenValidationParameters
