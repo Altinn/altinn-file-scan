@@ -1,26 +1,24 @@
 using System.Diagnostics.CodeAnalysis;
-
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Altinn.FileScan.Health
+namespace Altinn.FileScan.Health;
+
+/// <summary>
+/// Health check service configured in startup
+/// Listen to
+/// </summary>
+[ExcludeFromCodeCoverage]
+public class HealthCheck : IHealthCheck
 {
     /// <summary>
-    /// Health check service configured in startup
-    /// Listen to 
+    /// Verifies the healht status
     /// </summary>
-    [ExcludeFromCodeCoverage]
-    public class HealthCheck : IHealthCheck
+    /// <param name="context">The healtcheck context</param>
+    /// <param name="cancellationToken">The cancellationtoken</param>
+    /// <returns></returns>
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        /// <summary>
-        /// Verifies the healht status
-        /// </summary>
-        /// <param name="context">The healtcheck context</param>
-        /// <param name="cancellationToken">The cancellationtoken</param>
-        /// <returns></returns>
-        public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(
-                HealthCheckResult.Healthy("A healthy result."));
-        }
+        return Task.FromResult(
+            HealthCheckResult.Healthy("A healthy result."));
     }
 }

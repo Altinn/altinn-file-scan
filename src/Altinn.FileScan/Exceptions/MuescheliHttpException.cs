@@ -13,7 +13,7 @@ public class MuescheliHttpException : Exception
     public HttpResponseMessage Response { get; }
 
     /// <summary>
-    /// Creates a new <see cref="MuescheliHttpException"/> combining the response message and 
+    /// Creates a new <see cref="MuescheliHttpException"/> combining the response message and
     /// </summary>
     public static async Task<MuescheliHttpException> CreateAsync(HttpStatusCode statusCode, HttpResponseMessage response)
     {

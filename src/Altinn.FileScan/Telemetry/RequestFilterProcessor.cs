@@ -4,65 +4,64 @@ using System.Diagnostics;
 using Microsoft.Extensions.Primitives;
 using OpenTelemetry;
 
-namespace Altinn.FileScan.Telemetry
+namespace Altinn.FileScan.Telemetry;
+
+/// <summary>
+/// Filter for requests (and child dependencies) that should not be logged.
+/// </summary>
+public class RequestFilterProcessor : BaseProcessor<Activity>
 {
+    private const string RequestKind = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
     /// <summary>
-    /// Filter for requests (and child dependencies) that should not be logged.
+    /// Initializes a new instance of the <see cref="RequestFilterProcessor"/> class.
     /// </summary>
-    public class RequestFilterProcessor : BaseProcessor<Activity>
+    public RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = null) : base()
     {
-        private const string RequestKind = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        _httpContextAccessor = httpContextAccessor;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RequestFilterProcessor"/> class.
-        /// </summary>
-        public RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = null) : base()
+    /// <summary>
+    /// Determine whether to skip a request
+    /// </summary>
+    public override void OnStart(Activity activity)
+    {
+        bool skip = false;
+        if (activity.OperationName == RequestKind)
         {
-            _httpContextAccessor = httpContextAccessor;
+            skip = ExcludeRequest(_httpContextAccessor.HttpContext.Request.Path.Value);
+        }
+        else if (!(activity.Parent?.ActivityTraceFlags.HasFlag(ActivityTraceFlags.Recorded) ?? true))
+        {
+            skip = true;
         }
 
-        /// <summary>
-        /// Determine whether to skip a request
-        /// </summary>
-        public override void OnStart(Activity activity)
+        if (skip)
         {
-            bool skip = false;
-            if (activity.OperationName == RequestKind)
-            {
-                skip = ExcludeRequest(_httpContextAccessor.HttpContext.Request.Path.Value);
-            }
-            else if (!(activity.Parent?.ActivityTraceFlags.HasFlag(ActivityTraceFlags.Recorded) ?? true))
-            {
-                skip = true;
-            }
-
-            if (skip)
-            {
-                activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
-            }
+            activity.ActivityTraceFlags &= ~ActivityTraceFlags.Recorded;
         }
+    }
 
-        /// <summary>
-        /// No action on end
-        /// </summary>
-        /// <param name="activity">xx</param>
-        public override void OnEnd(Activity activity)
+    /// <summary>
+    /// No action on end
+    /// </summary>
+    /// <param name="activity">xx</param>
+    public override void OnEnd(Activity activity)
+    {
+        if (activity.OperationName == RequestKind && _httpContextAccessor.HttpContext is not null &&
+            _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipAddress))
         {
-            if (activity.OperationName == RequestKind && _httpContextAccessor.HttpContext is not null &&
-                _httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipAddress))
-            {
-                activity.SetTag("ipAddress", ipAddress.FirstOrDefault());
-            }
+            activity.SetTag("ipAddress", ipAddress.FirstOrDefault());
         }
+    }
 
-        private static bool ExcludeRequest(string localpath)
+    private static bool ExcludeRequest(string localpath)
+    {
+        return localpath switch
         {
-            return localpath switch
-            {
-                var path when path.TrimEnd('/').EndsWith("/health", StringComparison.OrdinalIgnoreCase) => true,
-                _ => false
-            };
-        }
+            var path when path.TrimEnd('/').EndsWith("/health", StringComparison.OrdinalIgnoreCase) => true,
+            _ => false
+        };
     }
 }

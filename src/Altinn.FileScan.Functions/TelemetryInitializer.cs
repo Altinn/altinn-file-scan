@@ -1,21 +1,20 @@
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 
-namespace Altinn.FileScan.Functions
+namespace Altinn.FileScan.Functions;
+
+/// <summary>
+/// Class that handles initialization of App Insights telemetry.
+/// </summary>
+public class TelemetryInitializer : ITelemetryInitializer
 {
     /// <summary>
-    /// Class that handles initialization of App Insights telemetry.
+    /// Initializer.
     /// </summary>
-    public class TelemetryInitializer : ITelemetryInitializer
+    /// <param name="telemetry">The telemetry.</param>
+    public void Initialize(ITelemetry telemetry)
     {
-        /// <summary>
-        /// Initializer.
-        /// </summary>
-        /// <param name="telemetry">The telemetry.</param>
-        public void Initialize(ITelemetry telemetry)
-        {
-            // set custom role name here
-            telemetry.Context.Cloud.RoleName = "filescan-function";
-        }
+        // set custom role name here
+        telemetry.Context.Cloud.RoleName = "filescan-function";
     }
 }

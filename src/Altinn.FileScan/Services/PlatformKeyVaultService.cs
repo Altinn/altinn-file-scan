@@ -8,39 +8,38 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Microsoft.Extensions.Options;
 
-namespace Altinn.FileScan.Services
+namespace Altinn.FileScan.Services;
+
+/// <summary>
+/// Implementation of  <see cref="IPlatformKeyVault"/> using default azure credentials to access the key vault defined in <see cref="KeyVaultSettings"/>
+/// </summary>
+public class PlatformKeyVaultService : IPlatformKeyVault
 {
+    private readonly string _vaultUri;
+
     /// <summary>
-    /// Implementation of  <see cref="IPlatformKeyVault"/> using default azure credentials to access the key vault defined in <see cref="KeyVaultSettings"/>
+    /// Initializes a new instance of the <see cref="PlatformKeyVaultService"/> class.
     /// </summary>
-    public class PlatformKeyVaultService : IPlatformKeyVault
+    public PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings)
     {
-        private readonly string _vaultUri;
+        _vaultUri = keyVaultSettings.Value.SecretUri;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PlatformKeyVaultService"/> class.
-        /// </summary>
-        public PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings)
+    /// <inheritdoc/>
+    public async Task<X509Certificate2> GetCertificateAsync(string certId)
+    {
+        CertificateClient certificateClient = new(new Uri(_vaultUri), new DefaultAzureCredential());
+        AsyncPageable<CertificateProperties> certificatePropertiesPage = certificateClient.GetPropertiesOfCertificateVersionsAsync(certId);
+        await foreach (CertificateProperties certificateProperties in certificatePropertiesPage)
         {
-            _vaultUri = keyVaultSettings.Value.SecretUri;
-        }
-
-        /// <inheritdoc/>
-        public async Task<X509Certificate2> GetCertificateAsync(string certId)
-        {
-            CertificateClient certificateClient = new(new Uri(_vaultUri), new DefaultAzureCredential());
-            AsyncPageable<CertificateProperties> certificatePropertiesPage = certificateClient.GetPropertiesOfCertificateVersionsAsync(certId);
-            await foreach (CertificateProperties certificateProperties in certificatePropertiesPage)
+            if (certificateProperties.Enabled == true &&
+                (certificateProperties.ExpiresOn == null || certificateProperties.ExpiresOn >= DateTime.UtcNow))
             {
-                if (certificateProperties.Enabled == true &&
-                    (certificateProperties.ExpiresOn == null || certificateProperties.ExpiresOn >= DateTime.UtcNow))
-                {
-                    X509Certificate2 certificate = await certificateClient.DownloadCertificateAsync(certificateProperties.Name, certificateProperties.Version);
-                    return certificate;
-                }
+                X509Certificate2 certificate = await certificateClient.DownloadCertificateAsync(certificateProperties.Name, certificateProperties.Version);
+                return certificate;
             }
-
-            return null;
         }
+
+        return null;
     }
 }

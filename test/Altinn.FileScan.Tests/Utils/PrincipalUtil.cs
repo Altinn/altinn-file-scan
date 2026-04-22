@@ -7,56 +7,55 @@ using Altinn.Common.AccessToken.Constants;
 using Altinn.FileScan.Tests.Mocks;
 using AltinnCore.Authentication.Constants;
 
-namespace Altinn.FileScan.Tests.Utils
+namespace Altinn.FileScan.Tests.Utils;
+
+public static class PrincipalUtil
 {
-    public static class PrincipalUtil
+    public static ClaimsPrincipal GetClaimsPrincipal(int userId, int authenticationLevel, string scope = null)
     {
-        public static ClaimsPrincipal GetClaimsPrincipal(int userId, int authenticationLevel, string scope = null)
+        string issuer = "www.altinn.no";
+
+        List<Claim> claims = new()
         {
-            string issuer = "www.altinn.no";
+            new Claim(AltinnCoreClaimTypes.UserId, userId.ToString(), ClaimValueTypes.String, issuer),
+            new Claim(AltinnCoreClaimTypes.UserName, "UserOne", ClaimValueTypes.String, issuer),
+            new Claim(AltinnCoreClaimTypes.PartyID, userId.ToString(), ClaimValueTypes.Integer32, issuer),
+            new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer),
+            new Claim(AltinnCoreClaimTypes.AuthenticationLevel, authenticationLevel.ToString(), ClaimValueTypes.Integer32, issuer)
+        };
 
-            List<Claim> claims = new()
-            {
-                new Claim(AltinnCoreClaimTypes.UserId, userId.ToString(), ClaimValueTypes.String, issuer),
-                new Claim(AltinnCoreClaimTypes.UserName, "UserOne", ClaimValueTypes.String, issuer),
-                new Claim(AltinnCoreClaimTypes.PartyID, userId.ToString(), ClaimValueTypes.Integer32, issuer),
-                new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer),
-                new Claim(AltinnCoreClaimTypes.AuthenticationLevel, authenticationLevel.ToString(), ClaimValueTypes.Integer32, issuer)
-            };
-
-            if (scope != null)
-            {
-                claims.Add(new Claim("urn:altinn:scope", scope, ClaimValueTypes.String, "maskinporten"));
-            }
-
-            ClaimsIdentity identity = new("mock");
-            identity.AddClaims(claims);
-
-            return new ClaimsPrincipal(identity);
+        if (scope != null)
+        {
+            claims.Add(new Claim("urn:altinn:scope", scope, ClaimValueTypes.String, "maskinporten"));
         }
 
-        public static string GetToken(int userId, int authenticationLevel = 2, string scope = null)
+        ClaimsIdentity identity = new("mock");
+        identity.AddClaims(claims);
+
+        return new ClaimsPrincipal(identity);
+    }
+
+    public static string GetToken(int userId, int authenticationLevel = 2, string scope = null)
+    {
+        ClaimsPrincipal principal = GetClaimsPrincipal(userId, authenticationLevel, scope);
+
+        string token = JwtTokenMock.GenerateToken(principal, new TimeSpan(0, 1, 5));
+
+        return token;
+    }
+
+    public static string GetAccessToken(string issuer, string app)
+    {
+        List<Claim> claims = new()
         {
-            ClaimsPrincipal principal = GetClaimsPrincipal(userId, authenticationLevel, scope);
+            new Claim(AccessTokenClaimTypes.App, app, ClaimValueTypes.String, issuer)
+        };
 
-            string token = JwtTokenMock.GenerateToken(principal, new TimeSpan(0, 1, 5));
+        ClaimsIdentity identity = new("mock");
+        identity.AddClaims(claims);
+        ClaimsPrincipal principal = new(identity);
+        string token = JwtTokenMock.GenerateToken(principal, new TimeSpan(0, 1, 5), issuer);
 
-            return token;
-        }
-
-        public static string GetAccessToken(string issuer, string app)
-        {
-            List<Claim> claims = new()
-            {
-                new Claim(AccessTokenClaimTypes.App, app, ClaimValueTypes.String, issuer)
-            };
-
-            ClaimsIdentity identity = new("mock");
-            identity.AddClaims(claims);
-            ClaimsPrincipal principal = new(identity);
-            string token = JwtTokenMock.GenerateToken(principal, new TimeSpan(0, 1, 5), issuer);
-
-            return token;
-        }
+        return token;
     }
 }

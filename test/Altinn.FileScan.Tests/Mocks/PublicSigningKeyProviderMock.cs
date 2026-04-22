@@ -3,26 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-
 using Altinn.Common.AccessToken.Services;
-
 using Microsoft.IdentityModel.Tokens;
 
-namespace Altinn.FileScan.Tests.Mocks
+namespace Altinn.FileScan.Tests.Mocks;
+
+public class PublicSigningKeyProviderMock : IPublicSigningKeyProvider
 {
-    public class PublicSigningKeyProviderMock : IPublicSigningKeyProvider
+    public Task<IEnumerable<SecurityKey>> GetSigningKeys(string issuer)
     {
-        public Task<IEnumerable<SecurityKey>> GetSigningKeys(string issuer)
-        {
-            List<SecurityKey> signingKeys = new();
+        List<SecurityKey> signingKeys = new();
 
-            X509Certificate2 cert = X509CertificateLoader.LoadCertificateFromFile($"{issuer}-org.pem");
+        X509Certificate2 cert = X509CertificateLoader.LoadCertificateFromFile($"{issuer}-org.pem");
 
-            SecurityKey key = new X509SecurityKey(cert);
+        SecurityKey key = new X509SecurityKey(cert);
 
-            signingKeys.Add(key);
+        signingKeys.Add(key);
 
-            return Task.FromResult(signingKeys.AsEnumerable());
-        }
+        return Task.FromResult(signingKeys.AsEnumerable());
     }
 }
