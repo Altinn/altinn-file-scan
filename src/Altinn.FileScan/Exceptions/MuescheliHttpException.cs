@@ -8,12 +8,15 @@ namespace Altinn.FileScan.Exceptions;
 /// <summary>
 /// An exception class related to non expected http response from the Muescheli Service
 /// </summary>
-public class MuescheliHttpException : Exception
+/// <remarks>
+/// Initializes a new instance of the <see cref="MuescheliHttpException"/> class.
+/// </remarks>
+public class MuescheliHttpException(HttpResponseMessage response, string message) : Exception(message)
 {
     /// <summary>
     /// The http response message that generated the exception
     /// </summary>
-    public HttpResponseMessage Response { get; }
+    public HttpResponseMessage Response { get; } = response;
 
     /// <summary>
     /// Creates a new <see cref="MuescheliHttpException"/> combining the response message and
@@ -24,13 +27,5 @@ public class MuescheliHttpException : Exception
 
         string message = $"{statusCode} - {responseMessage}";
         return new MuescheliHttpException(response, message);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MuescheliHttpException"/> class.
-    /// </summary>
-    public MuescheliHttpException(HttpResponseMessage response, string message) : base(message)
-    {
-        Response = response;
     }
 }
