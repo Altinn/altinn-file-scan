@@ -1,4 +1,6 @@
-﻿using Altinn.FileScan.Services.Interfaces;
+﻿using System;
+using System.Threading.Tasks;
+using Altinn.FileScan.Services.Interfaces;
 
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;

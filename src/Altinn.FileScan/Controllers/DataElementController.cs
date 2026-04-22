@@ -1,6 +1,8 @@
-﻿using Altinn.FileScan.Models;
+﻿using System.Threading.Tasks;
+using Altinn.FileScan.Models;
 using Altinn.FileScan.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Altinn.FileScan.Controllers;

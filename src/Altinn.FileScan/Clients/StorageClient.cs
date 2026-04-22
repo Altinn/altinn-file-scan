@@ -1,5 +1,8 @@
-﻿using System.Text;
+﻿using System;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Exceptions;

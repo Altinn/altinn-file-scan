@@ -1,4 +1,6 @@
-﻿using Altinn.FileScan.Clients.Interfaces;
+﻿using System;
+using System.Threading.Tasks;
+using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
 using Altinn.FileScan.Repository.Interfaces;
@@ -6,6 +8,7 @@ using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Enums;
 using Altinn.Platform.Storage.Interface.Models;
 using Azure;
+using Microsoft.Extensions.Logging;
 
 namespace Altinn.FileScan.Services;
 

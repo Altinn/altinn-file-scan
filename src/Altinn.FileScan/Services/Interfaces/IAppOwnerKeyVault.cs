@@ -1,4 +1,6 @@
-﻿namespace Altinn.FileScan.Services.Interfaces;
+﻿using System.Threading.Tasks;
+
+namespace Altinn.FileScan.Services.Interfaces;
 
 /// <summary>
 /// Interface containing all actions for an Altinn app owner Azure Key Vault

@@ -1,4 +1,5 @@
-﻿using Altinn.FileScan.Models;
+﻿using System.Threading.Tasks;
+using Altinn.FileScan.Models;
 
 namespace Altinn.FileScan.Services.Interfaces;
 

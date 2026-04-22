@@ -1,4 +1,6 @@
-﻿namespace Altinn.FileScan.Services.Interfaces;
+﻿using System.Threading.Tasks;
+
+namespace Altinn.FileScan.Services.Interfaces;
 
 /// <summary>
 /// Interface for the access token service
