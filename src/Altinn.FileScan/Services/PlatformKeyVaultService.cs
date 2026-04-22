@@ -13,17 +13,12 @@ namespace Altinn.FileScan.Services;
 /// <summary>
 /// Implementation of  <see cref="IPlatformKeyVault"/> using default azure credentials to access the key vault defined in <see cref="KeyVaultSettings"/>
 /// </summary>
-public class PlatformKeyVaultService : IPlatformKeyVault
+/// <remarks>
+/// Initializes a new instance of the <see cref="PlatformKeyVaultService"/> class.
+/// </remarks>
+public class PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings) : IPlatformKeyVault
 {
-    private readonly string _vaultUri;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PlatformKeyVaultService"/> class.
-    /// </summary>
-    public PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings)
-    {
-        _vaultUri = keyVaultSettings.Value.SecretUri;
-    }
+    private readonly string _vaultUri = keyVaultSettings.Value.SecretUri;
 
     /// <inheritdoc/>
     public async Task<X509Certificate2> GetCertificateAsync(string certId)

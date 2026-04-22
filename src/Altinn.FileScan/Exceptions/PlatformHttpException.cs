@@ -3,12 +3,17 @@
 /// <summary>
 /// Exception class to hold exceptions when talking to the platform REST services
 /// </summary>
-public class PlatformHttpException : Exception
+/// <remarks>
+/// Copy the response for further investigations
+/// </remarks>
+/// <param name="response">the response</param>
+/// <param name="message">A description of the cause of the exception.</param>
+public class PlatformHttpException(HttpResponseMessage response, string message) : Exception(message)
 {
     /// <summary>
     /// Responsible for holding an http request exception towards platform (storage).
     /// </summary>
-    public HttpResponseMessage Response { get; }
+    public HttpResponseMessage Response { get; } = response;
 
     /// <summary>
     /// Create a new <see cref="PlatformHttpException"/> by reading the <see cref="HttpResponseMessage"/>
@@ -22,15 +27,5 @@ public class PlatformHttpException : Exception
         string message = $"{(int)response.StatusCode} - {response.ReasonPhrase} - {content}";
 
         return new PlatformHttpException(response, message);
-    }
-
-    /// <summary>
-    /// Copy the response for further investigations
-    /// </summary>
-    /// <param name="response">the response</param>
-    /// <param name="message">A description of the cause of the exception.</param>
-    public PlatformHttpException(HttpResponseMessage response, string message) : base(message)
-    {
-        this.Response = response;
     }
 }
