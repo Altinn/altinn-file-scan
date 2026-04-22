@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿#nullable disable
+
+using System.Diagnostics;
 using Microsoft.Extensions.Primitives;
 using OpenTelemetry;
 

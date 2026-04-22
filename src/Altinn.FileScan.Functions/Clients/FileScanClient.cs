@@ -1,16 +1,16 @@
-﻿using System;
+﻿#nullable disable
+
+using System;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.FileScan.Functions.Clients.Interfaces;
 using Altinn.FileScan.Functions.Configuration;
 using Altinn.FileScan.Functions.Extensions;
 using Altinn.FileScan.Functions.Services.Interfaces;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

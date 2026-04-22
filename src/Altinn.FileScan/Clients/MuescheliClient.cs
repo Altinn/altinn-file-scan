@@ -1,11 +1,11 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿#nullable disable
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
-
 using Microsoft.Extensions.Options;
 
 namespace Altinn.FileScan.Clients

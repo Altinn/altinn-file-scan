@@ -1,4 +1,6 @@
-﻿namespace Altinn.FileScan.Models;
+﻿#nullable disable
+
+namespace Altinn.FileScan.Models;
 
 /// <summary>
 /// Definition of the response object from the Muescheli service
@@ -11,7 +13,7 @@ public class MuescheliResponse
     public string Filename { get; set; }
 
     /// <summary>
-    /// Gets or sets the scan result in the the response object
+    /// Gets or sets the scan result in the response object
     /// </summary>
     public ScanResult Result { get; set; }
 }

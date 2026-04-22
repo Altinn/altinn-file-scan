@@ -1,10 +1,10 @@
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-
 using Altinn.Common.AccessToken.Constants;
 using Altinn.FileScan.Tests.Mocks;
-
 using AltinnCore.Authentication.Constants;
 
 namespace Altinn.FileScan.Tests.Utils

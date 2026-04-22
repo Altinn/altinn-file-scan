@@ -1,7 +1,9 @@
-﻿namespace Altinn.FileScan.Models
+﻿#nullable disable
+
+namespace Altinn.FileScan.Models
 {
     /// <summary>
-    /// This class represents a request to perform a file scan of an Altinn Data Element. 
+    /// This class represents a request to perform a file scan of an Altinn Data Element.
     /// </summary>
     public class DataElementScanRequest
     {

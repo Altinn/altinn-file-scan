@@ -1,4 +1,6 @@
-﻿namespace Altinn.FileScan.Configuration
+﻿#nullable disable
+
+namespace Altinn.FileScan.Configuration
 {
     /// <summary>
     /// Settings for Azure storage

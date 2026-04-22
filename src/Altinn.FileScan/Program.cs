@@ -1,5 +1,6 @@
-using System.Reflection;
+#nullable disable
 
+using System.Reflection;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.Common.AccessToken.Services;
@@ -14,11 +15,9 @@ using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.FileScan.Telemetry;
 using AltinnCore.Authentication.JwtCookie;
-
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Azure.Security.KeyVault.Secrets;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
