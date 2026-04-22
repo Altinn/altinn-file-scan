@@ -13,35 +13,24 @@ namespace Altinn.FileScan.Functions.Services;
 /// <summary>
 /// Class to resolve certificate to generate an access token
 /// </summary>
-public class CertificateResolverService : ICertificateResolverService
+/// <remarks>
+/// Default constructor
+/// </remarks>
+/// <param name="logger">The logger</param>
+/// <param name="certificateResolverSettings">Settings for certificate resolver</param>
+/// <param name="keyVaultService">Key vault service</param>
+/// <param name="keyVaultSettings">Key vault settings</param>
+public class CertificateResolverService(
+    ILogger<CertificateResolverService> logger,
+    IOptions<CertificateResolverSettings> certificateResolverSettings,
+    IKeyVaultService keyVaultService,
+    IOptions<KeyVaultSettings> keyVaultSettings) : ICertificateResolverService
 {
-    private readonly ILogger<CertificateResolverService> _logger;
-    private readonly CertificateResolverSettings _certificateResolverSettings;
-    private readonly IKeyVaultService _keyVaultService;
-    private readonly KeyVaultSettings _keyVaultSettings;
-    private DateTime _reloadTime;
+    private readonly CertificateResolverSettings _certificateResolverSettings = certificateResolverSettings.Value;
+    private readonly KeyVaultSettings _keyVaultSettings = keyVaultSettings.Value;
+    private DateTime _reloadTime = DateTime.MinValue;
     private X509Certificate2 _cachedX509Certificate = null;
     private readonly object _lockObject = new object();
-
-    /// <summary>
-    /// Default constructor
-    /// </summary>
-    /// <param name="logger">The logger</param>
-    /// <param name="certificateResolverSettings">Settings for certificate resolver</param>
-    /// <param name="keyVaultService">Key vault service</param>
-    /// <param name="keyVaultSettings">Key vault settings</param>
-    public CertificateResolverService(
-        ILogger<CertificateResolverService> logger,
-        IOptions<CertificateResolverSettings> certificateResolverSettings,
-        IKeyVaultService keyVaultService,
-        IOptions<KeyVaultSettings> keyVaultSettings)
-    {
-        _logger = logger;
-        _certificateResolverSettings = certificateResolverSettings.Value;
-        _keyVaultService = keyVaultService;
-        _keyVaultSettings = keyVaultSettings.Value;
-        _reloadTime = DateTime.MinValue;
-    }
 
     /// <summary>
     /// Find the configured
@@ -51,7 +40,7 @@ public class CertificateResolverService : ICertificateResolverService
     {
         if (DateTime.UtcNow > _reloadTime || _cachedX509Certificate == null)
         {
-            var certificate = await _keyVaultService.GetCertificateAsync(
+            var certificate = await keyVaultService.GetCertificateAsync(
                 _keyVaultSettings.KeyVaultURI,
                 _keyVaultSettings.PlatformCertSecretId);
             lock (_lockObject)
@@ -59,7 +48,7 @@ public class CertificateResolverService : ICertificateResolverService
                 _cachedX509Certificate = certificate;
 
                 _reloadTime = DateTime.UtcNow.AddSeconds(_certificateResolverSettings.CacheCertLifetimeInSeconds);
-                _logger.LogInformation("Certificate reloaded.");
+                logger.LogInformation("Certificate reloaded.");
             }
         }
 

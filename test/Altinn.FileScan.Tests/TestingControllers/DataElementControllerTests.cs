@@ -25,21 +25,15 @@ namespace Altinn.FileScan.Tests.TestingControllers;
 /// <summary>
 /// Represents a collection of tests of the <see cref="DataElementController"/>.
 /// </summary>
-public class DataElementControllerTests : IClassFixture<WebApplicationFactory<DataElementController>>
+/// <remarks>
+/// Initializes a new instance of the <see cref="DataElementControllerTests"/> class with the given <see cref="WebApplicationFactory{DataElementController}"/>.
+/// </remarks>
+/// <param name="factory">The <see cref="WebApplicationFactory{TPushController}"/> to use when setting up the test server.</param>
+public class DataElementControllerTests(WebApplicationFactory<DataElementController> factory) : IClassFixture<WebApplicationFactory<DataElementController>>
 {
     private const string BasePath = "/filescan/api/v1";
 
-    private readonly WebApplicationFactory<DataElementController> _factory;
-    private readonly string serializedDataElement;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DataElementControllerTests"/> class with the given <see cref="WebApplicationFactory{DataElementController}"/>.
-    /// </summary>
-    /// <param name="factory">The <see cref="WebApplicationFactory{TPushController}"/> to use when setting up the test server.</param>
-    public DataElementControllerTests(WebApplicationFactory<DataElementController> factory)
-    {
-        _factory = factory;
-        serializedDataElement = "{" +
+    private readonly string serializedDataElement = "{" +
             "\"id\": \"11f7c994-6681-47a1-9626-fcf6c27308a5\"," +
             "\"instanceGuid\": \"649388f0-a2c0-4774-bd11-c870223ed819\"," +
             "\"dataType\": \"default\"," +
@@ -50,7 +44,6 @@ public class DataElementControllerTests : IClassFixture<WebApplicationFactory<Da
             "\"created\": \"2020-05-11T17:09:28.4621953Z\"," +
             "\"lastChanged\": \"2020-05-11T17:09:28.4621953Z\"" +
             "}";
-    }
 
     /// <summary>
     /// Scenario:
@@ -142,7 +135,7 @@ public class DataElementControllerTests : IClassFixture<WebApplicationFactory<Da
     {
         dataElementMock ??= new Mock<IDataElement>().Object;
 
-        HttpClient client = _factory.WithWebHostBuilder(builder =>
+        HttpClient client = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services =>
             {

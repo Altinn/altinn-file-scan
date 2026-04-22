@@ -15,23 +15,15 @@ namespace Altinn.FileScan.Services;
 /// <summary>
 /// Implementation of the IDataElement service integrating with Blob Storage and ClamAV complete the scan of a data element.
 /// </summary>
-public class DataElementService : IDataElement
+/// <remarks>
+/// Initializes a new instance of the <see cref="DataElementService"/> class.
+/// </remarks>
+public class DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<DataElementService> logger) : IDataElement
 {
-    private readonly IAppOwnerBlob _repository;
-    private readonly IStorageClient _storageClient;
-    private readonly IMuescheliClient _muescheliClient;
-    private readonly ILogger _logger;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DataElementService"/> class.
-    /// </summary>
-    public DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<DataElementService> logger)
-    {
-        _repository = repository;
-        _storageClient = storageClient;
-        _muescheliClient = muescheliClient;
-        _logger = logger;
-    }
+    private readonly IAppOwnerBlob _repository = repository;
+    private readonly IStorageClient _storageClient = storageClient;
+    private readonly IMuescheliClient _muescheliClient = muescheliClient;
+    private readonly ILogger _logger = logger;
 
     /// <inheritdoc/>
     public async Task Scan(DataElementScanRequest scanRequest)
