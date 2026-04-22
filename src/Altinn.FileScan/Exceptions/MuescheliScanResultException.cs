@@ -1,4 +1,5 @@
-﻿using Altinn.FileScan.Models;
+﻿using System;
+using Altinn.FileScan.Models;
 
 namespace Altinn.FileScan.Exceptions;
 

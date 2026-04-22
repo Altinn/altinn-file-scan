@@ -1,4 +1,8 @@
-﻿namespace Altinn.FileScan.Exceptions;
+﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+namespace Altinn.FileScan.Exceptions;
 
 /// <summary>
 /// Exception class to hold exceptions when talking to the platform REST services

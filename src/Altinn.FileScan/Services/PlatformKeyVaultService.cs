@@ -1,6 +1,8 @@
 ﻿#nullable disable
 
+using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Altinn.Common.AccessToken.Configuration;
 using Altinn.FileScan.Services.Interfaces;
 using Azure;

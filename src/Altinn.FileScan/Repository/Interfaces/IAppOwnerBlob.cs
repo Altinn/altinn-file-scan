@@ -1,4 +1,6 @@
-﻿using Altinn.FileScan.Models;
+﻿using System.IO;
+using System.Threading.Tasks;
+using Altinn.FileScan.Models;
 
 namespace Altinn.FileScan.Repository.Interfaces;
 

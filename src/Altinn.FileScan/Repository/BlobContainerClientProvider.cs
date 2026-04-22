@@ -1,11 +1,13 @@
 #nullable disable
 
+using System;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Repository.Interfaces;
 using Azure.Identity;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Altinn.FileScan.Repository;

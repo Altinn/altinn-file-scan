@@ -1,6 +1,9 @@
 ﻿#nullable disable
 
+using System;
 using System.Diagnostics;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using OpenTelemetry;
 

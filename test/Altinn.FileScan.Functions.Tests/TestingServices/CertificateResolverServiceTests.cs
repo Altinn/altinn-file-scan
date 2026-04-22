@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Altinn.FileScan.Functions.Configuration;
 using Altinn.FileScan.Functions.Services;
 using Altinn.FileScan.Functions.Services.Interfaces;

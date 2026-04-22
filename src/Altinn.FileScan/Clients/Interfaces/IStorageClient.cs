@@ -1,4 +1,5 @@
-﻿using Altinn.Platform.Storage.Interface.Models;
+﻿using System.Threading.Tasks;
+using Altinn.Platform.Storage.Interface.Models;
 
 namespace Altinn.FileScan.Clients.Interfaces;
 
