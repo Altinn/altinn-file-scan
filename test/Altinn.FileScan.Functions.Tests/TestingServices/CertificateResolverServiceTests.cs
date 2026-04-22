@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
-namespace Altinn.FileScan.Tests;
+namespace Altinn.FileScan.Functions.Tests.TestingServices;
 
 public class CertificateResolverServiceTests
 {
