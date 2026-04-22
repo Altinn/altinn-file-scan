@@ -18,7 +18,7 @@ public class MuescheliScanResultException : Exception
     public ScanResult ScanResult { get; }
 
     /// <summary>
-    /// Creates a new <see cref="MuescheliScanResultException"/> combining the response message and 
+    /// Creates a new <see cref="MuescheliScanResultException"/> combining the response message and
     /// </summary>
     public static MuescheliScanResultException Create(string dataElementId, ScanResult result)
     {

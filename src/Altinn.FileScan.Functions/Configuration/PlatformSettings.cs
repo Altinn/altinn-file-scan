@@ -1,15 +1,14 @@
 #nullable disable
 
-namespace Altinn.FileScan.Functions.Configuration
+namespace Altinn.FileScan.Functions.Configuration;
+
+/// <summary>
+/// Represents a set of configuration options when communicating with the platform API.
+/// </summary>
+public class PlatformSettings
 {
     /// <summary>
-    /// Represents a set of configuration options when communicating with the platform API.
+    /// Gets or sets the url for the FileScan API endpoint.
     /// </summary>
-    public class PlatformSettings
-    {
-        /// <summary>
-        /// Gets or sets the url for the FileScan API endpoint.
-        /// </summary>
-        public string ApiFileScanEndpoint { get; set; }
-    }
+    public string ApiFileScanEndpoint { get; set; }
 }
