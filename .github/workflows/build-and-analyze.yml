@@ -8,6 +8,11 @@ on:
     branches: [ main ]
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'src/**'
+      - 'test/Altinn.FileScan.Functions.Tests/**'
+      - 'test/Altinn.FileScan.Tests/**'
+      - '.github/workflows/build-and-analyze.yml'
   workflow_dispatch:
 
 jobs:
