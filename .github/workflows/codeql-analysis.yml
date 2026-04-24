@@ -1,7 +1,7 @@
 name: 'CodeQL'
 permissions:
   contents: read
-  
+
 on:
   push:
     branches: [main]
@@ -9,7 +9,6 @@ on:
       - 'src/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [main]
     types: [opened, synchronize, reopened]
     paths:
       - 'src/**'
