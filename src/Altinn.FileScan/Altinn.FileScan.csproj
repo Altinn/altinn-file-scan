@@ -16,7 +16,7 @@
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.11.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.28.0" />
     <PackageReference Include="JWTCookieAuthentication" Version="4.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.16" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
