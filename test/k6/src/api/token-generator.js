@@ -71,7 +71,9 @@ pid must be a synthetic Tenor fødselsnummer (month 81-92). Never log res.url.
 */
 export function authenticateWithMockporten() {
   http.cookieJar().clear(config.platformAuthentication.refresh);
-  var endpoint = config.platformAuthentication.refresh + "&iss=mockporten";
+  var endpoint = config.platformAuthentication.authentication
+    + "?goto=" + config.platformAuthentication.refresh
+    + "&iss=mockporten";
   var res = http.get(endpoint);
   var success = check(res, { "Mockporten login form loaded": (r) => r.status === 200 });
   addErrorCount(success);
