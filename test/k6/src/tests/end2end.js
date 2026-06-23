@@ -19,7 +19,7 @@ export const options = {
 };
 
 export function setup() {
-  const partyId = __ENV.partyId;
+  let partyId = __ENV.partyId;
   const personNumber = __ENV.personNumber;
   const userId = __ENV.userId;
   const environment = __ENV.env;
@@ -30,6 +30,7 @@ export function setup() {
 
   if (environment === "prod"){
     userToken = tokenGenerator.authenticateWithMockporten();
+    partyId = tokenGenerator.parsePartyIdFromToken(userToken);
   }else{
      userToken = setupToken.getPersonalTokenForTest(
       userId,

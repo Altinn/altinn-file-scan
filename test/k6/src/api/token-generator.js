@@ -86,6 +86,12 @@ export function authenticateWithMockporten() {
   return res.body;
 }
 
+export function parsePartyIdFromToken(token) {
+  const payload = token.split(".")[1];
+  const decoded = JSON.parse(encoding.b64decode(payload, "rawurl", "s"));
+  return decoded["urn:altinn:partyid"];
+}
+
 
 /*
 Build query parameters
