@@ -4,6 +4,7 @@
 */
 import { check, sleep } from "k6";
 import * as setupToken from "../setup.js";
+import * as tokenGenerator from "../api/token-generator.js";
 import { generateJUnitXML, reportPath } from "../report.js";
 import * as storageApi from "../api/storage.js";
 import { addErrorCount, stopIterationOnFail } from "../errorhandler.js";
@@ -21,8 +22,6 @@ export function setup() {
   const partyId = __ENV.partyId;
   const personNumber = __ENV.personNumber;
   const userId = __ENV.userId;
-  const username = __ENV.username;
-  const password = __ENV.password;
   const environment = __ENV.env;
   const org = __ENV.org.toLowerCase();
   const app = __ENV.app.toLowerCase();
@@ -30,7 +29,7 @@ export function setup() {
   let userToken;
 
   if (environment === "prod"){
-    userToken = setupToken.getPersonalTokenForProd(username, password);
+    userToken = tokenGenerator.authenticateWithMockporten();
   }else{
      userToken = setupToken.getPersonalTokenForTest(
       userId,

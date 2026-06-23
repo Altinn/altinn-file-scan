@@ -3,7 +3,7 @@ import { check } from "k6";
 import encoding from "k6/encoding";
 
 import * as config from "../config.js";
-import { stopIterationOnFail } from "../errorhandler.js";
+import { addErrorCount, stopIterationOnFail } from "../errorhandler.js";
 
 const tokenGeneratorUserName = __ENV.tokenGeneratorUserName;
 const tokenGeneratorUserPwd = __ENV.tokenGeneratorUserPwd;
@@ -63,6 +63,26 @@ export function generatePersonalToken(queryParams) {
   return token;
 }
 
+
+
+/*
+Logs in an end user via Mockporten (test IDP); returns the runtime token.
+pid must be a synthetic Tenor fødselsnummer (month 81-92). Never log res.url.
+*/
+export function authenticateWithMockporten() {
+  http.cookieJar().clear(config.platformAuthentication.refresh);
+  var endpoint = config.platformAuthentication.refresh + "&iss=mockporten";
+  var res = http.get(endpoint);
+  var success = check(res, { "Mockporten login form loaded": (r) => r.status === 200 });
+  addErrorCount(success);
+  stopIterationOnFail("Mockporten login form not loaded", success, res);
+
+  res = res.submitForm({ fields: { Pid: __ENV.pid, Password: __ENV.testidppwd } });
+  success = check(res, { "Mockporten authentication success": (r) => r.status === 200 });
+  addErrorCount(success);
+  stopIterationOnFail("Mockporten authentication failed", success, res);
+  return res.body;
+}
 
 
 /*
