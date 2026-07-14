@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine3.24@sha256:011500266c639eb5f4c585cb26661337a58108e35164aa292660a154a53878eb AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine3.24@sha256:fc785a84b314fce6b7adb29ecc18542d7416f2e05c03ec1ebdb222eadaeafa50 AS build
 
 # Copy event backend
 COPY src/Altinn.FileScan ./Altinn.FileScan
@@ -9,7 +9,7 @@ WORKDIR Altinn.FileScan/
 RUN dotnet build Altinn.FileScan.csproj -c Release -o /app_output
 RUN dotnet publish Altinn.FileScan.csproj -c Release -o /app_output
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine3.24@sha256:50f2dccb17be5f2c7e75814ca70e6c913a969b503214fe978a82301a450a63cb AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.24@sha256:ab9cd53240fe765e9ea01cb3f043ee92607072440fc5b252ca4d64b48c7c17fe AS final
 EXPOSE 5200
 WORKDIR /app
 COPY --from=build /app_output .
