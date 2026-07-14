@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Altinn.Common.AccessToken;
 using Altinn.Common.AccessToken.Configuration;
@@ -29,6 +31,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Logs;
@@ -174,6 +177,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<Altinn.Common.AccessTokenClient.Configuration.AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
+    services.Configure<HttpClientSettings>(config.GetSection("HttpClientSettings"));
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -189,7 +193,23 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IBlobContainerClientProvider, BlobContainerClientProvider>();
     services.AddSingleton<IAppOwnerBlob, AppOwnerBlobRepository>();
 
-    services.AddHttpClient<IStorageClient, StorageClient>();
+    services.AddHttpClient<IStorageClient, StorageClient>()
+        .ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            HttpClientSettings settings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+
+            return new SocketsHttpHandler
+            {
+                PooledConnectionIdleTimeout = TimeSpan.FromSeconds(settings.PooledConnectionIdleTimeoutSeconds),
+                PooledConnectionLifetime = TimeSpan.FromSeconds(settings.PooledConnectionLifetimeSeconds),
+                ConnectTimeout = TimeSpan.FromSeconds(settings.ConnectTimeoutSeconds),
+            };
+        })
+
+        // PooledConnectionLifetime now owns connection recycling; disable the
+        // IHttpClientFactory's default 2-minute handler rotation to avoid managing it twice.
+        .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+
     services.AddHttpClient<IMuescheliClient, MuescheliClient>();
 
     services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
