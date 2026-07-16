@@ -28,16 +28,6 @@ jobs:
               cd test/k6
               docker compose run k6 run /src/tests/end2end.js -e subskey=${{ secrets.APIM_SUBSKEY }} -e env=${{ vars.ENV }} -e org=${{ vars.ORG }}  -e app=${{ vars.APP }} -e userId=${{ secrets.USER_ID }} -e personNumber=${{ secrets.PERSON_NUMBER }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e partyId=${{ secrets.PARTY_ID }}
 
-  #AT24:
-  #  environment: AT24
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-  #  - name: Run use case tests
-  #    run:  |
-  #            cd test/k6
-  #            docker compose run k6 run /src/tests/end2end.js -e subskey=${{ secrets.APIM_SUBSKEY }} -e env=${{ vars.ENV }} -e org=${{ vars.ORG }}  -e app=${{ vars.APP }} -e userId=${{ secrets.USER_ID }} -e personNumber=${{ secrets.PERSON_NUMBER }} -e tokenGeneratorUserName=${{ secrets.TOKENGENERATOR_USERNAME }} -e tokenGeneratorUserPwd=${{ secrets.TOKENGENERATOR_USERPASSWORD }} -e partyId=${{ secrets.PARTY_ID }}
-
   report-status:
     name: Report status
     runs-on: ubuntu-latest
