@@ -177,7 +177,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<Altinn.Common.AccessTokenClient.Configuration.AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
     services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
-    services.Configure<HttpClientSettings>(config.GetSection("HttpClientSettings"));
+    services.Configure<StorageClientSettings>(config.GetSection("StorageClientSettings"));
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
     services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -196,7 +196,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddHttpClient<IStorageClient, StorageClient>()
         .ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            HttpClientSettings settings = sp.GetRequiredService<IOptions<HttpClientSettings>>().Value;
+            StorageClientSettings settings = sp.GetRequiredService<IOptions<StorageClientSettings>>().Value;
 
             return new SocketsHttpHandler
             {
