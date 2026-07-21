@@ -29,6 +29,7 @@
 
       "Bash(dotnet build:*)",
       "Bash(dotnet restore:*)",
+      "Bash(dotnet test:*)",
 
       "Bash(yarn test:*)",
       "Bash(yarn lint:*)",
