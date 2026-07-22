@@ -6,7 +6,7 @@ Altinn FileScan is the platform component that performs asynchronous malware sca
 
 ## Backend Stack
 
-- .NET 9 throughout
+- .NET 10 throughout
 - ASP.NET Core Web API (`Altinn.FileScan`) — the scanning REST API
 - Azure Functions isolated worker, v4 (`Altinn.FileScan.Functions`) — the queue trigger that feeds the API
 - Azure Blob Storage for reading app-owner file payloads; Azure Storage Queues (Azurite locally) for the inbound queue
