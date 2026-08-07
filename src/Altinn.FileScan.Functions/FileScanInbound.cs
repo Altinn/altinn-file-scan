@@ -21,7 +21,9 @@ public class FileScanInbound(IFileScanClient fileScanClient, ILoggerFactory logg
     /// Retrieves dataElements from file-scna-inbound queue and send to FileScans rest-api
     /// </summary>
     [Function("FileScanInbound")]
-    public async Task Run([QueueTrigger("file-scan-inbound", Connection = "QueueStorage")] string dataElementScanRequest)
+    public async Task Run(
+        [QueueTrigger("file-scan-inbound", Connection = "QueueStorage")] string dataElementScanRequest
+    )
     {
         _logger.LogInformation("C# Queue trigger function processed: {dataElement}", dataElementScanRequest);
         await fileScanClient.PostDataElementScanRequest(dataElementScanRequest);

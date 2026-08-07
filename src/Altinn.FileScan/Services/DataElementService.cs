@@ -18,7 +18,12 @@ namespace Altinn.FileScan.Services;
 /// <remarks>
 /// Initializes a new instance of the <see cref="DataElementService"/> class.
 /// </remarks>
-public class DataElementService(IAppOwnerBlob repository, IMuescheliClient muescheliClient, IStorageClient storageClient, ILogger<DataElementService> logger) : IDataElement
+public class DataElementService(
+    IAppOwnerBlob repository,
+    IMuescheliClient muescheliClient,
+    IStorageClient storageClient,
+    ILogger<DataElementService> logger
+) : IDataElement
 {
     private readonly IAppOwnerBlob _repository = repository;
     private readonly IStorageClient _storageClient = storageClient;
@@ -33,7 +38,11 @@ public class DataElementService(IAppOwnerBlob repository, IMuescheliClient muesc
             BlobPropertyModel? blobProps = null;
             try
             {
-                blobProps = await _repository.GetBlobProperties(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageAccountNumber);
+                blobProps = await _repository.GetBlobProperties(
+                    scanRequest.Org,
+                    scanRequest.BlobStoragePath,
+                    scanRequest.StorageAccountNumber
+                );
             }
             catch (RequestFailedException exception)
             {
@@ -42,16 +51,20 @@ public class DataElementService(IAppOwnerBlob repository, IMuescheliClient muesc
                     "Blob not found with the following parameters. Org: {Org}, BlobStoragePath: {BlobStoragePath}, StorageAccountNumber: {StorageAccountNumber}",
                     scanRequest.Org.Replace(Environment.NewLine, string.Empty),
                     scanRequest.BlobStoragePath.Replace(Environment.NewLine, string.Empty),
-                    scanRequest.StorageAccountNumber);
+                    scanRequest.StorageAccountNumber
+                );
 
                 bool result = await _storageClient.DataElementExists(scanRequest.InstanceId, scanRequest.DataElementId);
                 if (result)
                 {
-                    RequestFailedException requestFailedException = new($"DataElement {scanRequest.DataElementId} found and blob does not exist");
+                    RequestFailedException requestFailedException = new(
+                        $"DataElement {scanRequest.DataElementId} found and blob does not exist"
+                    );
                     _logger.LogError(
                         requestFailedException,
                         "DataElement {DataElementId} found and blob does not exist",
-                        scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty));
+                        scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty)
+                    );
                     throw requestFailedException;
                 }
 
@@ -62,16 +75,23 @@ public class DataElementService(IAppOwnerBlob repository, IMuescheliClient muesc
             if (blobProps?.LastModified != scanRequest.Timestamp)
             {
                 // we replace newline characters in log messages to avoid log injection attacks
-                double totalSeconds = blobProps is not null ? scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds : 0;
+                double totalSeconds = blobProps is not null
+                    ? scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds
+                    : 0;
                 _logger.LogError(
                     "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {InstanceId}, DataElementId: {DataElementId}, timestamp diff: {TimeDiff} seconds",
                     scanRequest.InstanceId.Replace(Environment.NewLine, string.Empty),
                     scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
-                    totalSeconds);
+                    totalSeconds
+                );
                 return;
             }
 
-            var stream = await _repository.GetBlob(scanRequest.Org, scanRequest.BlobStoragePath, scanRequest.StorageAccountNumber);
+            var stream = await _repository.GetBlob(
+                scanRequest.Org,
+                scanRequest.BlobStoragePath,
+                scanRequest.StorageAccountNumber
+            );
 
             var filename = $"{scanRequest.DataElementId}.bin";
             ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);
@@ -89,21 +109,25 @@ public class DataElementService(IAppOwnerBlob repository, IMuescheliClient muesc
                 case ScanResult.ERROR:
                 case ScanResult.PARSE_ERROR:
                 case ScanResult.UNDEFINED:
-                    _logger.LogError("Scan of {DataElementId} completed with unexpected result {ScanResult}.", scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty), scanResult);
+                    _logger.LogError(
+                        "Scan of {DataElementId} completed with unexpected result {ScanResult}.",
+                        scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
+                        scanResult
+                    );
                     throw MuescheliScanResultException.Create(scanRequest.DataElementId, scanResult);
             }
 
-            FileScanStatus status = new()
-            {
-                ContentHash = string.Empty,
-                FileScanResult = fileScanResult
-            };
+            FileScanStatus status = new() { ContentHash = string.Empty, FileScanResult = fileScanResult };
 
             await _storageClient.PatchFileScanStatus(scanRequest.InstanceId, scanRequest.DataElementId, status);
         }
         catch (MuescheliHttpException e)
         {
-            _logger.LogError(e, "Scan of {DataElementId} failed with an http exception.", scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty));
+            _logger.LogError(
+                e,
+                "Scan of {DataElementId} failed with an http exception.",
+                scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty)
+            );
             throw;
         }
     }

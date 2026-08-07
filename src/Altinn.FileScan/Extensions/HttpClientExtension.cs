@@ -18,12 +18,14 @@ public static class HttpClientExtension
     /// <param name="content">The http content</param>
     /// <param name="platformAccessToken">The platformAccess tokens</param>
     /// <returns>A HttpResponseMessage</returns>
-    public static Task<HttpResponseMessage> PutAsync(this HttpClient httpClient, string requestUri, HttpContent content, string platformAccessToken)
+    public static Task<HttpResponseMessage> PutAsync(
+        this HttpClient httpClient,
+        string requestUri,
+        HttpContent content,
+        string platformAccessToken
+    )
     {
-        HttpRequestMessage request = new(HttpMethod.Put, new Uri(requestUri, UriKind.Relative))
-        {
-            Content = content
-        };
+        HttpRequestMessage request = new(HttpMethod.Put, new Uri(requestUri, UriKind.Relative)) { Content = content };
 
         if (!string.IsNullOrEmpty(platformAccessToken))
         {
@@ -40,7 +42,11 @@ public static class HttpClientExtension
     /// <param name="requestUri">The request Uri</param>
     /// <param name="platformAccessToken">The platformAccess tokens</param>
     /// <returns>A HttpResponseMessage</returns>
-    public static Task<HttpResponseMessage> GetAsync(this HttpClient httpClient, string requestUri, string platformAccessToken)
+    public static Task<HttpResponseMessage> GetAsync(
+        this HttpClient httpClient,
+        string requestUri,
+        string platformAccessToken
+    )
     {
         HttpRequestMessage request = new(HttpMethod.Get, new Uri(requestUri, UriKind.Relative));
 

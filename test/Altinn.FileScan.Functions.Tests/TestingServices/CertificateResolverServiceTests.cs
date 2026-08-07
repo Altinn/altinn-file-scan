@@ -12,8 +12,11 @@ namespace Altinn.FileScan.Functions.Tests.TestingServices;
 
 public class CertificateResolverServiceTests
 {
-    private readonly Mock<ILogger<CertificateResolverService>> _mockLogger = new Mock<ILogger<CertificateResolverService>>();
-    private readonly IOptions<CertificateResolverSettings> _certificateResolverSettings = Options.Create(new CertificateResolverSettings { CacheCertLifetimeInSeconds = 1 });
+    private readonly Mock<ILogger<CertificateResolverService>> _mockLogger =
+        new Mock<ILogger<CertificateResolverService>>();
+    private readonly IOptions<CertificateResolverSettings> _certificateResolverSettings = Options.Create(
+        new CertificateResolverSettings { CacheCertLifetimeInSeconds = 1 }
+    );
     private readonly Mock<IKeyVaultService> _mockKeyVaultService = new Mock<IKeyVaultService>();
     private readonly IOptions<KeyVaultSettings> _keyVaultSettings = Options.Create(new KeyVaultSettings());
 
@@ -24,11 +27,17 @@ public class CertificateResolverServiceTests
         string certPath = "platform-org.pfx";
         X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, null);
 
-        _mockKeyVaultService.Setup(s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()))
+        _mockKeyVaultService
+            .Setup(s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(cert)
             .Verifiable();
 
-        var resolverService = new CertificateResolverService(_mockLogger.Object, _certificateResolverSettings, _mockKeyVaultService.Object, _keyVaultSettings);
+        var resolverService = new CertificateResolverService(
+            _mockLogger.Object,
+            _certificateResolverSettings,
+            _mockKeyVaultService.Object,
+            _keyVaultSettings
+        );
 
         // Act
         await resolverService.GetCertificateAsync();
@@ -45,11 +54,17 @@ public class CertificateResolverServiceTests
         string certPath = "platform-org.pfx";
         X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(certPath, null);
 
-        _mockKeyVaultService.Setup(s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()))
+        _mockKeyVaultService
+            .Setup(s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(cert)
             .Verifiable();
 
-        var resolverService = new CertificateResolverService(_mockLogger.Object, _certificateResolverSettings, _mockKeyVaultService.Object, _keyVaultSettings);
+        var resolverService = new CertificateResolverService(
+            _mockLogger.Object,
+            _certificateResolverSettings,
+            _mockKeyVaultService.Object,
+            _keyVaultSettings
+        );
 
         // Act
         await resolverService.GetCertificateAsync();
@@ -57,6 +72,9 @@ public class CertificateResolverServiceTests
         await resolverService.GetCertificateAsync();
 
         // Assert
-        _mockKeyVaultService.Verify(s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+        _mockKeyVaultService.Verify(
+            s => s.GetCertificateAsync(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Exactly(2)
+        );
     }
 }

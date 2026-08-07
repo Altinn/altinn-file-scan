@@ -32,7 +32,7 @@ public class DataElementServiceTests
         InstanceId = "instanceId",
         Timestamp = _requestTimestamp,
         Filename = "attachment.pdf",
-        Org = "ttd"
+        Org = "ttd",
     };
 
     [Fact]
@@ -42,23 +42,36 @@ public class DataElementServiceTests
         Mock<IAppOwnerBlob> blobMock = new();
         blobMock
             .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
-            .ReturnsAsync(new BlobPropertyModel
-            {
-                LastModified = _matchingTimestamp
-            });
+            .ReturnsAsync(new BlobPropertyModel { LastModified = _matchingTimestamp });
         blobMock
-            .Setup(b => b.GetBlob(It.Is<string>(s => s == "ttd"), It.Is<string>(s => s == "blobstoragePath/org/attachment.pdf"), null))
+            .Setup(b =>
+                b.GetBlob(
+                    It.Is<string>(s => s == "ttd"),
+                    It.Is<string>(s => s == "blobstoragePath/org/attachment.pdf"),
+                    null
+                )
+            )
             .ReturnsAsync((Stream)null);
 
         Mock<IMuescheliClient> muescheliClientMock = new();
-        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
+        muescheliClientMock
+            .Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
             .ReturnsAsync(ScanResult.OK);
 
         Mock<IStorageClient> storageClientMock = new();
-        storageClientMock
-            .Setup(s => s.PatchFileScanStatus(It.Is<string>(s => s == "instanceId"), It.Is<string>(s => s == "dataElementId"), It.Is<FileScanStatus>(f => f.FileScanResult == FileScanResult.Clean)));
+        storageClientMock.Setup(s =>
+            s.PatchFileScanStatus(
+                It.Is<string>(s => s == "instanceId"),
+                It.Is<string>(s => s == "dataElementId"),
+                It.Is<FileScanStatus>(f => f.FileScanResult == FileScanResult.Clean)
+            )
+        );
 
-        DataElementService sut = SetUpTestService(blobMock.Object, muescheliClientMock.Object, storageClientMock.Object);
+        DataElementService sut = SetUpTestService(
+            blobMock.Object,
+            muescheliClientMock.Object,
+            storageClientMock.Object
+        );
 
         // Act
         await sut.Scan(_defaultDataElementScanRequest);
@@ -74,7 +87,8 @@ public class DataElementServiceTests
     {
         // Arrange
         Mock<IMuescheliClient> muescheliClientMock = new();
-        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.bin")))
+        muescheliClientMock
+            .Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.bin")))
             .ReturnsAsync(ScanResult.OK);
 
         DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object);
@@ -85,7 +99,7 @@ public class DataElementServiceTests
             DataElementId = "dataElementId",
             Timestamp = _requestTimestamp,
             InstanceId = "instanceId",
-            Org = "ttd"
+            Org = "ttd",
         };
 
         // Act
@@ -103,20 +117,20 @@ public class DataElementServiceTests
         blobMock
             .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
             .ReturnsAsync(new BlobPropertyModel { LastModified = _nonMatchingTimestamp });
-        blobMock
-            .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
-            .ReturnsAsync((Stream)null);
+        blobMock.Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null)).ReturnsAsync((Stream)null);
 
         Mock<ILogger<DataElementService>> loggerMock = new Mock<ILogger<DataElementService>>();
 
         Mock<IMuescheliClient> muescheliClientMock = new();
-        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
+        muescheliClientMock
+            .Setup(m => m.ScanStream(It.IsAny<Stream>(), It.Is<string>(s => s == "dataElementId.txt")))
             .ReturnsAsync(ScanResult.OK);
 
         DataElementService sut = SetUpTestService(
             appOwnerBlob: blobMock.Object,
             muescheliClient: muescheliClientMock.Object,
-            logger: loggerMock.Object);
+            logger: loggerMock.Object
+        );
 
         var input = new DataElementScanRequest
         {
@@ -124,32 +138,52 @@ public class DataElementServiceTests
             DataElementId = "dataElementId",
             Timestamp = _requestTimestamp,
             InstanceId = "instanceId",
-            Org = "ttd"
+            Org = "ttd",
         };
 
         // Act
         await sut.Scan(input);
 
         // Assert
-        loggerMock.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+        loggerMock.Verify(
+            x =>
+                x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+                ),
+            Times.Once
+        );
         muescheliClientMock.Verify(x => x.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
     }
 
     [Theory]
     [InlineData(ScanResult.OK, FileScanResult.Clean)]
     [InlineData(ScanResult.FOUND, FileScanResult.Infected)]
-    public async Task Scan_DeterminateScanResult_MappedCorrectlyToFileSCcanResult(ScanResult scanResult, FileScanResult expectedFileScanResult)
+    public async Task Scan_DeterminateScanResult_MappedCorrectlyToFileSCcanResult(
+        ScanResult scanResult,
+        FileScanResult expectedFileScanResult
+    )
     {
         // Arrange
         Mock<IMuescheliClient> muescheliClientMock = new();
-        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
-            .ReturnsAsync(scanResult);
+        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>())).ReturnsAsync(scanResult);
 
         Mock<IStorageClient> storageClientMock = new();
-        storageClientMock
-            .Setup(s => s.PatchFileScanStatus(It.IsAny<string>(), It.IsAny<string>(), It.Is<FileScanStatus>(f => f.FileScanResult == expectedFileScanResult)));
+        storageClientMock.Setup(s =>
+            s.PatchFileScanStatus(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.Is<FileScanStatus>(f => f.FileScanResult == expectedFileScanResult)
+            )
+        );
 
-        DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object, storageClient: storageClientMock.Object);
+        DataElementService sut = SetUpTestService(
+            muescheliClient: muescheliClientMock.Object,
+            storageClient: storageClientMock.Object
+        );
 
         // Act
         await sut.Scan(_defaultDataElementScanRequest);
@@ -167,8 +201,7 @@ public class DataElementServiceTests
     {
         // Arrange
         Mock<IMuescheliClient> muescheliClientMock = new();
-        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
-            .ReturnsAsync(scanResult);
+        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>())).ReturnsAsync(scanResult);
 
         DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object);
 
@@ -177,7 +210,10 @@ public class DataElementServiceTests
 
         // Assert
         MuescheliScanResultException exception = await Assert.ThrowsAsync<MuescheliScanResultException>(Act);
-        Assert.Equal($"Muescheli scan returned result code `{scanResult}` for data element with id dataElementId", exception.Message);
+        Assert.Equal(
+            $"Muescheli scan returned result code `{scanResult}` for data element with id dataElementId",
+            exception.Message
+        );
     }
 
     [Fact]
@@ -185,8 +221,14 @@ public class DataElementServiceTests
     {
         // Arrange
         Mock<IMuescheliClient> muescheliClientMock = new();
-        muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
-            .ThrowsAsync(await MuescheliHttpException.CreateAsync(HttpStatusCode.NotFound, new HttpResponseMessage(HttpStatusCode.NotFound)));
+        muescheliClientMock
+            .Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
+            .ThrowsAsync(
+                await MuescheliHttpException.CreateAsync(
+                    HttpStatusCode.NotFound,
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                )
+            );
 
         DataElementService sut = SetUpTestService(muescheliClient: muescheliClientMock.Object);
 
@@ -207,20 +249,29 @@ public class DataElementServiceTests
         repository
             .Setup(r => r.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
             .ThrowsAsync(new RequestFailedException(string.Empty));
-        storageClient
-            .Setup(s => s.DataElementExists(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(false);
+        storageClient.Setup(s => s.DataElementExists(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
 
         DataElementService sut = SetUpTestService(
             appOwnerBlob: repository.Object,
             storageClient: storageClient.Object,
-            logger: loggerMock.Object);
+            logger: loggerMock.Object
+        );
 
         // Act
         await sut.Scan(_defaultDataElementScanRequest);
 
         // Assert
-        loggerMock.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
+        loggerMock.Verify(
+            x =>
+                x.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+                ),
+            Times.Exactly(2)
+        );
         storageClient.Verify(x => x.DataElementExists(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
@@ -234,23 +285,45 @@ public class DataElementServiceTests
         repository
             .Setup(r => r.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
             .ThrowsAsync(new RequestFailedException(string.Empty));
-        storageClient
-            .Setup(s => s.DataElementExists(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(true);
+        storageClient.Setup(s => s.DataElementExists(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
 
         DataElementService sut = SetUpTestService(
             appOwnerBlob: repository.Object,
             storageClient: storageClient.Object,
-            logger: loggerMock.Object);
+            logger: loggerMock.Object
+        );
 
         // Act
         Task Act() => sut.Scan(_defaultDataElementScanRequest);
 
         // Assert
         RequestFailedException exception = await Assert.ThrowsAsync<RequestFailedException>(Act);
-        Assert.Equal($"DataElement {_defaultDataElementScanRequest.DataElementId} found and blob does not exist", exception.Message);
-        loggerMock.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<RequestFailedException>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
-        loggerMock.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<RequestFailedException>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
+        Assert.Equal(
+            $"DataElement {_defaultDataElementScanRequest.DataElementId} found and blob does not exist",
+            exception.Message
+        );
+        loggerMock.Verify(
+            x =>
+                x.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<RequestFailedException>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+                ),
+            Times.Once
+        );
+        loggerMock.Verify(
+            x =>
+                x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<RequestFailedException>(),
+                    (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()
+                ),
+            Times.Once
+        );
         storageClient.Verify(x => x.DataElementExists(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
@@ -258,20 +331,16 @@ public class DataElementServiceTests
         IAppOwnerBlob appOwnerBlob = null,
         IMuescheliClient muescheliClient = null,
         IStorageClient storageClient = null,
-        ILogger<DataElementService> logger = null)
+        ILogger<DataElementService> logger = null
+    )
     {
         if (appOwnerBlob is null)
         {
             Mock<IAppOwnerBlob> blobMock = new();
             blobMock
                 .Setup(b => b.GetBlobProperties(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()))
-                .ReturnsAsync(new BlobPropertyModel
-                {
-                    LastModified = _matchingTimestamp
-                });
-            blobMock
-                .Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null))
-                .ReturnsAsync((Stream)null);
+                .ReturnsAsync(new BlobPropertyModel { LastModified = _matchingTimestamp });
+            blobMock.Setup(b => b.GetBlob(It.IsAny<string>(), It.IsAny<string>(), null)).ReturnsAsync((Stream)null);
 
             appOwnerBlob = blobMock.Object;
         }
@@ -279,7 +348,8 @@ public class DataElementServiceTests
         if (muescheliClient is null)
         {
             Mock<IMuescheliClient> muescheliClientMock = new();
-            muescheliClientMock.Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
+            muescheliClientMock
+                .Setup(m => m.ScanStream(It.IsAny<Stream>(), It.IsAny<string>()))
                 .ReturnsAsync(ScanResult.OK);
 
             muescheliClient = muescheliClientMock.Object;
@@ -288,8 +358,9 @@ public class DataElementServiceTests
         if (storageClient is null)
         {
             Mock<IStorageClient> storageClientMock = new();
-            storageClientMock
-                .Setup(s => s.PatchFileScanStatus(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<FileScanStatus>()));
+            storageClientMock.Setup(s =>
+                s.PatchFileScanStatus(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<FileScanStatus>())
+            );
 
             storageClient = storageClientMock.Object;
         }

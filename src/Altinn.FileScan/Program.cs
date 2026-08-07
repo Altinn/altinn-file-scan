@@ -65,9 +65,7 @@ void ConfigureWebHostCreationLogging()
 {
     var logFactory = LoggerFactory.Create(builder =>
     {
-        builder
-            .AddFilter("Altinn.FileScan.Program", LogLevel.Debug)
-            .AddConsole();
+        builder.AddFilter("Altinn.FileScan.Program", LogLevel.Debug).AddConsole();
     });
 
     logger = logFactory.CreateLogger<Program>();
@@ -141,15 +139,13 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         KeyValuePair.Create("service.name", (object)"platform-filescan"),
     };
 
-    services.AddOpenTelemetry()
+    services
+        .AddOpenTelemetry()
         .ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(attributes))
         .WithMetrics(metrics =>
         {
             metrics.AddAspNetCoreInstrumentation();
-            metrics.AddMeter(
-                "Microsoft.AspNetCore.Hosting",
-                "Microsoft.AspNetCore.Server.Kestrel",
-                "System.Net.Http");
+            metrics.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "System.Net.Http");
         })
         .WithTracing(tracing =>
         {
@@ -175,7 +171,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
-    services.Configure<Altinn.Common.AccessTokenClient.Configuration.AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
+    services.Configure<Altinn.Common.AccessTokenClient.Configuration.AccessTokenSettings>(
+        config.GetSection("AccessTokenSettings")
+    );
     services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
     services.Configure<StorageClientSettings>(config.GetSection("StorageClientSettings"));
 
@@ -193,7 +191,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IBlobContainerClientProvider, BlobContainerClientProvider>();
     services.AddSingleton<IAppOwnerBlob, AppOwnerBlobRepository>();
 
-    services.AddHttpClient<IStorageClient, StorageClient>()
+    services
+        .AddHttpClient<IStorageClient, StorageClient>()
         .ConfigurePrimaryHttpMessageHandler(sp =>
         {
             StorageClientSettings settings = sp.GetRequiredService<IOptions<StorageClientSettings>>().Value;
@@ -205,36 +204,40 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
                 ConnectTimeout = TimeSpan.FromSeconds(settings.ConnectTimeoutSeconds),
             };
         })
-
         // PooledConnectionLifetime now owns connection recycling; disable the
         // IHttpClientFactory's default 2-minute handler rotation to avoid managing it twice.
         .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
     services.AddHttpClient<IMuescheliClient, MuescheliClient>();
 
-    services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
-          .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
-          {
-              GeneralSettings generalSettings = config.GetSection("GeneralSettings").Get<GeneralSettings>();
-              options.JwtCookieName = generalSettings.JwtCookieName;
-              options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
-              options.TokenValidationParameters = new TokenValidationParameters
-              {
-                  ValidateIssuerSigningKey = true,
-                  ValidateIssuer = false,
-                  ValidateAudience = false,
-                  RequireExpirationTime = true,
-                  ValidateLifetime = true,
-                  ClockSkew = TimeSpan.Zero
-              };
+    services
+        .AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
+        .AddJwtCookie(
+            JwtCookieDefaults.AuthenticationScheme,
+            options =>
+            {
+                GeneralSettings generalSettings = config.GetSection("GeneralSettings").Get<GeneralSettings>();
+                options.JwtCookieName = generalSettings.JwtCookieName;
+                options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    RequireExpirationTime = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                };
 
-              if (builder.Environment.IsDevelopment())
-              {
-                  options.RequireHttpsMetadata = false;
-              }
-          });
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.RequireHttpsMetadata = false;
+                }
+            }
+        );
 
-    services.AddAuthorizationBuilder()
+    services
+        .AddAuthorizationBuilder()
         .AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
@@ -258,18 +261,24 @@ void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
 
 void AddAzureMonitorTelemetryExporters(IServiceCollection services, string applicationInsightsConnectionString)
 {
-    services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddAzureMonitorLogExporter(o =>
-    {
-        o.ConnectionString = applicationInsightsConnectionString;
-    }));
-    services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddAzureMonitorMetricExporter(o =>
-    {
-        o.ConnectionString = applicationInsightsConnectionString;
-    }));
-    services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddAzureMonitorTraceExporter(o =>
-    {
-        o.ConnectionString = applicationInsightsConnectionString;
-    }));
+    services.Configure<OpenTelemetryLoggerOptions>(logging =>
+        logging.AddAzureMonitorLogExporter(o =>
+        {
+            o.ConnectionString = applicationInsightsConnectionString;
+        })
+    );
+    services.ConfigureOpenTelemetryMeterProvider(metrics =>
+        metrics.AddAzureMonitorMetricExporter(o =>
+        {
+            o.ConnectionString = applicationInsightsConnectionString;
+        })
+    );
+    services.ConfigureOpenTelemetryTracerProvider(tracing =>
+        tracing.AddAzureMonitorTraceExporter(o =>
+        {
+            o.ConnectionString = applicationInsightsConnectionString;
+        })
+    );
 }
 
 void Configure()

@@ -24,7 +24,8 @@ public class CertificateResolverService(
     ILogger<CertificateResolverService> logger,
     IOptions<CertificateResolverSettings> certificateResolverSettings,
     IKeyVaultService keyVaultService,
-    IOptions<KeyVaultSettings> keyVaultSettings) : ICertificateResolverService
+    IOptions<KeyVaultSettings> keyVaultSettings
+) : ICertificateResolverService
 {
     private readonly CertificateResolverSettings _certificateResolverSettings = certificateResolverSettings.Value;
     private readonly KeyVaultSettings _keyVaultSettings = keyVaultSettings.Value;
@@ -42,7 +43,8 @@ public class CertificateResolverService(
         {
             var certificate = await keyVaultService.GetCertificateAsync(
                 _keyVaultSettings.KeyVaultURI,
-                _keyVaultSettings.PlatformCertSecretId);
+                _keyVaultSettings.PlatformCertSecretId
+            );
             lock (_lockObject)
             {
                 _cachedX509Certificate = certificate;
