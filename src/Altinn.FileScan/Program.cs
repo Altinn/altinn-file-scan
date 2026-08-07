@@ -42,7 +42,6 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 ILogger logger;
 
-string vaultApplicationInsightsKey = "ApplicationInsights--InstrumentationKey";
 string applicationInsightsConnectionString = string.Empty;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,9 +64,7 @@ void ConfigureWebHostCreationLogging()
 {
     var logFactory = LoggerFactory.Create(builder =>
     {
-        builder
-            .AddFilter("Altinn.FileScan.Program", LogLevel.Debug)
-            .AddConsole();
+        builder.AddFilter("Altinn.FileScan.Program", LogLevel.Debug).AddConsole();
     });
 
     logger = logFactory.CreateLogger<Program>();
@@ -113,8 +110,10 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
 
         try
         {
-            KeyVaultSecret keyVaultSecret = await client.GetSecretAsync(vaultApplicationInsightsKey);
-            applicationInsightsConnectionString = string.Format("InstrumentationKey={0}", keyVaultSecret.Value);
+            KeyVaultSecret keyVaultSecret = await client.GetSecretAsync(
+                "ApplicationInsights--ConnectionString"
+            );
+            applicationInsightsConnectionString = keyVaultSecret.Value;
         }
         catch (Exception vaultException)
         {
@@ -141,7 +140,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         KeyValuePair.Create("service.name", (object)"platform-filescan"),
     };
 
-    services.AddOpenTelemetry()
+    services
+        .AddOpenTelemetry()
         .ConfigureResource(resourceBuilder => resourceBuilder.AddAttributes(attributes))
         .WithMetrics(metrics =>
         {
@@ -149,7 +149,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
             metrics.AddMeter(
                 "Microsoft.AspNetCore.Hosting",
                 "Microsoft.AspNetCore.Server.Kestrel",
-                "System.Net.Http");
+                "System.Net.Http"
+            );
         })
         .WithTracing(tracing =>
         {
@@ -175,7 +176,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<PlatformSettings>(config.GetSection("PlatformSettings"));
     services.Configure<KeyVaultSettings>(config.GetSection("kvSetting"));
     services.Configure<AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
-    services.Configure<Altinn.Common.AccessTokenClient.Configuration.AccessTokenSettings>(config.GetSection("AccessTokenSettings"));
+    services.Configure<Altinn.Common.AccessTokenClient.Configuration.AccessTokenSettings>(
+        config.GetSection("AccessTokenSettings")
+    );
     services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
     services.Configure<StorageClientSettings>(config.GetSection("StorageClientSettings"));
 
@@ -193,56 +196,75 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.AddSingleton<IBlobContainerClientProvider, BlobContainerClientProvider>();
     services.AddSingleton<IAppOwnerBlob, AppOwnerBlobRepository>();
 
-    services.AddHttpClient<IStorageClient, StorageClient>()
+    services
+        .AddHttpClient<IStorageClient, StorageClient>()
         .ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            StorageClientSettings settings = sp.GetRequiredService<IOptions<StorageClientSettings>>().Value;
+            StorageClientSettings settings = sp.GetRequiredService<
+                IOptions<StorageClientSettings>
+            >().Value;
 
             return new SocketsHttpHandler
             {
-                PooledConnectionIdleTimeout = TimeSpan.FromSeconds(settings.PooledConnectionIdleTimeoutSeconds),
-                PooledConnectionLifetime = TimeSpan.FromSeconds(settings.PooledConnectionLifetimeSeconds),
+                PooledConnectionIdleTimeout = TimeSpan.FromSeconds(
+                    settings.PooledConnectionIdleTimeoutSeconds
+                ),
+                PooledConnectionLifetime = TimeSpan.FromSeconds(
+                    settings.PooledConnectionLifetimeSeconds
+                ),
                 ConnectTimeout = TimeSpan.FromSeconds(settings.ConnectTimeoutSeconds),
             };
         })
-
         // PooledConnectionLifetime now owns connection recycling; disable the
         // IHttpClientFactory's default 2-minute handler rotation to avoid managing it twice.
         .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
     services.AddHttpClient<IMuescheliClient, MuescheliClient>();
 
-    services.AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
-          .AddJwtCookie(JwtCookieDefaults.AuthenticationScheme, options =>
-          {
-              GeneralSettings generalSettings = config.GetSection("GeneralSettings").Get<GeneralSettings>();
-              options.JwtCookieName = generalSettings.JwtCookieName;
-              options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
-              options.TokenValidationParameters = new TokenValidationParameters
-              {
-                  ValidateIssuerSigningKey = true,
-                  ValidateIssuer = false,
-                  ValidateAudience = false,
-                  RequireExpirationTime = true,
-                  ValidateLifetime = true,
-                  ClockSkew = TimeSpan.Zero
-              };
+    services
+        .AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
+        .AddJwtCookie(
+            JwtCookieDefaults.AuthenticationScheme,
+            options =>
+            {
+                GeneralSettings generalSettings = config
+                    .GetSection("GeneralSettings")
+                    .Get<GeneralSettings>();
+                options.JwtCookieName = generalSettings.JwtCookieName;
+                options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    RequireExpirationTime = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                };
 
-              if (builder.Environment.IsDevelopment())
-              {
-                  options.RequireHttpsMetadata = false;
-              }
-          });
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.RequireHttpsMetadata = false;
+                }
+            }
+        );
 
-    services.AddAuthorizationBuilder()
-        .AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
+    services
+        .AddAuthorizationBuilder()
+        .AddPolicy(
+            "PlatformAccess",
+            policy => policy.Requirements.Add(new AccessTokenRequirement())
+        );
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
 
 void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
 {
-    swaggerGenOptions.SwaggerDoc("v1", new OpenApiInfo { Title = "Altinn FileScan", Version = "v1" });
+    swaggerGenOptions.SwaggerDoc(
+        "v1",
+        new OpenApiInfo { Title = "Altinn FileScan", Version = "v1" }
+    );
 
     try
     {
@@ -252,24 +274,36 @@ void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
     }
     catch (Exception e)
     {
-        logger.LogWarning(e, "Program // Exception when attempting to include the XML comments file.");
+        logger.LogWarning(
+            e,
+            "Program // Exception when attempting to include the XML comments file."
+        );
     }
 }
 
-void AddAzureMonitorTelemetryExporters(IServiceCollection services, string applicationInsightsConnectionString)
+void AddAzureMonitorTelemetryExporters(
+    IServiceCollection services,
+    string applicationInsightsConnectionString
+)
 {
-    services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddAzureMonitorLogExporter(o =>
-    {
-        o.ConnectionString = applicationInsightsConnectionString;
-    }));
-    services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddAzureMonitorMetricExporter(o =>
-    {
-        o.ConnectionString = applicationInsightsConnectionString;
-    }));
-    services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddAzureMonitorTraceExporter(o =>
-    {
-        o.ConnectionString = applicationInsightsConnectionString;
-    }));
+    services.Configure<OpenTelemetryLoggerOptions>(logging =>
+        logging.AddAzureMonitorLogExporter(o =>
+        {
+            o.ConnectionString = applicationInsightsConnectionString;
+        })
+    );
+    services.ConfigureOpenTelemetryMeterProvider(metrics =>
+        metrics.AddAzureMonitorMetricExporter(o =>
+        {
+            o.ConnectionString = applicationInsightsConnectionString;
+        })
+    );
+    services.ConfigureOpenTelemetryTracerProvider(tracing =>
+        tracing.AddAzureMonitorTraceExporter(o =>
+        {
+            o.ConnectionString = applicationInsightsConnectionString;
+        })
+    );
 }
 
 void Configure()
