@@ -22,7 +22,8 @@ namespace Altinn.FileScan.Repository;
 public class BlobContainerClientProvider(
     IOptions<AppOwnerAzureStorageConfig> storageConfiguration,
     ILogger<BlobContainerClientProvider> logger,
-    IMemoryCache memoryCache) : IBlobContainerClientProvider
+    IMemoryCache memoryCache
+) : IBlobContainerClientProvider
 {
     private const string _credsCacheKey = "creds";
 
@@ -48,14 +49,15 @@ public class BlobContainerClientProvider(
                 string accountName = string.Format(_storageConfig.OrgStorageAccount, org);
                 if (storageAccountNumber != null)
                 {
-                    accountName = accountName.Substring(0, accountName.Length - 2) + ((int)storageAccountNumber).ToString("D2");
+                    accountName =
+                        accountName.Substring(0, accountName.Length - 2) + ((int)storageAccountNumber).ToString("D2");
                 }
 
                 UriBuilder fullUri = new()
                 {
                     Scheme = "https",
                     Host = $"{accountName}.blob.core.windows.net",
-                    Path = $"{containerName}"
+                    Path = $"{containerName}",
                 };
 
                 client = new BlobContainerClient(fullUri.Uri, GetCachedCredentials());

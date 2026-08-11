@@ -22,13 +22,19 @@ public class KeyVaultService : IKeyVaultService
     public async Task<X509Certificate2> GetCertificateAsync(string vaultUri, string secretId)
     {
         CertificateClient certificateClient = new(new Uri(vaultUri), new DefaultAzureCredential());
-        AsyncPageable<CertificateProperties> certificatePropertiesPage = certificateClient.GetPropertiesOfCertificateVersionsAsync(secretId);
+        AsyncPageable<CertificateProperties> certificatePropertiesPage =
+            certificateClient.GetPropertiesOfCertificateVersionsAsync(secretId);
         await foreach (CertificateProperties certificateProperties in certificatePropertiesPage)
         {
-            if (certificateProperties.Enabled == true &&
-                (certificateProperties.ExpiresOn == null || certificateProperties.ExpiresOn >= DateTime.UtcNow))
+            if (
+                certificateProperties.Enabled == true
+                && (certificateProperties.ExpiresOn == null || certificateProperties.ExpiresOn >= DateTime.UtcNow)
+            )
             {
-                X509Certificate2 cert = await certificateClient.DownloadCertificateAsync(certificateProperties.Name, certificateProperties.Version);
+                X509Certificate2 cert = await certificateClient.DownloadCertificateAsync(
+                    certificateProperties.Name,
+                    certificateProperties.Version
+                );
                 return cert;
             }
         }

@@ -110,9 +110,7 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
 
         try
         {
-            KeyVaultSecret keyVaultSecret = await client.GetSecretAsync(
-                "ApplicationInsights--ConnectionString"
-            );
+            KeyVaultSecret keyVaultSecret = await client.GetSecretAsync("ApplicationInsights--ConnectionString");
             applicationInsightsConnectionString = keyVaultSecret.Value;
         }
         catch (Exception vaultException)
@@ -146,11 +144,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .WithMetrics(metrics =>
         {
             metrics.AddAspNetCoreInstrumentation();
-            metrics.AddMeter(
-                "Microsoft.AspNetCore.Hosting",
-                "Microsoft.AspNetCore.Server.Kestrel",
-                "System.Net.Http"
-            );
+            metrics.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "System.Net.Http");
         })
         .WithTracing(tracing =>
         {
@@ -200,18 +194,12 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .AddHttpClient<IStorageClient, StorageClient>()
         .ConfigurePrimaryHttpMessageHandler(sp =>
         {
-            StorageClientSettings settings = sp.GetRequiredService<
-                IOptions<StorageClientSettings>
-            >().Value;
+            StorageClientSettings settings = sp.GetRequiredService<IOptions<StorageClientSettings>>().Value;
 
             return new SocketsHttpHandler
             {
-                PooledConnectionIdleTimeout = TimeSpan.FromSeconds(
-                    settings.PooledConnectionIdleTimeoutSeconds
-                ),
-                PooledConnectionLifetime = TimeSpan.FromSeconds(
-                    settings.PooledConnectionLifetimeSeconds
-                ),
+                PooledConnectionIdleTimeout = TimeSpan.FromSeconds(settings.PooledConnectionIdleTimeoutSeconds),
+                PooledConnectionLifetime = TimeSpan.FromSeconds(settings.PooledConnectionLifetimeSeconds),
                 ConnectTimeout = TimeSpan.FromSeconds(settings.ConnectTimeoutSeconds),
             };
         })
@@ -227,9 +215,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
             JwtCookieDefaults.AuthenticationScheme,
             options =>
             {
-                GeneralSettings generalSettings = config
-                    .GetSection("GeneralSettings")
-                    .Get<GeneralSettings>();
+                GeneralSettings generalSettings = config.GetSection("GeneralSettings").Get<GeneralSettings>();
                 options.JwtCookieName = generalSettings.JwtCookieName;
                 options.MetadataAddress = generalSettings.OpenIdWellKnownEndpoint;
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -251,20 +237,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services
         .AddAuthorizationBuilder()
-        .AddPolicy(
-            "PlatformAccess",
-            policy => policy.Requirements.Add(new AccessTokenRequirement())
-        );
+        .AddPolicy("PlatformAccess", policy => policy.Requirements.Add(new AccessTokenRequirement()));
 
     services.AddSwaggerGen(swaggerGenOptions => AddSwaggerGen(swaggerGenOptions));
 }
 
 void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
 {
-    swaggerGenOptions.SwaggerDoc(
-        "v1",
-        new OpenApiInfo { Title = "Altinn FileScan", Version = "v1" }
-    );
+    swaggerGenOptions.SwaggerDoc("v1", new OpenApiInfo { Title = "Altinn FileScan", Version = "v1" });
 
     try
     {
@@ -274,17 +254,11 @@ void AddSwaggerGen(SwaggerGenOptions swaggerGenOptions)
     }
     catch (Exception e)
     {
-        logger.LogWarning(
-            e,
-            "Program // Exception when attempting to include the XML comments file."
-        );
+        logger.LogWarning(e, "Program // Exception when attempting to include the XML comments file.");
     }
 }
 
-void AddAzureMonitorTelemetryExporters(
-    IServiceCollection services,
-    string applicationInsightsConnectionString
-)
+void AddAzureMonitorTelemetryExporters(IServiceCollection services, string applicationInsightsConnectionString)
 {
     services.Configure<OpenTelemetryLoggerOptions>(logging =>
         logging.AddAzureMonitorLogExporter(o =>

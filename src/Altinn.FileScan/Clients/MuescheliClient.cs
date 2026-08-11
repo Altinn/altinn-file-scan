@@ -27,9 +27,7 @@ public class MuescheliClient : IMuescheliClient
     /// <summary>
     /// Initializes a new instance of the <see cref="MuescheliClient"/> class.
     /// </summary>
-    public MuescheliClient(
-        HttpClient httpClient,
-        IOptions<PlatformSettings> settings)
+    public MuescheliClient(HttpClient httpClient, IOptions<PlatformSettings> settings)
     {
         _client = httpClient;
         _client.BaseAddress = new Uri(settings.Value.ApiMuescheliEndpoint);
@@ -37,7 +35,7 @@ public class MuescheliClient : IMuescheliClient
         _serializerOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
-            Converters = { new JsonStringEnumConverter() }
+            Converters = { new JsonStringEnumConverter() },
         };
     }
 
@@ -46,10 +44,7 @@ public class MuescheliClient : IMuescheliClient
     {
         string endpoint = $"scan";
 
-        using var content = new MultipartFormDataContent
-        {
-            { new StreamContent(stream), "file", filename }
-        };
+        using var content = new MultipartFormDataContent { { new StreamContent(stream), "file", filename } };
 
         HttpResponseMessage response = await _client.PostAsync(endpoint, content);
 
@@ -60,7 +55,8 @@ public class MuescheliClient : IMuescheliClient
 
         var responseString = await response.Content.ReadAsStringAsync();
 
-        MuescheliResponse r = JsonSerializer.Deserialize<List<MuescheliResponse>>(responseString, _serializerOptions)
+        MuescheliResponse r = JsonSerializer
+            .Deserialize<List<MuescheliResponse>>(responseString, _serializerOptions)
             .First();
 
         return r.Result;

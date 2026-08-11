@@ -15,7 +15,7 @@ Altinn FileScan is the platform component that performs asynchronous malware sca
 - JWT cookie authentication (`AltinnCore.Authentication.JwtCookie`) with an `AccessTokenRequirement` authorization handler
 - OpenTelemetry with an Azure Monitor exporter (API) and Application Insights (Functions)
 - xUnit + Moq for tests; `WebApplicationFactory` for controller integration tests
-- StyleCop analyzers (enabled in Debug); Swashbuckle/Swagger for API docs
+- Swashbuckle/Swagger for API docs
 
 ## Project Structure
 
@@ -64,7 +64,7 @@ CI (`.github/workflows/build-and-analyze.yml`) runs `dotnet build` + `dotnet tes
 
 ## Coding Guidelines
 
-- **StyleCop is active in Debug builds** and most `SA*` rules are at `warning` (some, like `SA0001`, at `error`) in `.editorconfig`. Keep code warning-clean. `using` directives go **outside** the namespace.
+- Formatting/style conventions live in `.editorconfig`. `using` directives go **outside** the namespace.
 - `GenerateDocumentationFile` is `true` in both apps, so **public members need XML doc comments** (`/// <summary>`), matching the existing style. Tests document scenarios in `/// <summary>` blocks (Scenario / Expected result / Success criteria).
 - Both projects have `<Nullable>enable</Nullable>`, but most existing files start with `#nullable disable`. Match the file you are editing rather than flipping annotations piecemeal.
 - Prefer the existing idioms: file-scoped namespaces, **primary constructors** (see `DataElementController`, `DataElementService`, `FileScanInbound`), expression-bodied members.

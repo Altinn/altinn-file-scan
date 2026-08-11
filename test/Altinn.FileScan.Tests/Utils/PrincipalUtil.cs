@@ -21,7 +21,12 @@ public static class PrincipalUtil
             new Claim(AltinnCoreClaimTypes.UserName, "UserOne", ClaimValueTypes.String, issuer),
             new Claim(AltinnCoreClaimTypes.PartyID, userId.ToString(), ClaimValueTypes.Integer32, issuer),
             new Claim(AltinnCoreClaimTypes.AuthenticateMethod, "Mock", ClaimValueTypes.String, issuer),
-            new Claim(AltinnCoreClaimTypes.AuthenticationLevel, authenticationLevel.ToString(), ClaimValueTypes.Integer32, issuer)
+            new Claim(
+                AltinnCoreClaimTypes.AuthenticationLevel,
+                authenticationLevel.ToString(),
+                ClaimValueTypes.Integer32,
+                issuer
+            ),
         };
 
         if (scope != null)
@@ -46,10 +51,7 @@ public static class PrincipalUtil
 
     public static string GetAccessToken(string issuer, string app)
     {
-        List<Claim> claims = new()
-        {
-            new Claim(AccessTokenClaimTypes.App, app, ClaimValueTypes.String, issuer)
-        };
+        List<Claim> claims = new() { new Claim(AccessTokenClaimTypes.App, app, ClaimValueTypes.String, issuer) };
 
         ClaimsIdentity identity = new("mock");
         identity.AddClaims(claims);

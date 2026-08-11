@@ -29,21 +29,23 @@ namespace Altinn.FileScan.Tests.TestingControllers;
 /// Initializes a new instance of the <see cref="DataElementControllerTests"/> class with the given <see cref="WebApplicationFactory{DataElementController}"/>.
 /// </remarks>
 /// <param name="factory">The <see cref="WebApplicationFactory{TPushController}"/> to use when setting up the test server.</param>
-public class DataElementControllerTests(WebApplicationFactory<DataElementController> factory) : IClassFixture<WebApplicationFactory<DataElementController>>
+public class DataElementControllerTests(WebApplicationFactory<DataElementController> factory)
+    : IClassFixture<WebApplicationFactory<DataElementController>>
 {
     private const string BasePath = "/filescan/api/v1";
 
-    private readonly string serializedDataElement = "{" +
-            "\"id\": \"11f7c994-6681-47a1-9626-fcf6c27308a5\"," +
-            "\"instanceGuid\": \"649388f0-a2c0-4774-bd11-c870223ed819\"," +
-            "\"dataType\": \"default\"," +
-            "\"contentType\": \"text/plain; charset=utf-8\"," +
-            "\"blobStoragePath\": \"tdd/endring-av-navn/649388f0-a2c0-4774-bd11-c870223ed819/data/11f7c994-6681-47a1-9626-fcf6c27308a5\"," +
-            "\"size\": 19," +
-            "\"locked\": false," +
-            "\"created\": \"2020-05-11T17:09:28.4621953Z\"," +
-            "\"lastChanged\": \"2020-05-11T17:09:28.4621953Z\"" +
-            "}";
+    private readonly string serializedDataElement =
+        "{"
+        + "\"id\": \"11f7c994-6681-47a1-9626-fcf6c27308a5\","
+        + "\"instanceGuid\": \"649388f0-a2c0-4774-bd11-c870223ed819\","
+        + "\"dataType\": \"default\","
+        + "\"contentType\": \"text/plain; charset=utf-8\","
+        + "\"blobStoragePath\": \"tdd/endring-av-navn/649388f0-a2c0-4774-bd11-c870223ed819/data/11f7c994-6681-47a1-9626-fcf6c27308a5\","
+        + "\"size\": 19,"
+        + "\"locked\": false,"
+        + "\"created\": \"2020-05-11T17:09:28.4621953Z\","
+        + "\"lastChanged\": \"2020-05-11T17:09:28.4621953Z\""
+        + "}";
 
     /// <summary>
     /// Scenario:
@@ -59,14 +61,13 @@ public class DataElementControllerTests(WebApplicationFactory<DataElementControl
         // Arrange
         string requestUri = $"{BasePath}/dataelement";
         var dataElementMock = new Mock<IDataElement>();
-        dataElementMock
-            .Setup(de => de.Scan(It.IsAny<DataElementScanRequest>()));
+        dataElementMock.Setup(de => de.Scan(It.IsAny<DataElementScanRequest>()));
 
         HttpClient client = GetTestClient(dataElementMock.Object);
 
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
         {
-            Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
+            Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json"),
         };
 
         httpRequestMessage.Headers.Add("PlatformAccessToken", PrincipalUtil.GetAccessToken("platform", "file-scan"));
@@ -95,7 +96,7 @@ public class DataElementControllerTests(WebApplicationFactory<DataElementControl
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", PrincipalUtil.GetToken(1));
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
         {
-            Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
+            Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json"),
         };
 
         // Act
@@ -121,7 +122,7 @@ public class DataElementControllerTests(WebApplicationFactory<DataElementControl
         HttpClient client = GetTestClient();
         HttpRequestMessage httpRequestMessage = new(HttpMethod.Post, requestUri)
         {
-            Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json")
+            Content = new StringContent(serializedDataElement, Encoding.UTF8, "application/json"),
         };
 
         // Act
@@ -135,17 +136,19 @@ public class DataElementControllerTests(WebApplicationFactory<DataElementControl
     {
         dataElementMock ??= new Mock<IDataElement>().Object;
 
-        HttpClient client = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureTestServices(services =>
+        HttpClient client = factory
+            .WithWebHostBuilder(builder =>
             {
-                // Set up mock authentication so that not well known endpoint is used
-                services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
-                services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();
+                builder.ConfigureTestServices(services =>
+                {
+                    // Set up mock authentication so that not well known endpoint is used
+                    services.AddSingleton<IPostConfigureOptions<JwtCookieOptions>, JwtCookiePostConfigureOptionsStub>();
+                    services.AddSingleton<IPublicSigningKeyProvider, PublicSigningKeyProviderMock>();
 
-                services.AddSingleton(dataElementMock);
-            });
-        }).CreateClient();
+                    services.AddSingleton(dataElementMock);
+                });
+            })
+            .CreateClient();
 
         return client;
     }
