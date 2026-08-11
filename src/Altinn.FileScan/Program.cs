@@ -42,7 +42,6 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 ILogger logger;
 
-string vaultApplicationInsightsKey = "ApplicationInsights--InstrumentationKey";
 string applicationInsightsConnectionString = string.Empty;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -111,8 +110,8 @@ async Task ConnectToKeyVaultAndSetApplicationInsights(ConfigurationManager confi
 
         try
         {
-            KeyVaultSecret keyVaultSecret = await client.GetSecretAsync(vaultApplicationInsightsKey);
-            applicationInsightsConnectionString = string.Format("InstrumentationKey={0}", keyVaultSecret.Value);
+            KeyVaultSecret keyVaultSecret = await client.GetSecretAsync("ApplicationInsights--ConnectionString");
+            applicationInsightsConnectionString = keyVaultSecret.Value;
         }
         catch (Exception vaultException)
         {
