@@ -26,7 +26,12 @@ public class AccessTokenService : IAccessToken
     /// <summary>
     /// Initializes a new instance of the <see cref="AccessTokenService"/> class.
     /// </summary>
-    public AccessTokenService(IPlatformKeyVault keyVault, IAccessTokenGenerator accessTokenGenerator, IMemoryCache cache, IOptions<AccessTokenSettings> settings)
+    public AccessTokenService(
+        IPlatformKeyVault keyVault,
+        IAccessTokenGenerator accessTokenGenerator,
+        IMemoryCache cache,
+        IOptions<AccessTokenSettings> settings
+    )
     {
         _keyVault = keyVault;
         _accessTokenGenerator = accessTokenGenerator;
@@ -34,7 +39,7 @@ public class AccessTokenService : IAccessToken
 
         _cacheOptions = new()
         {
-            AbsoluteExpiration = new DateTimeOffset(DateTime.Now.AddSeconds(settings.Value.TokenLifetimeInSeconds - 2))
+            AbsoluteExpiration = new DateTimeOffset(DateTime.Now.AddSeconds(settings.Value.TokenLifetimeInSeconds - 2)),
         };
     }
 

@@ -26,7 +26,7 @@ public static class JwtTokenMock
             Expires = DateTime.UtcNow.AddSeconds(tokenExipry.TotalSeconds),
             SigningCredentials = GetSigningCredentials(issuer),
             Audience = "altinn.no",
-            Issuer = issuer
+            Issuer = issuer,
         };
 
         SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);

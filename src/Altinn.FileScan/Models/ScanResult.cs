@@ -28,5 +28,5 @@ public enum ScanResult
     /// <summary>
     /// An error occured.
     /// </summary>
-    PARSE_ERROR
+    PARSE_ERROR,
 }

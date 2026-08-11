@@ -17,9 +17,7 @@ public class ConfigurationManagerStub : IConfigurationManager<OpenIdConnectConfi
     /// <summary>
     /// Initializes a new instance of <see cref="ConfigurationManagerStub" />
     /// </summary>
-    public ConfigurationManagerStub()
-    {
-    }
+    public ConfigurationManagerStub() { }
 
     /// <inheritdoc />
     public async Task<OpenIdConnectConfiguration> GetConfigurationAsync(CancellationToken cancel)

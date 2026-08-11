@@ -32,7 +32,8 @@ public class FileScanClient : IFileScanClient
         IAccessTokenGenerator accessTokenGenerator,
         ICertificateResolverService certificateResolverService,
         IOptions<PlatformSettings> platformSettings,
-        ILogger<FileScanClient> logger)
+        ILogger<FileScanClient> logger
+    )
     {
         _accessTokenGenerator = accessTokenGenerator;
         _certificateResolverService = certificateResolverService;

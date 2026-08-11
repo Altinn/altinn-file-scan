@@ -18,12 +18,14 @@ public static class HttpClientExtension
     /// <param name="content">The http content</param>
     /// <param name="platformAccessToken">The platformAccess tokens</param>
     /// <returns>A HttpResponseMessage</returns>
-    public static Task<HttpResponseMessage> PostAsync(this HttpClient httpClient, string requestUri, HttpContent content, string platformAccessToken)
+    public static Task<HttpResponseMessage> PostAsync(
+        this HttpClient httpClient,
+        string requestUri,
+        HttpContent content,
+        string platformAccessToken
+    )
     {
-        HttpRequestMessage request = new(HttpMethod.Post, new Uri(requestUri, UriKind.Relative))
-        {
-            Content = content
-        };
+        HttpRequestMessage request = new(HttpMethod.Post, new Uri(requestUri, UriKind.Relative)) { Content = content };
 
         request.Headers.Add("PlatformAccessToken", platformAccessToken);
         return httpClient.SendAsync(request, CancellationToken.None);

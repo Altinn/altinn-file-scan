@@ -21,7 +21,10 @@ public class MuescheliHttpException(HttpResponseMessage response, string message
     /// <summary>
     /// Creates a new <see cref="MuescheliHttpException"/> combining the response message and
     /// </summary>
-    public static async Task<MuescheliHttpException> CreateAsync(HttpStatusCode statusCode, HttpResponseMessage response)
+    public static async Task<MuescheliHttpException> CreateAsync(
+        HttpStatusCode statusCode,
+        HttpResponseMessage response
+    )
     {
         string responseMessage = await response.Content.ReadAsStringAsync();
 

@@ -18,7 +18,7 @@ namespace Altinn.FileScan.Telemetry;
 public class RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = null) : BaseProcessor<Activity>()
 {
     private const string RequestKind = "Microsoft.AspNetCore.Hosting.HttpRequestIn";
-    
+
     /// <summary>
     /// Determine whether to skip a request
     /// </summary>
@@ -46,8 +46,14 @@ public class RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = n
     /// <param name="activity">xx</param>
     public override void OnEnd(Activity activity)
     {
-        if (activity.OperationName == RequestKind && httpContextAccessor.HttpContext is not null &&
-            httpContextAccessor.HttpContext.Request.Headers.TryGetValue("X-Forwarded-For", out StringValues ipAddress))
+        if (
+            activity.OperationName == RequestKind
+            && httpContextAccessor.HttpContext is not null
+            && httpContextAccessor.HttpContext.Request.Headers.TryGetValue(
+                "X-Forwarded-For",
+                out StringValues ipAddress
+            )
+        )
         {
             activity.SetTag("ipAddress", ipAddress.FirstOrDefault());
         }
@@ -58,7 +64,7 @@ public class RequestFilterProcessor(IHttpContextAccessor httpContextAccessor = n
         return localpath switch
         {
             var path when path.TrimEnd('/').EndsWith("/health", StringComparison.OrdinalIgnoreCase) => true,
-            _ => false
+            _ => false,
         };
     }
 }

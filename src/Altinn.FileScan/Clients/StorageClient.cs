@@ -24,10 +24,7 @@ public class StorageClient : IStorageClient
     /// <summary>
     /// Initializes a new instance of the <see cref="StorageClient"/> class.
     /// </summary>
-    public StorageClient(
-        HttpClient httpClient,
-        IAccessToken accessToken,
-        IOptions<PlatformSettings> settings)
+    public StorageClient(HttpClient httpClient, IAccessToken accessToken, IOptions<PlatformSettings> settings)
     {
         _accessTokenService = accessToken;
 
@@ -47,7 +44,10 @@ public class StorageClient : IStorageClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new PlatformHttpException(response, "Unexpected response from StorageClient when setting file scan status.");
+            throw new PlatformHttpException(
+                response,
+                "Unexpected response from StorageClient when setting file scan status."
+            );
         }
     }
 
@@ -68,6 +68,9 @@ public class StorageClient : IStorageClient
             }
         }
 
-        throw new PlatformHttpException(response, "Unexpected response from StorageClient when checking if data element exists.");
+        throw new PlatformHttpException(
+            response,
+            "Unexpected response from StorageClient when checking if data element exists."
+        );
     }
 }

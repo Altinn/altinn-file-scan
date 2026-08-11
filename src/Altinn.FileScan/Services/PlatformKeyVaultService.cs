@@ -26,13 +26,19 @@ public class PlatformKeyVaultService(IOptions<KeyVaultSettings> keyVaultSettings
     public async Task<X509Certificate2> GetCertificateAsync(string certId)
     {
         CertificateClient certificateClient = new(new Uri(_vaultUri), new DefaultAzureCredential());
-        AsyncPageable<CertificateProperties> certificatePropertiesPage = certificateClient.GetPropertiesOfCertificateVersionsAsync(certId);
+        AsyncPageable<CertificateProperties> certificatePropertiesPage =
+            certificateClient.GetPropertiesOfCertificateVersionsAsync(certId);
         await foreach (CertificateProperties certificateProperties in certificatePropertiesPage)
         {
-            if (certificateProperties.Enabled == true &&
-                (certificateProperties.ExpiresOn == null || certificateProperties.ExpiresOn >= DateTime.UtcNow))
+            if (
+                certificateProperties.Enabled == true
+                && (certificateProperties.ExpiresOn == null || certificateProperties.ExpiresOn >= DateTime.UtcNow)
+            )
             {
-                X509Certificate2 certificate = await certificateClient.DownloadCertificateAsync(certificateProperties.Name, certificateProperties.Version);
+                X509Certificate2 certificate = await certificateClient.DownloadCertificateAsync(
+                    certificateProperties.Name,
+                    certificateProperties.Version
+                );
                 return certificate;
             }
         }

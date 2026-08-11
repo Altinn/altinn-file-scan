@@ -1,0 +1,7 @@
+# Run this command to always ignore formatting commits in `git blame`
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# More info:
+# https://www.stefanjudis.com/today-i-learned/how-to-exclude-commits-from-git-blame/
+
+2aa8ea650eb28558227db1e73dbefec573ecea43 # style: format codebase with csharpier

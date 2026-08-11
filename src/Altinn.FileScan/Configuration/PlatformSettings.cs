@@ -15,5 +15,5 @@ public class PlatformSettings
     /// <summary>
     /// Sets or sets the url for the Muescheli API endpoint
     /// </summary>
-    public string ApiMuescheliEndpoint { get;  set; }
+    public string ApiMuescheliEndpoint { get; set; }
 }
