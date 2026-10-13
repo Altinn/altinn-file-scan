@@ -1,24 +1,16 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine3.24@sha256:3cc3bbbbf93d82104892f42aa9106b6be4d120346dea0649643a97c801525256 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-resolute@sha256:d8051d88928fb40f74c9aca6896a57851cdced277f4102e1c5aa6d4983e27bad AS build
 
-# Copy event backend
+# Copy FileScan API
 COPY src/Altinn.FileScan ./Altinn.FileScan
 WORKDIR Altinn.FileScan/
 
-
 # Build and publish
-RUN dotnet build Altinn.FileScan.csproj -c Release -o /app_output
 RUN dotnet publish Altinn.FileScan.csproj -c Release -o /app_output
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.24@sha256:f62a272ac1b46e83f56b8ed0416572f31cd1128e2c4a5e63eb34d348e4a36095 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-resolute-chiseled@sha256:65121360bba4839ade70bea222d6ea6485eab090bbe6e8290cb04c0c7d913a39 AS final
 EXPOSE 5200
 WORKDIR /app
 COPY --from=build /app_output .
-
-# setup the user and group
-# the user will have no password, using shell /bin/false and using the group dotnet
-RUN addgroup -g 3000 dotnet && adduser -u 1000 -G dotnet -D -s /bin/false dotnet
-# update permissions of files if neccessary before becoming dotnet user
-USER dotnet
-RUN mkdir /tmp/logtelemetry
+USER $APP_UID
 
 ENTRYPOINT ["dotnet", "Altinn.FileScan.dll"]
