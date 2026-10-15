@@ -7,7 +7,7 @@ WORKDIR Altinn.FileScan/
 # Build and publish
 RUN dotnet publish Altinn.FileScan.csproj -c Release -o /app_output
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-resolute-chiseled@sha256:65121360bba4839ade70bea222d6ea6485eab090bbe6e8290cb04c0c7d913a39 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-resolute-chiseled@sha256:3d54e6f9c938851e25de6b7ab541cf6436f70f8f008a2da01266d3bbc4361f98 AS final
 EXPOSE 5200
 WORKDIR /app
 COPY --from=build /app_output .
