@@ -1,7 +1,5 @@
 ﻿#nullable disable
 
-using System;
-
 namespace Altinn.FileScan.Models;
 
 /// <summary>
@@ -28,22 +26,7 @@ public class DataElementScanRequest
     public string Filename { get; set; }
 
     /// <summary>
-    /// Gets or sets the time when blob was saved.
+    /// Gets or sets the id of the blob version to scan, which is read through a read URL from Altinn Storage.
     /// </summary>
-    public DateTimeOffset Timestamp { get; set; }
-
-    /// <summary>
-    /// Gets or sets the path to blob storage.
-    /// </summary>
-    public string BlobStoragePath { get; set; }
-
-    /// <summary>
-    /// Gets or sets the application owner identifier
-    /// </summary>
-    public string Org { get; set; }
-
-    /// <summary>
-    /// Gets or sets an optional alternate number to append to the storage account name
-    /// </summary>
-    public int? StorageAccountNumber { get; set; }
+    public string BlobVersionId { get; set; }
 }
