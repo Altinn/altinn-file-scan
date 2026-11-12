@@ -3,29 +3,26 @@ using System.Threading.Tasks;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Exceptions;
 using Altinn.FileScan.Models;
-using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.Platform.Storage.Interface.Enums;
 using Altinn.Platform.Storage.Interface.Models;
-using Azure;
 using Microsoft.Extensions.Logging;
 
 namespace Altinn.FileScan.Services;
 
 /// <summary>
-/// Implementation of the IDataElement service integrating with Blob Storage and ClamAV complete the scan of a data element.
+/// Implementation of the IDataElement service, which gets a data element's blob from Altinn Storage and scans it
+/// with ClamAV.
 /// </summary>
 /// <remarks>
 /// Initializes a new instance of the <see cref="DataElementService"/> class.
 /// </remarks>
 public class DataElementService(
-    IAppOwnerBlob repository,
     IMuescheliClient muescheliClient,
     IStorageClient storageClient,
     ILogger<DataElementService> logger
 ) : IDataElement
 {
-    private readonly IAppOwnerBlob _repository = repository;
     private readonly IStorageClient _storageClient = storageClient;
     private readonly IMuescheliClient _muescheliClient = muescheliClient;
     private readonly ILogger _logger = logger;
@@ -35,66 +32,33 @@ public class DataElementService(
     {
         try
         {
-            BlobPropertyModel? blobProps = null;
-            try
+            if (string.IsNullOrEmpty(scanRequest.BlobVersionId))
             {
-                blobProps = await _repository.GetBlobProperties(
-                    scanRequest.Org,
-                    scanRequest.BlobStoragePath,
-                    scanRequest.StorageAccountNumber
-                );
-            }
-            catch (RequestFailedException exception)
-            {
-                _logger.LogWarning(
-                    exception,
-                    "Blob not found with the following parameters. Org: {Org}, BlobStoragePath: {BlobStoragePath}, StorageAccountNumber: {StorageAccountNumber}",
-                    scanRequest.Org.Replace(Environment.NewLine, string.Empty),
-                    scanRequest.BlobStoragePath.Replace(Environment.NewLine, string.Empty),
-                    scanRequest.StorageAccountNumber
-                );
-
-                bool result = await _storageClient.DataElementExists(scanRequest.InstanceId, scanRequest.DataElementId);
-                if (result)
-                {
-                    RequestFailedException requestFailedException = new(
-                        $"DataElement {scanRequest.DataElementId} found and blob does not exist"
-                    );
-                    _logger.LogError(
-                        requestFailedException,
-                        "DataElement {DataElementId} found and blob does not exist",
-                        scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty)
-                    );
-                    throw requestFailedException;
-                }
-
-                _logger.LogWarning("DataElement and Blob not found, scan skipped.");
-                return;
-            }
-
-            if (blobProps?.LastModified != scanRequest.Timestamp)
-            {
-                // we replace newline characters in log messages to avoid log injection attacks
-                double totalSeconds = blobProps is not null
-                    ? scanRequest.Timestamp.Subtract(blobProps.LastModified).TotalSeconds
-                    : 0;
                 _logger.LogError(
-                    "Scan request timestamp != blob last modified timestamp, scan request aborted. Instance Id: {InstanceId}, DataElementId: {DataElementId}, timestamp diff: {TimeDiff} seconds",
-                    scanRequest.InstanceId.Replace(Environment.NewLine, string.Empty),
-                    scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
-                    totalSeconds
+                    "Scan request for DataElement {DataElementId} names no blob version, scan skipped.",
+                    scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty)
                 );
                 return;
             }
 
-            var stream = await _repository.GetBlob(
-                scanRequest.Org,
-                scanRequest.BlobStoragePath,
-                scanRequest.StorageAccountNumber
+            using BlobToScan blob = await _storageClient.GetBlobToScan(
+                scanRequest.InstanceId,
+                scanRequest.DataElementId,
+                scanRequest.BlobVersionId
             );
+            if (blob.Status != FileScanTargetStatus.Pending)
+            {
+                _logger.LogInformation(
+                    "Blob version {BlobVersionId} of DataElement {DataElementId} does not await a scan ({Status}), scan skipped.",
+                    scanRequest.BlobVersionId.Replace(Environment.NewLine, string.Empty),
+                    scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
+                    blob.Status
+                );
+                return;
+            }
 
             var filename = $"{scanRequest.DataElementId}.bin";
-            ScanResult scanResult = await _muescheliClient.ScanStream(stream, filename);
+            ScanResult scanResult = await _muescheliClient.ScanStream(blob.Content!, filename);
 
             FileScanResult fileScanResult = FileScanResult.Pending;
 
@@ -117,9 +81,29 @@ public class DataElementService(
                     throw MuescheliScanResultException.Create(scanRequest.DataElementId, scanResult);
             }
 
-            FileScanStatus status = new() { ContentHash = string.Empty, FileScanResult = fileScanResult };
+            // With the blob version, Storage ignores the result if a newer version has replaced this one, whose
+            // own scan reports for it.
+            FileScanStatus status = new()
+            {
+                ContentHash = string.Empty,
+                FileScanResult = fileScanResult,
+                BlobVersionId = scanRequest.BlobVersionId,
+            };
 
-            await _storageClient.PatchFileScanStatus(scanRequest.InstanceId, scanRequest.DataElementId, status);
+            FileScanStatusOutcome outcome = await _storageClient.PatchFileScanStatus(
+                scanRequest.InstanceId,
+                scanRequest.DataElementId,
+                status
+            );
+            if (outcome != FileScanStatusOutcome.Updated)
+            {
+                _logger.LogInformation(
+                    "Scan result for blob version {BlobVersionId} of DataElement {DataElementId} was not set ({Outcome}).",
+                    scanRequest.BlobVersionId.Replace(Environment.NewLine, string.Empty),
+                    scanRequest.DataElementId.Replace(Environment.NewLine, string.Empty),
+                    outcome
+                );
+            }
         }
         catch (MuescheliHttpException e)
         {

@@ -1,4 +1,4 @@
-#nullable disable
+﻿#nullable disable
 
 using System;
 using System.Collections.Generic;
@@ -15,8 +15,6 @@ using Altinn.FileScan.Clients;
 using Altinn.FileScan.Clients.Interfaces;
 using Altinn.FileScan.Configuration;
 using Altinn.FileScan.Health;
-using Altinn.FileScan.Repository;
-using Altinn.FileScan.Repository.Interfaces;
 using Altinn.FileScan.Services;
 using Altinn.FileScan.Services.Interfaces;
 using Altinn.FileScan.Telemetry;
@@ -173,7 +171,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
     services.Configure<Altinn.Common.AccessTokenClient.Configuration.AccessTokenSettings>(
         config.GetSection("AccessTokenSettings")
     );
-    services.Configure<AppOwnerAzureStorageConfig>(config.GetSection("AppOwnerAzureStorageConfig"));
     services.Configure<StorageClientSettings>(config.GetSection("StorageClientSettings"));
 
     services.AddSingleton<IAuthorizationHandler, AccessTokenHandler>();
@@ -187,8 +184,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
 
     services.AddSingleton<IAppOwnerKeyVault, AppOwnerKeyVaultService>();
     services.AddSingleton<IPlatformKeyVault, PlatformKeyVaultService>();
-    services.AddSingleton<IBlobContainerClientProvider, BlobContainerClientProvider>();
-    services.AddSingleton<IAppOwnerBlob, AppOwnerBlobRepository>();
 
     services
         .AddHttpClient<IStorageClient, StorageClient>()
@@ -208,6 +203,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration config)
         .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
     services.AddHttpClient<IMuescheliClient, MuescheliClient>();
+    services.AddHttpClient(StorageClient.BlobDownloadHttpClientName).RemoveAllLoggers();
 
     services
         .AddAuthentication(JwtCookieDefaults.AuthenticationScheme)
