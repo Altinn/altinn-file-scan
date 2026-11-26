@@ -111,7 +111,7 @@ public class StorageClientTests
 
         // Assert
         PlatformHttpException exception = await Assert.ThrowsAsync<PlatformHttpException>(Act);
-        Assert.Equal(statusCode, exception.Response.StatusCode);
+        Assert.Equal(statusCode, exception.StatusCode);
         Assert.Empty(blobs.Requests);
     }
 
@@ -163,7 +163,7 @@ public class StorageClientTests
 
         // Assert
         PlatformHttpException exception = await Assert.ThrowsAsync<PlatformHttpException>(Act);
-        Assert.Equal(statusCode, exception.Response.StatusCode);
+        Assert.Equal(statusCode, exception.StatusCode);
     }
 
     public static TheoryData<FileScanStatusOutcome> FileScanStatusOutcomes =>

@@ -71,7 +71,7 @@ public class StorageClient : IStorageClient
         if (!response.IsSuccessStatusCode)
         {
             throw new PlatformHttpException(
-                response,
+                response.StatusCode,
                 "Unexpected response from StorageClient when setting file scan status."
             );
         }
@@ -94,7 +94,7 @@ public class StorageClient : IStorageClient
         if (!response.IsSuccessStatusCode)
         {
             throw new PlatformHttpException(
-                response,
+                response.StatusCode,
                 "Unexpected response from StorageClient when getting the file scan target."
             );
         }
@@ -108,7 +108,7 @@ public class StorageClient : IStorageClient
         if (target.ReadUrl is null)
         {
             throw new PlatformHttpException(
-                response,
+                response.StatusCode,
                 "Storage returned a pending file scan target without a read URL."
             );
         }
@@ -123,7 +123,7 @@ public class StorageClient : IStorageClient
             using (blobResponse)
             {
                 throw new PlatformHttpException(
-                    blobResponse,
+                    blobResponse.StatusCode,
                     $"Unexpected response {(int)blobResponse.StatusCode} when downloading the blob to scan."
                 );
             }
@@ -139,11 +139,14 @@ public class StorageClient : IStorageClient
         try
         {
             return JsonSerializer.Deserialize<T>(responseBody, _jsonOptions)
-                ?? throw new PlatformHttpException(response, "Storage returned an empty response.");
+                ?? throw new PlatformHttpException(response.StatusCode, "Storage returned an empty response.");
         }
         catch (JsonException exception)
         {
-            throw new PlatformHttpException(response, $"Storage returned an unexpected response: {exception.Message}");
+            throw new PlatformHttpException(
+                response.StatusCode,
+                $"Storage returned an unexpected response: {exception.Message}"
+            );
         }
     }
 

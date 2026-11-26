@@ -241,7 +241,7 @@ public class DataElementServiceTests
         Mock<IStorageClient> storageClient = new();
         storageClient
             .Setup(s => s.GetBlobToScan(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ThrowsAsync(new PlatformHttpException(new HttpResponseMessage(HttpStatusCode.NotFound), "404"));
+            .ThrowsAsync(new PlatformHttpException(HttpStatusCode.NotFound, "404"));
         Mock<IMuescheliClient> muescheliClient = new(MockBehavior.Strict);
 
         DataElementService sut = SetUpTestService(muescheliClient.Object, storageClient.Object);
@@ -251,7 +251,7 @@ public class DataElementServiceTests
 
         // Assert
         PlatformHttpException exception = await Assert.ThrowsAsync<PlatformHttpException>(Act);
-        Assert.Equal(HttpStatusCode.NotFound, exception.Response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
     }
 
     /// <summary>
