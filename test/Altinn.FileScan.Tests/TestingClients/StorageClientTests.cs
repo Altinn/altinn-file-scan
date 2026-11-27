@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -94,7 +95,8 @@ public class StorageClientTests
     /// <summary>
     /// Scenario: Storage doesn't give a decision, for example because the endpoint doesn't exist yet.
     /// Expected result: This is an error, never a reason to skip the scan.
-    /// Success criteria: A PlatformHttpException is thrown and nothing is downloaded.
+    /// Success criteria: A PlatformHttpException is thrown and nothing is downloaded. The exception doesn't show the
+    /// platform access token.
     /// </summary>
     [Theory]
     [InlineData(HttpStatusCode.NotFound)]
@@ -104,7 +106,11 @@ public class StorageClientTests
     {
         // Arrange
         StubHandler blobs = new(_ => Blob(HttpStatusCode.OK));
-        StorageClient sut = SetupTestService(new StubHandler(_ => new HttpResponseMessage(statusCode)), blobs);
+        StorageClient sut = SetupTestService(
+            new StubHandler(_ => new HttpResponseMessage(statusCode)),
+            blobs,
+            "file-scan-token"
+        );
 
         // Act
         Task Act() => sut.GetBlobToScan("1337/instance", "element", "version");
@@ -112,6 +118,7 @@ public class StorageClientTests
         // Assert
         PlatformHttpException exception = await Assert.ThrowsAsync<PlatformHttpException>(Act);
         Assert.Equal(statusCode, exception.StatusCode);
+        AssertExposesNone(exception, "file-scan-token");
         Assert.Empty(blobs.Requests);
     }
 
@@ -145,7 +152,8 @@ public class StorageClientTests
     /// Scenario: The read URL is refused, or there is no blob behind it, for example because it expired or the
     /// data element was deleted after Storage issued it.
     /// Expected result: The request fails, so it is retried and Storage decides again.
-    /// Success criteria: A PlatformHttpException with the download's status is thrown.
+    /// Success criteria: A PlatformHttpException with the download's status is thrown, and it doesn't hold or
+    /// show the read URL.
     /// </summary>
     [Theory]
     [InlineData(HttpStatusCode.NotFound)]
@@ -164,6 +172,7 @@ public class StorageClientTests
         // Assert
         PlatformHttpException exception = await Assert.ThrowsAsync<PlatformHttpException>(Act);
         Assert.Equal(statusCode, exception.StatusCode);
+        AssertExposesNone(exception, _readUrl, "sig=secret");
     }
 
     public static TheoryData<FileScanStatusOutcome> FileScanStatusOutcomes =>
@@ -225,7 +234,35 @@ public class StorageClientTests
             );
 
         // Assert
-        await Assert.ThrowsAsync<PlatformHttpException>(Act);
+        PlatformHttpException exception = await Assert.ThrowsAsync<PlatformHttpException>(Act);
+        Assert.Equal(statusCode, exception.StatusCode);
+    }
+
+    /// <summary>
+    /// Fails if the exception holds the HTTP request or response, or shows any of the secrets through a property
+    /// or <see cref="Exception.ToString"/>. A log of the exception, or of one of its properties, must not leak the
+    /// read URL or the platform access token.
+    /// </summary>
+    private static void AssertExposesNone(Exception exception, params string[] secrets)
+    {
+        foreach (PropertyInfo property in exception.GetType().GetProperties())
+        {
+            Assert.False(
+                property.PropertyType.IsAssignableTo(typeof(HttpResponseMessage))
+                    || property.PropertyType.IsAssignableTo(typeof(HttpRequestMessage)),
+                $"{property.Name} holds the HTTP request or response."
+            );
+            object? value = property.GetValue(exception);
+            foreach (string secret in secrets)
+            {
+                Assert.DoesNotContain(secret, value?.ToString() ?? string.Empty);
+            }
+        }
+
+        foreach (string secret in secrets)
+        {
+            Assert.DoesNotContain(secret, exception.ToString());
+        }
     }
 
     private static HttpResponseMessage Json(string body) =>
