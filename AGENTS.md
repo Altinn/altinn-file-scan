@@ -9,7 +9,7 @@ Altinn FileScan is the platform component that performs asynchronous malware sca
 - .NET 10 throughout
 - ASP.NET Core Web API (`Altinn.FileScan`) — the scanning REST API
 - Azure Functions isolated worker, v4 (`Altinn.FileScan.Functions`) — the queue trigger that feeds the API
-- Azure Blob Storage for reading app-owner file payloads; Azure Storage Queues (Azurite locally) for the inbound queue
+- Short-lived read URLs from Altinn Storage for reading file payloads over plain HTTP; Azure Storage Queues (Azurite locally) for the inbound queue
 - [Muescheli](https://github.com/Altinn/muescheli) — a ClamAV wrapper the API calls over HTTP to do the actual scan
 - Azure Key Vault (`DefaultAzureCredential`) for certificates/secrets; client-certificate-based platform access tokens via `Altinn.Common.AccessToken`/`AccessTokenClient`
 - JWT cookie authentication (`AltinnCore.Authentication.JwtCookie`) with an `AccessTokenRequirement` authorization handler
@@ -24,8 +24,7 @@ Solution file: `Altinn.FileScan.sln` (classic format — use the `dotnet` CLI or
 ### `src/Altinn.FileScan/` — the scanning Web API
 - `Controllers/` — `DataElementController`, the single endpoint `POST filescan/api/v1/dataelement` (guarded by the `PlatformAccess` policy)
 - `Services/` — business logic. `DataElementService` orchestrates the whole scan flow. Also token/Key Vault services (`AccessTokenService`, `AppOwnerKeyVaultService`, `PlatformKeyVaultService`)
-- `Clients/` — HTTP clients to external services: `MuescheliClient` (the scanner) and `StorageClient` (Altinn Storage callback)
-- `Repository/` — `AppOwnerBlobRepository` / `BlobContainerClientProvider` for reading blobs from the app owner's storage account
+- `Clients/` — HTTP clients to external services: `MuescheliClient` (the scanner) and `StorageClient` (Altinn Storage: gets the blob to scan, downloading it through a short-lived read URL with a separate `HttpClient` that doesn't log, and sends the scan result)
 - `Models/`, `Configuration/`, `Exceptions/`, `Health/`, `Telemetry/`, `Extensions/`
 - `Program.cs` — top-level statements; all DI, auth, telemetry, and Swagger wiring lives here
 
@@ -42,10 +41,9 @@ Solution file: `Altinn.FileScan.sln` (classic format — use the `dotnet` CLI or
 
 ### End-to-end flow
 Storage enqueues a scan request → **Functions** `FileScanInbound` dequeues it and `FileScanClient` POSTs it to the **API** → `DataElementController` → `DataElementService.Scan`:
-1. read blob properties from the app-owner blob store (`AppOwnerBlobRepository`);
-2. abort if the blob's last-modified timestamp doesn't match the request (or skip if neither blob nor data element exists);
-3. stream the blob to Muescheli (`MuescheliClient.ScanStream`);
-4. map `ScanResult` → `FileScanResult` and PATCH the status back to Storage (`StorageClient.PatchFileScanStatus`).
+1. get the blob for the request's blob version from Storage (`StorageClient.GetBlobToScan`). Storage answers `200` with a string status; anything but `pending` (`superseded`, `notPending`, `deleted`) skips the scan. Any other response, or a failed download, throws so the message is retried. FileScan has no access to any storage account itself;
+2. stream the blob to Muescheli (`MuescheliClient.ScanStream`);
+3. map `ScanResult` → `FileScanResult` and PUT the status back to Storage with the blob version (`StorageClient.PatchFileScanStatus`), which answers whether it was set (`updated`, `superseded`, `deleted`).
 
 ## Development Commands
 
@@ -76,4 +74,4 @@ CI (`.github/workflows/build-and-analyze.yml`) runs `dotnet build` + `dotnet tes
 
 - Tests use **xUnit** with **Moq**; follow the Arrange / Act / Assert layout and mirror the source folder structure.
 - API controller tests are integration tests over `WebApplicationFactory<T>`; authentication is faked via `JwtCookiePostConfigureOptionsStub` and `PublicSigningKeyProviderMock`, and tokens are minted with `PrincipalUtil` / `JwtTokenMock`. No external services or Azurite are needed — dependencies are mocked and injected through `ConfigureTestServices`.
-- Mock external dependencies (blob repository, HTTP clients) with `Moq` rather than hitting real infrastructure.
+- Mock external dependencies (HTTP clients) with `Moq` rather than hitting real infrastructure.

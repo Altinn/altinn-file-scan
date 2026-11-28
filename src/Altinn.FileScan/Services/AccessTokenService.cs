@@ -3,64 +3,42 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Altinn.Common.AccessTokenClient.Configuration;
 using Altinn.Common.AccessTokenClient.Services;
 using Altinn.FileScan.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace Altinn.FileScan.Services;
 
 /// <summary>
 /// Implementation of the <see cref="IAccessToken"/> using key vault to retrieve sertificates and generating token
 /// </summary>
-public class AccessTokenService : IAccessToken
+public class AccessTokenService(
+    IPlatformKeyVault keyVault,
+    IAccessTokenGenerator accessTokenGenerator,
+    IMemoryCache cache
+) : IAccessToken
 {
-    private readonly IPlatformKeyVault _keyVault;
-    private readonly IAccessTokenGenerator _accessTokenGenerator;
-    private readonly IMemoryCache _cache;
-    private readonly MemoryCacheEntryOptions _cacheOptions;
-
     private const string CertId = "platform-access-token-private-cert";
+    private const string CertificateCacheKey = "platform-access-token-private-cert";
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AccessTokenService"/> class.
-    /// </summary>
-    public AccessTokenService(
-        IPlatformKeyVault keyVault,
-        IAccessTokenGenerator accessTokenGenerator,
-        IMemoryCache cache,
-        IOptions<AccessTokenSettings> settings
-    )
-    {
-        _keyVault = keyVault;
-        _accessTokenGenerator = accessTokenGenerator;
-        _cache = cache;
-
-        _cacheOptions = new()
-        {
-            AbsoluteExpiration = new DateTimeOffset(DateTime.Now.AddSeconds(settings.Value.TokenLifetimeInSeconds - 2)),
-        };
-    }
+    // The generator caches each token for nearly its lifetime, so only the certificate is cached here;
+    // caching the token as well could hand out a token the generator created close to its expiry.
+    private static readonly TimeSpan _certificateCacheLifetime = TimeSpan.FromHours(1);
 
     /// <summary>
     /// Generates an access token with issuer `platform` and app `file-scan`
     /// </summary>
     public async Task<string> Generate()
     {
-        var accessTokenCacheKey = "accesstoken-platform-file-scan";
-
-        if (_cache.TryGetValue(accessTokenCacheKey, out string accessToken))
+        if (!cache.TryGetValue(CertificateCacheKey, out X509Certificate2 certificate))
         {
-            return accessToken;
+            certificate = await keyVault.GetCertificateAsync(CertId);
+            if (certificate is not null)
+            {
+                cache.Set(CertificateCacheKey, certificate, _certificateCacheLifetime);
+            }
         }
 
-        X509Certificate2 certificate = await _keyVault.GetCertificateAsync(CertId);
-
-        accessToken = _accessTokenGenerator.GenerateAccessToken("platform", "file-scan", certificate);
-
-        _cache.Set(accessTokenCacheKey, accessToken, _cacheOptions);
-
-        return accessToken;
+        return accessTokenGenerator.GenerateAccessToken("platform", "file-scan", certificate);
     }
 }
